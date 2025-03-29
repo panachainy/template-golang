@@ -1,0 +1,16 @@
+{
+    "cSpell.words": [
+        "attributevalue",
+        "Debugf",
+        "dynamodbattribute",
+        "errorhandler",
+        "gomock",
+        "gorm",
+        "Infof",
+        "Infoln",
+        "logrus",
+        "logx",
+        "sirupsen",
+        "Warnf"
+    ]
+}

@@ -1,0 +1,42 @@
+name: Build Docker Image
+on:
+  push:
+    branches:
+      - dev
+# env:
+  # AWS_REGION: ${{ vars.AWS_REGION }}
+
+jobs:
+  branch_check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Some check on branch
+        id: branch_check
+        run: |
+          echo "Running on branch ${{ github.ref }}"
+          if [ "${{ github.event.action }}" = "published" ]; then
+            echo version=$(echo "${{ github.event.release.tag_name }}" | tr -d 'v') >> $GITHUB_OUTPUT
+          else
+            echo "version=latest" >> $GITHUB_OUTPUT
+          fi
+      - name: Echo version
+        run: |
+          echo "Version ${{ steps.branch_check.outputs.version }}"
+    outputs:
+      version: ${{ steps.branch_check.outputs.version }}
+
+  build_docker_images:
+    needs:
+      - branch_check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build docker image
+        env:
+          FULL_IMAGE_REGISTRY: example
+        run: |
+          docker build -t $FULL_IMAGE_REGISTRY .

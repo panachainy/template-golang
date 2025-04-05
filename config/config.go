@@ -20,7 +20,7 @@ type (
 	Db struct {
 		Host     string
 		Port     int
-		User     string
+		UserName string
 		Password string
 		DBName   string
 		SSLMode  string

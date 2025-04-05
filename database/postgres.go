@@ -23,7 +23,7 @@ func NewPostgresDatabase(conf *config.Config) Database {
 		dsn := fmt.Sprintf(
 			"host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=%s",
 			conf.Db.Host,
-			conf.Db.User,
+			conf.Db.UserName,
 			conf.Db.Password,
 			conf.Db.DBName,
 			conf.Db.Port,
@@ -43,5 +43,5 @@ func NewPostgresDatabase(conf *config.Config) Database {
 }
 
 func (p *postgresDatabase) GetDb() *gorm.DB {
-	return dbInstance.Db.DB
+	return dbInstance.Db
 }

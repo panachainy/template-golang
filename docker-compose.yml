@@ -2,13 +2,13 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:17.4
+    image: postgres:17.4-alpine
     container_name: postgres
     restart: always
     environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_DB: ${DB_DBNAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:

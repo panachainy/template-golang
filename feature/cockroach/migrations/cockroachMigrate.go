@@ -6,6 +6,7 @@ import (
 	"template-golang/feature/cockroach/entities"
 )
 
+// TODO: migrate to API
 func main() {
 	conf := config.GetConfig()
 	db := database.NewPostgresDatabase(conf)

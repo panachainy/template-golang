@@ -71,10 +71,7 @@ func GetConfig() *Config {
 			panic(fmt.Errorf("unable to decode into struct: %v", err))
 		}
 
-		fmt.Println("=================================")
-		fmt.Printf("1. Config loaded successfully %+v\n", _config.Db)
-		fmt.Printf("2. Config loaded successfully %+v\n", _config.Server)
-		fmt.Printf("3. Config loaded successfully %+v\n", _config)
+		fmt.Println("Config loaded successfully")
 	})
 
 	return _config

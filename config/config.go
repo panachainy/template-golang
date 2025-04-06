@@ -43,7 +43,7 @@ func GetConfig() *Config {
 		viper.SetConfigType("yaml")
 		viper.AddConfigPath(".")
 		if err := viper.MergeInConfig(); err != nil {
-			panic(err)
+			fmt.Printf("Error loading config.yaml file: %v\n", err)
 		}
 
 		// Load .env file

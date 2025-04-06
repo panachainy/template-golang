@@ -9,7 +9,7 @@
 - [x] Docker
 - [x] Gorm
 - [ ] Unit Test
-- [ ] Wire
+- [ ] Wire [need to refactor all code to wire]
 - [ ] Mock
 - [ ] Swagger
 - [ ] Redis

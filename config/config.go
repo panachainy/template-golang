@@ -31,7 +31,11 @@ type (
 
 var (
 	_once   sync.Once
-	_config *Config
+	_config = &Config{
+		Server: ServerConfig{
+			Port: 8083,
+		},
+	}
 )
 
 func GetConfig() *Config {

@@ -51,8 +51,10 @@ func GetConfig() *Config {
 		// Set the configuration file type
 		viper.SetConfigType("env")
 		viper.AddConfigPath(".")
-		if err := viper.MergeInConfig(); err != nil {
-			fmt.Printf("Error loading .env file: %v\n", err)
+
+		// Read the configuration file
+		if err := viper.ReadInConfig(); err != nil {
+			fmt.Printf("Fatal error loading config file: %s\n", err)
 		}
 
 		// Load environment variables

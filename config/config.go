@@ -47,6 +47,7 @@ func GetConfig() *Config {
 
 		// Load .env file
 		viper.SetConfigName(".env")
+		// Set the configuration file type
 		viper.SetConfigType("env")
 		viper.AddConfigPath(".")
 		if err := viper.MergeInConfig(); err != nil {

@@ -67,8 +67,9 @@ func GetConfig() *Config {
 			fmt.Printf("Key: %s, Value: %v\n", key, viper.Get(key))
 		}
 		fmt.Println("=================================")
-		fmt.Printf("Config loaded successfully %+v\n", _config.Db)
-		fmt.Printf("Config loaded successfully %+v\n", _config.Server)
+		fmt.Printf("1. Config loaded successfully %+v\n", _config.Db)
+		fmt.Printf("2. Config loaded successfully %+v\n", _config.Server)
+		fmt.Printf("3. Config loaded successfully %+v\n", _config)
 	})
 
 	return _config

@@ -27,29 +27,15 @@ type (
 		SSLMode  string
 		TimeZone string
 	}
-
-	// Server struct {
-	// 	Port int `mapstructure:"SERVER_PORT"`
-	// }
-
-	// Db struct {
-	// 	Host     string `mapstructure:"DB_HOST"`
-	// 	Port     int    `mapstructure:"DB_PORT"`
-	// 	UserName string `mapstructure:"DB_USERNAME"`
-	// 	Password string `mapstructure:"DB_PASSWORD"`
-	// 	DBName   string `mapstructure:"DB_DBNAME"`
-	// 	SSLMode  string `mapstructure:"DB_SSLMODE"`
-	// 	TimeZone string `mapstructure:"DB_TIMEZONE"`
-	// }
 )
 
 var (
-	once           sync.Once
-	configInstance *Config
+	_once   sync.Once
+	_config *Config
 )
 
 func GetConfig() *Config {
-	once.Do(func() {
+	_once.Do(func() {
 		viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 		// Load config.yaml
@@ -71,7 +57,7 @@ func GetConfig() *Config {
 		// Load environment variables
 		viper.AutomaticEnv()
 
-		if err := viper.Unmarshal(&configInstance); err != nil {
+		if err := viper.Unmarshal(&_config); err != nil {
 			panic(err)
 		}
 
@@ -81,5 +67,5 @@ func GetConfig() *Config {
 		}
 	})
 
-	return configInstance
+	return _config
 }

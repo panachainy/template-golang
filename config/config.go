@@ -37,7 +37,8 @@ var (
 			Port: 8083,
 		},
 		Db: DbConfig{
-			Host: "localhost",
+			Host:    "localhost",
+			SSLMode: "disable",
 		},
 	}
 )
@@ -45,6 +46,9 @@ var (
 func GetConfig() *Config {
 	_once.Do(func() {
 		viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+
+		// Automatically override default values with environment variables
+		viper.AutomaticEnv()
 
 		// Load .env file
 		viper.SetConfigName(".env")
@@ -56,9 +60,6 @@ func GetConfig() *Config {
 		if err := viper.ReadInConfig(); err != nil {
 			fmt.Printf("Fatal error loading config file: %s\n", err)
 		}
-
-		// Automatically override default values with environment variables
-		viper.AutomaticEnv()
 
 		// Unmarshal the configuration into the Config struct
 		if err := viper.Unmarshal(&_config); err != nil {

@@ -5,6 +5,11 @@ import (
 	"template-golang/config"
 	"template-golang/database"
 
+	cockroachHandlers "template-golang/features/cockroach/handlers"
+
+	cockroachRepositories "template-golang/features/cockroach/repositories"
+	cockroachUsecases "template-golang/features/cockroach/usecases"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
@@ -42,6 +47,18 @@ func (s *echoServer) Start() {
 }
 
 func (s *echoServer) initializeCockroachHttpHandler() {
-	// TODO: I think should be use wire instead.
+	// Initialize all layers
+	cockroachPostgresRepository := cockroachRepositories.NewCockroachPostgresRepository(s.db)
+	cockroachFCMMessaging := cockroachRepositories.NewCockroachFCMMessaging()
 
+	cockroachUsecase := cockroachUsecases.NewCockroachUsecaseImpl(
+		cockroachPostgresRepository,
+		cockroachFCMMessaging,
+	)
+
+	cockroachHttpHandler := cockroachHandlers.NewCockroachHttpHandler(cockroachUsecase)
+
+	// Routers
+	cockroachRouters := s.app.Group("v1/cockroach")
+	cockroachRouters.POST("", cockroachHttpHandler.DetectCockroach)
 }

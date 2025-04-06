@@ -34,11 +34,16 @@ var (
 	_once   sync.Once
 	_config = &Config{
 		Server: ServerConfig{
-			Port: 8083,
+			Port: 8080,
 		},
 		Db: DbConfig{
-			Host:    "localhost",
-			SSLMode: "disable",
+			Host:     "0.0.0.0",
+			Port:     5432,
+			UserName: "postgres",
+			Password: "postgres",
+			DBName:   "postgres",
+			SSLMode:  "disable",
+			TimeZone: "Asia/Bangkok",
 		},
 	}
 )
@@ -66,11 +71,6 @@ func GetConfig() *Config {
 			panic(fmt.Errorf("unable to decode into struct: %v", err))
 		}
 
-		fmt.Println("=================================")
-
-		for _, key := range viper.AllKeys() {
-			fmt.Printf("Key: %s, Value: %v\n", key, viper.Get(key))
-		}
 		fmt.Println("=================================")
 		fmt.Printf("1. Config loaded successfully %+v\n", _config.Db)
 		fmt.Printf("2. Config loaded successfully %+v\n", _config.Server)

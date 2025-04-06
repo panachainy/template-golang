@@ -32,7 +32,7 @@ type (
 var (
 	_once   sync.Once
 	_config = &Config{
-		Server: ServerConfig{
+		Server: &Server{
 			Port: 8083,
 		},
 	}

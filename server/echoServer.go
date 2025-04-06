@@ -5,10 +5,9 @@ import (
 	"template-golang/config"
 	"template-golang/database"
 
-	cockroachHandlers "template-golang/features/cockroach/handlers"
-
-	cockroachRepositories "template-golang/features/cockroach/repositories"
-	cockroachUsecases "template-golang/features/cockroach/usecases"
+	cockroachHandlers "template-golang/feature/cockroach/handlers"
+	cockroachRepositories "template-golang/feature/cockroach/repositories"
+	cockroachUsecases "template-golang/feature/cockroach/usecases"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"

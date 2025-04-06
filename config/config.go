@@ -60,7 +60,8 @@ func GetConfig() *Config {
 		}
 
 		// Load .env file
-		viper.SetConfigFile(".env")
+		viper.SetConfigName(".env")
+		viper.SetConfigType("env")
 		viper.AddConfigPath(".")
 		if err := viper.MergeInConfig(); err != nil {
 			fmt.Printf("No .env file found: %v\n", err)

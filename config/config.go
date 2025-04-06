@@ -42,14 +42,6 @@ func GetConfig() *Config {
 	_once.Do(func() {
 		viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
-		// Load config.yaml
-		viper.SetConfigName("config")
-		viper.SetConfigType("yaml")
-		viper.AddConfigPath(".")
-		if err := viper.MergeInConfig(); err != nil {
-			fmt.Printf("Error loading config.yaml file: %v\n", err)
-		}
-
 		// Load .env file
 		viper.SetConfigName(".env")
 		viper.SetConfigType("env")

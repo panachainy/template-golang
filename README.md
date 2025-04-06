@@ -13,6 +13,7 @@
 - [ ] Mock
 - [ ] Swagger
 - [ ] Redis
+- [ ] [Validator](https://github.com/go-playground/validator)
 
 ## Design pattern
 

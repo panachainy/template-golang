@@ -62,7 +62,7 @@ func GetConfig() *Config {
 
 		// Unmarshal the configuration into the Config struct
 		if err := viper.Unmarshal(&_config); err != nil {
-			panic(err)
+			panic(fmt.Errorf("unable to decode into struct: %v", err))
 		}
 
 		fmt.Println("=================================")

@@ -10,6 +10,7 @@ import (
 
 type (
 	Config struct {
+		// Note: The mapstructure:",squash" tag ensures that nested fields are treated as top-level environment variables.
 		Server ServerConfig `mapstructure:",squash"`
 		Db     DbConfig     `mapstructure:",squash"`
 	}

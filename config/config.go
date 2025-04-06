@@ -50,11 +50,12 @@ var (
 
 func GetConfig() *Config {
 	once.Do(func() {
+		viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+
 		// Load config.yaml
 		viper.SetConfigName("config")
 		viper.SetConfigType("yaml")
 		viper.AddConfigPath(".")
-		viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 		if err := viper.MergeInConfig(); err != nil {
 			panic(err)
 		}
@@ -64,9 +65,10 @@ func GetConfig() *Config {
 		viper.SetConfigType("env")
 		viper.AddConfigPath(".")
 		if err := viper.MergeInConfig(); err != nil {
-			fmt.Printf("No .env file found: %v\n", err)
+			fmt.Printf("Error loading .env file: %v\n", err)
 		}
 
+		// Load environment variables
 		viper.AutomaticEnv()
 
 		if err := viper.Unmarshal(&configInstance); err != nil {

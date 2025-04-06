@@ -60,6 +60,7 @@ func GetConfig() *Config {
 		// Automatically override default values with environment variables
 		viper.AutomaticEnv()
 
+		// Unmarshal the configuration into the Config struct
 		if err := viper.Unmarshal(&_config); err != nil {
 			panic(err)
 		}

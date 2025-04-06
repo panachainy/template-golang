@@ -31,7 +31,7 @@ func (s *echoServer) Start() {
 	s.app.Use(middleware.Recover())
 	s.app.Use(middleware.Logger())
 
-	s.app.GET("v1/health", func(c echo.Context) error {
+	s.app.GET("v1/healthz", func(c echo.Context) error {
 		return c.String(200, "OK")
 	})
 

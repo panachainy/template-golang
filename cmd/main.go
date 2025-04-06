@@ -2,11 +2,12 @@ package main
 
 import (
 	"template-golang/config"
+	"template-golang/database"
+	"template-golang/server"
 )
 
 func main() {
 	conf := config.GetConfig()
-	print(conf)
-	// db := database.NewPostgresDatabase(conf)
-	// server.NewEchoServer(conf, db).Start()
+	db := database.NewPostgresDatabase(conf)
+	server.NewEchoServer(conf, db).Start()
 }

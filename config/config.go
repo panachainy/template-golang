@@ -48,6 +48,8 @@ func GetConfig() *Config {
 		if err := viper.Unmarshal(&configInstance); err != nil {
 			panic(err)
 		}
+
+		print("Config loaded successfully")
 	})
 
 	return configInstance

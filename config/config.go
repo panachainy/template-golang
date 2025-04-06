@@ -61,10 +61,14 @@ func GetConfig() *Config {
 			panic(err)
 		}
 
-		fmt.Printf("Config loaded successfully %+v\n", viper.AllKeys())
+		fmt.Println("=================================")
+
 		for _, key := range viper.AllKeys() {
 			fmt.Printf("Key: %s, Value: %v\n", key, viper.Get(key))
 		}
+		fmt.Println("=================================")
+		fmt.Printf("Config loaded successfully %+v\n", _config.Db)
+		fmt.Printf("Config loaded successfully %+v\n", _config.Server)
 	})
 
 	return _config

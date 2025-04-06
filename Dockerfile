@@ -22,7 +22,8 @@ FROM public.ecr.aws/docker/library/alpine:3.21.2
 # Copy binary and config files from /build
 # to root folder of scratch container.
 COPY --from=builder ["/build/apiserver", "/"]
-COPY --from=builder ["/build/cert.pem", "/"]
+## for AWS rds certificate
+# COPY --from=builder ["/build/cert.pem", "/"]
 
 # Export necessary port.
 EXPOSE 8080

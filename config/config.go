@@ -57,7 +57,7 @@ func GetConfig() *Config {
 			fmt.Printf("Fatal error loading config file: %s\n", err)
 		}
 
-		// Load environment variables
+		// Automatically override default values with environment variables
 		viper.AutomaticEnv()
 
 		if err := viper.Unmarshal(&_config); err != nil {

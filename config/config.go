@@ -10,30 +10,33 @@ import (
 
 type (
 	Config struct {
-		Server *Server
-		Db     *Db
+		Server ServerConfig `mapstructure:",squash"`
+		Db     DbConfig     `mapstructure:",squash"`
 	}
 
-	Server struct {
-		Port int
+	ServerConfig struct {
+		Port int `mapstructure:"SERVER_PORT"`
 	}
 
-	Db struct {
-		Host     string
-		Port     int
-		UserName string
-		Password string
-		DBName   string
-		SSLMode  string
-		TimeZone string
+	DbConfig struct {
+		Host     string `mapstructure:"DB_HOST"`
+		Port     int    `mapstructure:"DB_PORT"`
+		UserName string `mapstructure:"DB_USERNAME"`
+		Password string `mapstructure:"DB_PASSWORD"`
+		DBName   string `mapstructure:"DB_DBNAME"`
+		SSLMode  string `mapstructure:"DB_SSLMODE"`
+		TimeZone string `mapstructure:"DB_TIMEZONE"`
 	}
 )
 
 var (
 	_once   sync.Once
 	_config = &Config{
-		Server: &Server{
+		Server: ServerConfig{
 			Port: 8083,
+		},
+		Db: DbConfig{
+			Host: "localhost",
 		},
 	}
 )

@@ -36,3 +36,6 @@ generate:
 b: build
 build:
 	go build -o apiserver ./cmd
+
+migrate:
+	go run ./modules/cockroach/migrations/cockroachMigrate.go

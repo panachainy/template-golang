@@ -1,3 +1,11 @@
 ### HealthZ
 
 curl http://localhost:8080/v1/healthz
+
+### v1/cockroach
+
+curl --location 'http://localhost:8080/v1/cockroach' \
+--header 'Content-Type: application/json' \
+--data '{
+    "amount": 3
+}'

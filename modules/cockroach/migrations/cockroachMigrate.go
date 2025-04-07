@@ -3,7 +3,7 @@ package main
 import (
 	"template-golang/config"
 	"template-golang/database"
-	"template-golang/feature/cockroach/entities"
+	"template-golang/modules/cockroach/entities"
 )
 
 // TODO: migrate to API

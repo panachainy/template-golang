@@ -1,6 +1,6 @@
 package usecases
 
-import "template-golang/feature/cockroach/models"
+import "template-golang/modules/cockroach/models"
 
 type CockroachUsecase interface {
 	CockroachDataProcessing(in *models.AddCockroachData) error

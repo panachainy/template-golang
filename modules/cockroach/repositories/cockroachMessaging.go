@@ -1,6 +1,6 @@
 package repositories
 
-import "template-golang/feature/cockroach/entities"
+import "template-golang/modules/cockroach/entities"
 
 type CockroachMessaging interface {
 	PushNotification(m *entities.CockroachPushNotificationDto) error

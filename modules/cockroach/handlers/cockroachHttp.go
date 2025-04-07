@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"net/http"
-	"template-golang/feature/cockroach/models"
-	"template-golang/feature/cockroach/usecases"
+	"template-golang/modules/cockroach/models"
+	"template-golang/modules/cockroach/usecases"
 
 	"github.com/labstack/echo/v4"
 

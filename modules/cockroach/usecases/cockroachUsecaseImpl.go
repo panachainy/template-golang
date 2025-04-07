@@ -1,9 +1,9 @@
 package usecases
 
 import (
-	"template-golang/feature/cockroach/entities"
-	"template-golang/feature/cockroach/models"
-	"template-golang/feature/cockroach/repositories"
+	"template-golang/modules/cockroach/entities"
+	"template-golang/modules/cockroach/models"
+	"template-golang/modules/cockroach/repositories"
 	"time"
 )
 

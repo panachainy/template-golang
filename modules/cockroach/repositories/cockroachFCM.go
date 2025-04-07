@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"template-golang/feature/cockroach/entities"
+	"template-golang/modules/cockroach/entities"
 
 	"github.com/labstack/gommon/log"
 )

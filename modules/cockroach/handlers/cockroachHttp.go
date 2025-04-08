@@ -4,10 +4,9 @@ import (
 	"net/http"
 	"template-golang/modules/cockroach/models"
 	"template-golang/modules/cockroach/usecases"
+	"template-golang/modules/request"
 
 	"github.com/labstack/echo/v4"
-
-	"github.com/labstack/gommon/log"
 )
 
 type cockroachHttpHandler struct {
@@ -23,9 +22,13 @@ func NewCockroachHttpHandler(cockroachUsecase usecases.CockroachUsecase) Cockroa
 func (h *cockroachHttpHandler) DetectCockroach(c echo.Context) error {
 	reqBody := new(models.AddCockroachData)
 
-	if err := c.Bind(reqBody); err != nil {
-		log.Errorf("Error binding request body: %v", err)
-		return response(c, http.StatusBadRequest, "Bad request")
+	wrapper := request.ContextWrapper(c)
+
+	if err := wrapper.Bind(reqBody); err != nil {
+		return c.JSON(
+			http.StatusBadRequest,
+			map[string]string{"message": err.Error()},
+		)
 	}
 
 	if err := h.cockroachUsecase.CockroachDataProcessing(reqBody); err != nil {

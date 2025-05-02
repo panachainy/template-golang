@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"net/http"
 	"template-golang/config"
 	"template-golang/database"
 
@@ -9,55 +10,43 @@ import (
 	cockroachRepositories "template-golang/modules/cockroach/repositories"
 	cockroachUsecases "template-golang/modules/cockroach/usecases"
 
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
-	"github.com/labstack/gommon/log"
+	"github.com/gin-gonic/gin"
 )
 
-type echoServer struct {
-	app  *echo.Echo
-	db   database.Database
-	conf *config.Config
+type ginServer struct {
+	router *gin.Engine
+	db     database.Database
+	conf   *config.Config
 }
 
-func NewEchoServer(conf *config.Config, db database.Database) Server {
-	echoApp := echo.New()
-	echoApp.Logger.SetLevel(log.DEBUG)
-
-	return &echoServer{
-		app:  echoApp,
-		db:   db,
-		conf: conf,
+func NewGinServer(conf *config.Config, db database.Database) Server {
+	router := gin.Default()
+	return &ginServer{
+		router: router,
+		db:     db,
+		conf:   conf,
 	}
 }
 
-func (s *echoServer) Start() {
-	s.app.Use(middleware.Recover())
-	s.app.Use(middleware.Logger())
-
-	s.app.GET("/v1/healthz", func(c echo.Context) error {
-		return c.String(200, "OK")
+func (s *ginServer) Start() {
+	s.router.GET("/v1/healthz", func(c *gin.Context) {
+		c.String(http.StatusOK, "OK")
 	})
-
 	s.initializeCockroachHttpHandler()
 
 	serverUrl := fmt.Sprintf(":%d", s.conf.Server.Port)
-	s.app.Logger.Fatal(s.app.Start(serverUrl))
+	s.router.Run(serverUrl)
 }
 
-func (s *echoServer) initializeCockroachHttpHandler() {
-	// Initialize all layers
+func (s *ginServer) initializeCockroachHttpHandler() {
 	cockroachPostgresRepository := cockroachRepositories.NewCockroachPostgresRepository(s.db)
 	cockroachFCMMessaging := cockroachRepositories.NewCockroachFCMMessaging()
-
 	cockroachUsecase := cockroachUsecases.NewCockroachUsecaseImpl(
 		cockroachPostgresRepository,
 		cockroachFCMMessaging,
 	)
-
 	cockroachHttpHandler := cockroachHandlers.NewCockroachHttpHandler(cockroachUsecase)
 
-	// Routers
-	cockroachRouters := s.app.Group("v1/cockroach")
+	cockroachRouters := s.router.Group("/v1/cockroach")
 	cockroachRouters.POST("", cockroachHttpHandler.DetectCockroach)
 }

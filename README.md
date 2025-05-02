@@ -8,10 +8,11 @@
 - [x] Viper config
 - [x] Docker
 - [x] Gorm
-- [ ] Unit Test
-- [ ] Wire [need to refactor all code to wire]
-- [ ] Mock
 - [ ] Swagger
+- [ ] Wire [need to refactor all code to wire]
+- [ ] Unit Test
+- [ ] Mock
+- [ ] Auth JWT
 - [ ] Redis
 - [ ] [Validator](https://github.com/go-playground/validator)
 

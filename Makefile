@@ -39,3 +39,11 @@ build:
 
 migrate:
 	go run ./modules/cockroach/migrations/cockroachMigrate.go
+
+# swagger
+
+# swag.init:
+# 	swag init
+
+# swag init -g http/api.go
+# swag fmt

@@ -42,8 +42,9 @@ migrate:
 
 # swagger
 
-# swag.init:
-# 	swag init
+swag.init:
+	# cd ./cmd && swag init
+	swag init -g cmd/main.go
 
 # swag init -g http/api.go
 # swag fmt

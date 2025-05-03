@@ -28,9 +28,10 @@ type ginServer struct {
 }
 
 func NewGinServer(conf *config.Config, db database.Database) Server {
-	router := gin.Default()
+	r := gin.Default()
+
 	return &ginServer{
-		router: router,
+		router: r,
 		db:     db,
 		conf:   conf,
 	}
@@ -51,11 +52,11 @@ func (s *ginServer) Start() {
 }
 
 func (s *ginServer) initSwagger() {
-	s.router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-
 	ginSwagger.WrapHandler(swaggerfiles.Handler,
 		ginSwagger.URL("http://localhost:8080/swagger/doc.json"),
 		ginSwagger.DefaultModelsExpandDepth(-1))
+
+	s.router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 }
 
 func (s *ginServer) initializeCockroachHttpHandler() {

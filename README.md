@@ -8,7 +8,7 @@
 - [x] Viper config
 - [x] Docker
 - [x] Gorm
-- [ ] Swagger
+- [X] [Swagger-Gin](https://github.com/swaggo/gin-swagger)
 - [ ] Wire [need to refactor all code to wire]
 - [ ] Unit Test
 - [ ] Mock

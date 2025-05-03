@@ -10,7 +10,8 @@ import (
 	cockroachRepositories "template-golang/modules/cockroach/repositories"
 	cockroachUsecases "template-golang/modules/cockroach/usecases"
 
-	// docs "template-golang/docs"
+	docs "template-golang/docs"
+
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
@@ -38,6 +39,8 @@ func NewGinServer(conf *config.Config, db database.Database) Server {
 }
 
 func (s *ginServer) Start() {
+	docs.SwaggerInfo.BasePath = apiV1Path
+
 	v1 := s.router.Group(apiV1Path)
 
 	v1.GET("/healthz", func(c *gin.Context) {

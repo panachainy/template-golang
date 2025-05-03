@@ -47,6 +47,6 @@ func (s *ginServer) initializeCockroachHttpHandler() {
 	)
 	cockroachHttpHandler := cockroachHandlers.NewCockroachHttpHandler(cockroachUsecase)
 
-	cockroachRouters := s.router.Group("/v1/cockroach")
-	cockroachRouters.POST("", cockroachHttpHandler.DetectCockroach)
+	cRouters := s.router.Group("/v1/cockroach")
+	cRouters.POST("", cockroachHttpHandler.DetectCockroach)
 }

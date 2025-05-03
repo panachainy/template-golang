@@ -18,7 +18,7 @@ func NewCockroachHttpHandler(cockroachUsecase usecases.CockroachUsecase) Cockroa
 	}
 }
 
-func (h *cockroachHttpHandler) DetectCockroach(c gin.Context) error {
+func (h *cockroachHttpHandler) DetectCockroach(c *gin.Context) {
 	reqBody := new(models.AddCockroachData)
 
 	if err := c.ShouldBindJSON(reqBody); err != nil {
@@ -26,14 +26,16 @@ func (h *cockroachHttpHandler) DetectCockroach(c gin.Context) error {
 			http.StatusBadRequest,
 			gin.H{"message": err.Error()},
 		)
-		return err
+		c.Error(err)
+		return
 	}
 
 	if err := h.cockroachUsecase.CockroachDataProcessing(reqBody); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Processing data failed"})
-		return err
+		c.Error(err)
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Success 🪳🪳🪳"})
-	return nil
+	return
 }

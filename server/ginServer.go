@@ -48,30 +48,30 @@ func (s *ginServer) Start() {
 	})
 
 	s.initializeCockroachHttpHandler()
-	s.initSwagger()
+	if gin.Mode() == gin.DebugMode {
+		s.initSwagger()
+	}
 
 	serverUrl := fmt.Sprintf(":%d", s.conf.Server.Port)
-
-	fmt.Printf("Mode: %v\n", gin.Mode())
-
-	if gin.Mode() == gin.DebugMode {
-		fmt.Println()
-		fmt.Printf("API URL: http://localhost:%d%s\n", s.conf.Server.Port, apiV1Path)
-
-		fmt.Printf("Swagger UI URL: http://localhost:%d/swagger/index.html\n", s.conf.Server.Port)
-		fmt.Printf("Swagger JSON URL: http://localhost:%d/swagger/doc.json\n", s.conf.Server.Port)
-		fmt.Println()
-	}
 
 	s.router.Run(serverUrl)
 }
 
 func (s *ginServer) initSwagger() {
+
 	ginSwagger.WrapHandler(swaggerfiles.Handler,
 		ginSwagger.URL("http://localhost:8080/swagger/doc.json"),
 		ginSwagger.DefaultModelsExpandDepth(-1))
 
 	s.router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+
+	// swagger info
+	fmt.Println()
+	fmt.Printf("API URL: http://localhost:%d%s\n", s.conf.Server.Port, apiV1Path)
+
+	fmt.Printf("Swagger UI URL: http://localhost:%d/swagger/index.html\n", s.conf.Server.Port)
+	fmt.Printf("Swagger JSON URL: http://localhost:%d/swagger/doc.json\n", s.conf.Server.Port)
+	fmt.Println()
 }
 
 func (s *ginServer) initializeCockroachHttpHandler() {

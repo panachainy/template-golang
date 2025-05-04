@@ -51,6 +51,20 @@ func (s *ginServer) Start() {
 	s.initSwagger()
 
 	serverUrl := fmt.Sprintf(":%d", s.conf.Server.Port)
+
+	fmt.Printf("Mode: %v\n", gin.Mode())
+
+	if gin.Mode() == gin.DebugMode {
+		fmt.Println()
+		fmt.Printf("API URL: http://localhost:%d%s\n", s.conf.Server.Port, apiV1Path)
+
+		fmt.Println("Starting server on port", s.conf.Server.Port)
+		fmt.Printf("Swagger URL: http://localhost:%d/swagger/index.html\n", s.conf.Server.Port)
+		fmt.Printf("Swagger JSON URL: http://localhost:%d/swagger/doc.json\n", s.conf.Server.Port)
+		fmt.Printf("Swagger UI URL: http://localhost:%d/swagger/index.html\n", s.conf.Server.Port)
+		fmt.Println()
+	}
+
 	s.router.Run(serverUrl)
 }
 

@@ -8,12 +8,14 @@
 - [x] Viper config
 - [x] Docker
 - [x] Gorm
-- [ ] Unit Test
+- [X] [Swagger-Gin](https://github.com/swaggo/gin-swagger)
 - [ ] Wire [need to refactor all code to wire]
+- [ ] Unit Test
 - [ ] Mock
-- [ ] Swagger
+- [ ] Auth JWT
 - [ ] Redis
 - [ ] [Validator](https://github.com/go-playground/validator)
+- [ ] Logger system
 
 ## Design pattern
 

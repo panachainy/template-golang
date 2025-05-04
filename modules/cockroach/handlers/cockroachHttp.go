@@ -4,9 +4,8 @@ import (
 	"net/http"
 	"template-golang/modules/cockroach/models"
 	"template-golang/modules/cockroach/usecases"
-	"template-golang/modules/request"
 
-	"github.com/labstack/echo/v4"
+	"github.com/gin-gonic/gin"
 )
 
 type cockroachHttpHandler struct {
@@ -19,21 +18,36 @@ func NewCockroachHttpHandler(cockroachUsecase usecases.CockroachUsecase) Cockroa
 	}
 }
 
-func (h *cockroachHttpHandler) DetectCockroach(c echo.Context) error {
+// @BasePath /api/v1
+
+// DetectCockroach godoc
+// @Summary Detect if image contains cockroach
+// @Schemes
+// @Description Analyzes image to detect presence of cockroach
+// @Tags cockroach
+// @Accept json
+// @Produce json
+// @Param request body models.AddCockroachData true "Request body"
+// @Success 200 {object} map[string]interface{} "Success response with message"
+// @Router /cockroach [post]
+func (h *cockroachHttpHandler) DetectCockroach(c *gin.Context) {
 	reqBody := new(models.AddCockroachData)
 
-	wrapper := request.ContextWrapper(c)
-
-	if err := wrapper.Bind(reqBody); err != nil {
-		return c.JSON(
+	if err := c.ShouldBindJSON(reqBody); err != nil {
+		c.JSON(
 			http.StatusBadRequest,
-			map[string]string{"message": err.Error()},
+			gin.H{"message": err.Error()},
 		)
+		c.Error(err)
+		return
 	}
 
 	if err := h.cockroachUsecase.CockroachDataProcessing(reqBody); err != nil {
-		return response(c, http.StatusInternalServerError, "Processing data failed")
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Processing data failed"})
+		c.Error(err)
+		return
 	}
 
-	return response(c, http.StatusOK, "Success 🪳🪳🪳")
+	c.JSON(http.StatusOK, gin.H{"message": "Success 🪳🪳🪳"})
+	return
 }

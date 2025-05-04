@@ -35,16 +35,15 @@ func TestDetectCockroach(t *testing.T) {
 				"message": "Success 🪳🪳🪳",
 			},
 		},
-		// FIXME: Uncomment and implement the following test cases as needed
-		// {
-		// 	name:           "Invalid request body",
-		// 	requestBody:    map[string]interface{}{},
-		// 	mockError:      nil,
-		// 	expectedStatus: http.StatusBadRequest,
-		// 	expectedBody: map[string]interface{}{
-		// 		"message": "Key: 'AddCockroachData.ImageURL' Error:Field validation for 'ImageURL' failed on the 'required' tag",
-		// 	},
-		// },
+		{
+			name:           "Invalid request body",
+			requestBody:    map[string]interface{}{},
+			mockError:      nil,
+			expectedStatus: http.StatusBadRequest,
+			expectedBody: map[string]interface{}{
+				"message": "Key: 'AddCockroachData.Amount' Error:Field validation for 'Amount' failed on the 'required' tag",
+			},
+		},
 		// {
 		// 	name: "Processing error",
 		// 	requestBody: models.AddCockroachData{

@@ -1,4 +1,35 @@
+definitions:
+  models.AddCockroachData:
+    properties:
+      amount:
+        type: integer
+    required:
+    - amount
+    type: object
 info:
   contact: {}
-paths: {}
+paths:
+  /cockroach:
+    post:
+      consumes:
+      - application/json
+      description: Analyzes image to detect presence of cockroach
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.AddCockroachData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success response with message
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Detect if image contains cockroach
+      tags:
+      - cockroach
 swagger: "2.0"

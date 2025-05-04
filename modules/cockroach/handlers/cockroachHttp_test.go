@@ -48,6 +48,40 @@ func TestDetectCockroach(t *testing.T) {
 			skipSetupMock: true,
 		},
 		{
+			name: "Invalid request body - negative amount",
+			requestBody: map[string]interface{}{
+				"amount": -1,
+			},
+			mockError:      nil,
+			expectedStatus: http.StatusBadRequest,
+			expectedBody: map[string]interface{}{
+				"message": "json: cannot unmarshal number -1 into Go struct field AddCockroachData.amount of type uint32",
+			},
+			skipSetupMock: true,
+		},
+		{
+			name: "Invalid request body - string amount",
+			requestBody: map[string]interface{}{
+				"amount": "three",
+			},
+			mockError:      nil,
+			expectedStatus: http.StatusBadRequest,
+			expectedBody: map[string]interface{}{
+				"message": "json: cannot unmarshal string into Go struct field AddCockroachData.amount of type uint32",
+			},
+			skipSetupMock: true,
+		},
+		{
+			name:           "Empty request body",
+			requestBody:    nil,
+			mockError:      nil,
+			expectedStatus: http.StatusBadRequest,
+			expectedBody: map[string]interface{}{
+				"message": "Key: 'AddCockroachData.Amount' Error:Field validation for 'Amount' failed on the 'required' tag",
+			},
+			skipSetupMock: true,
+		},
+		{
 			name: "Processing error",
 			requestBody: models.AddCockroachData{
 				Amount: 2,

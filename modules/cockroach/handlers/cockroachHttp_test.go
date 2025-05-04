@@ -38,6 +38,18 @@ func TestDetectCockroach(t *testing.T) {
 			},
 		},
 		{
+			name: "Invalid request body - zero amount",
+			requestBody: models.AddCockroachData{
+				Amount: 0,
+			},
+			mockError:      nil,
+			expectedStatus: http.StatusBadRequest,
+			expectedBody: map[string]interface{}{
+				"message": "Key: 'AddCockroachData.Amount' Error:Field validation for 'Amount' failed on the 'required' tag",
+			},
+			skipSetupMock: true,
+		},
+		{
 			name:           "Invalid request body",
 			requestBody:    map[string]interface{}{},
 			mockError:      nil,

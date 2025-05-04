@@ -6,6 +6,7 @@ import (
 	"template-golang/modules/cockroach/usecases"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 type cockroachHttpHandler struct {
@@ -34,6 +35,18 @@ func (h *cockroachHttpHandler) DetectCockroach(c *gin.Context) {
 	reqBody := new(models.AddCockroachData)
 
 	if err := c.ShouldBindJSON(reqBody); err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			gin.H{"message": err.Error()},
+		)
+		c.Error(err)
+		return
+	}
+
+	validate := validator.New(validator.WithRequiredStructEnabled())
+
+	// Validate the request body
+	if err := validate.Struct(reqBody); err != nil {
 		c.JSON(
 			http.StatusBadRequest,
 			gin.H{"message": err.Error()},

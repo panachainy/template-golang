@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"template-golang/modules/cockroach/models"
@@ -35,26 +36,26 @@ func TestDetectCockroach(t *testing.T) {
 				"message": "Success 🪳🪳🪳",
 			},
 		},
-		{
-			name:           "Invalid request body",
-			requestBody:    map[string]interface{}{},
-			mockError:      nil,
-			expectedStatus: http.StatusBadRequest,
-			expectedBody: map[string]interface{}{
-				"message": "Key: 'AddCockroachData.Amount' Error:Field validation for 'Amount' failed on the 'required' tag",
-			},
-		},
 		// {
-		// 	name: "Processing error",
-		// 	requestBody: models.AddCockroachData{
-		// 		Amount: 2,
-		// 	},
-		// 	mockError:      errors.New("processing error"),
-		// 	expectedStatus: http.StatusInternalServerError,
+		// 	name:           "Invalid request body",
+		// 	requestBody:    map[string]interface{}{},
+		// 	mockError:      nil,
+		// 	expectedStatus: http.StatusBadRequest,
 		// 	expectedBody: map[string]interface{}{
-		// 		"message": "Processing data failed",
+		// 		"message": "Key: 'AddCockroachData.Amount' Error:Field validation for 'Amount' failed on the 'required' tag",
 		// 	},
 		// },
+		{
+			name: "Processing error",
+			requestBody: models.AddCockroachData{
+				Amount: 2,
+			},
+			mockError:      errors.New("processing error"),
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody: map[string]interface{}{
+				"message": "Processing data failed",
+			},
+		},
 	}
 
 	for _, tt := range tests {

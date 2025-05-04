@@ -24,6 +24,7 @@ func TestDetectCockroach(t *testing.T) {
 		mockError      error
 		expectedStatus int
 		expectedBody   map[string]interface{}
+		skipSetupMock  bool
 	}{
 		{
 			name: "Success",
@@ -36,15 +37,16 @@ func TestDetectCockroach(t *testing.T) {
 				"message": "Success 🪳🪳🪳",
 			},
 		},
-		// {
-		// 	name:           "Invalid request body",
-		// 	requestBody:    map[string]interface{}{},
-		// 	mockError:      nil,
-		// 	expectedStatus: http.StatusBadRequest,
-		// 	expectedBody: map[string]interface{}{
-		// 		"message": "Key: 'AddCockroachData.Amount' Error:Field validation for 'Amount' failed on the 'required' tag",
-		// 	},
-		// },
+		{
+			name:           "Invalid request body",
+			requestBody:    map[string]interface{}{},
+			mockError:      nil,
+			expectedStatus: http.StatusBadRequest,
+			expectedBody: map[string]interface{}{
+				"message": "Key: 'AddCockroachData.Amount' Error:Field validation for 'Amount' failed on the 'required' tag",
+			},
+			skipSetupMock: true,
+		},
 		{
 			name: "Processing error",
 			requestBody: models.AddCockroachData{
@@ -77,10 +79,12 @@ func TestDetectCockroach(t *testing.T) {
 			handler := NewCockroachHttpHandler(mockUsecase)
 			r.POST("/detect-cockroach", handler.DetectCockroach)
 
-			// Set mock expectations
-			mockUsecase.EXPECT().
-				ProcessData(gomock.Any()).
-				Return(tt.mockError)
+			if !tt.skipSetupMock {
+				// Set mock expectations
+				mockUsecase.EXPECT().
+					ProcessData(gomock.Any()).
+					Return(tt.mockError)
+			}
 
 			// Perform request
 			r.ServeHTTP(w, req)

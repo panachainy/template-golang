@@ -15,7 +15,7 @@ type cockroachUsecaseImpl struct {
 func NewCockroachUsecaseImpl(
 	cockroachRepository repositories.CockroachRepository,
 	cockroachMessaging repositories.CockroachMessaging,
-) CockroachUsecase {
+) *cockroachUsecaseImpl {
 	return &cockroachUsecaseImpl{
 		cockroachRepository: cockroachRepository,
 		cockroachMessaging:  cockroachMessaging,

@@ -35,6 +35,7 @@ func TestDetectCockroach(t *testing.T) {
 				"message": "Success 🪳🪳🪳",
 			},
 		},
+		// FIXME: Uncomment and implement the following test cases as needed
 		// {
 		// 	name:           "Invalid request body",
 		// 	requestBody:    map[string]interface{}{},

@@ -49,6 +49,7 @@ func (s *ginServer) Start() {
 
 	s.initializeCockroachHttpHandler()
 	s.initSwagger()
+	s.router.GET("/example/helloworld", Helloworld)
 
 	serverUrl := fmt.Sprintf(":%d", s.conf.Server.Port)
 
@@ -58,10 +59,8 @@ func (s *ginServer) Start() {
 		fmt.Println()
 		fmt.Printf("API URL: http://localhost:%d%s\n", s.conf.Server.Port, apiV1Path)
 
-		fmt.Println("Starting server on port", s.conf.Server.Port)
-		fmt.Printf("Swagger URL: http://localhost:%d/swagger/index.html\n", s.conf.Server.Port)
-		fmt.Printf("Swagger JSON URL: http://localhost:%d/swagger/doc.json\n", s.conf.Server.Port)
 		fmt.Printf("Swagger UI URL: http://localhost:%d/swagger/index.html\n", s.conf.Server.Port)
+		fmt.Printf("Swagger JSON URL: http://localhost:%d/swagger/doc.json\n", s.conf.Server.Port)
 		fmt.Println()
 	}
 

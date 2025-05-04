@@ -15,6 +15,7 @@
 - [ ] Auth JWT
 - [ ] Redis
 - [ ] [Validator](https://github.com/go-playground/validator)
+- [ ] Logger system
 
 ## Design pattern
 

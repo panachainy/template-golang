@@ -22,7 +22,7 @@ func NewCockroachUsecaseImpl(
 	}
 }
 
-func (u *cockroachUsecaseImpl) CockroachDataProcessing(in *models.AddCockroachData) error {
+func (u *cockroachUsecaseImpl) ProcessData(in *models.AddCockroachData) error {
 	insertCockroachData := &entities.InsertCockroachDto{
 		Amount: in.Amount,
 	}

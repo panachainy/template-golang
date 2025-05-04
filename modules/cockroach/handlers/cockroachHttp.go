@@ -42,7 +42,7 @@ func (h *cockroachHttpHandler) DetectCockroach(c *gin.Context) {
 		return
 	}
 
-	if err := h.cockroachUsecase.CockroachDataProcessing(reqBody); err != nil {
+	if err := h.cockroachUsecase.ProcessData(reqBody); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Processing data failed"})
 		c.Error(err)
 		return

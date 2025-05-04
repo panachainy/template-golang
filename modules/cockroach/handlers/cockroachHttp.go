@@ -18,6 +18,18 @@ func NewCockroachHttpHandler(cockroachUsecase usecases.CockroachUsecase) Cockroa
 	}
 }
 
+// @BasePath /api/v1
+
+// DetectCockroach godoc
+// @Summary Detect if image contains cockroach
+// @Schemes
+// @Description Analyzes image to detect presence of cockroach
+// @Tags cockroach
+// @Accept json
+// @Produce json
+// @Param request body models.AddCockroachData true "Request body"
+// @Success 200 {object} map[string]interface{} "Success response with message"
+// @Router /cockroach [post]
 func (h *cockroachHttpHandler) DetectCockroach(c *gin.Context) {
 	reqBody := new(models.AddCockroachData)
 

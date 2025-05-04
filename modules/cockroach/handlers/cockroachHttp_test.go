@@ -6,8 +6,8 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"template-golang/mock"
 	"template-golang/modules/cockroach/models"
-	"template-golang/modules/mock"
 	"testing"
 
 	"github.com/gin-gonic/gin"

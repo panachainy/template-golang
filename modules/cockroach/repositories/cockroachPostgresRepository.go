@@ -11,7 +11,7 @@ type cockroachPostgresRepository struct {
 	db database.Database
 }
 
-func NewCockroachPostgresRepository(db database.Database) CockroachRepository {
+func NewCockroachPostgresRepository(db database.Database) *cockroachPostgresRepository {
 	return &cockroachPostgresRepository{db: db}
 }
 

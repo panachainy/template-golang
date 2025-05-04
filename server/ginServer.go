@@ -49,7 +49,6 @@ func (s *ginServer) Start() {
 
 	s.initializeCockroachHttpHandler()
 	s.initSwagger()
-	s.router.GET("/example/helloworld", Helloworld)
 
 	serverUrl := fmt.Sprintf(":%d", s.conf.Server.Port)
 

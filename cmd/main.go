@@ -1,11 +1,13 @@
 package main
 
 import (
-	"template-golang/config"
 	"template-golang/server"
 )
 
 func main() {
-	conf := config.GetConfig()
-	server.NewGinServer(conf).Start()
+	s, err := server.Wire()
+	if err != nil {
+		panic(err)
+	}
+	s.Start()
 }

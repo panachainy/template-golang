@@ -8,8 +8,8 @@ import (
 
 // TODO: migrate to API
 func main() {
-	conf := config.GetConfig()
-	db := database.NewPostgresDatabase(conf)
+	conf := config.Provide()
+	db := database.Provide(conf)
 	cockroachMigrate(db)
 }
 

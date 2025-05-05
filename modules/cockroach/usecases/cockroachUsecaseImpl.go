@@ -12,17 +12,17 @@ type cockroachUsecaseImpl struct {
 	cockroachMessaging  repositories.CockroachMessaging
 }
 
-func NewCockroachUsecaseImpl(
+func Provide(
 	cockroachRepository repositories.CockroachRepository,
 	cockroachMessaging repositories.CockroachMessaging,
-) CockroachUsecase {
+) *cockroachUsecaseImpl {
 	return &cockroachUsecaseImpl{
 		cockroachRepository: cockroachRepository,
 		cockroachMessaging:  cockroachMessaging,
 	}
 }
 
-func (u *cockroachUsecaseImpl) CockroachDataProcessing(in *models.AddCockroachData) error {
+func (u *cockroachUsecaseImpl) ProcessData(in *models.AddCockroachData) error {
 	insertCockroachData := &entities.InsertCockroachDto{
 		Amount: in.Amount,
 	}

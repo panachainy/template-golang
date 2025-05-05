@@ -3,6 +3,7 @@ dev:
 
 setup:
 	go install go.uber.org/mock/mockgen@latest
+	go install github.com/axw/gocov/gocov@latest
 
 tidy:
 	go mod tidy -v
@@ -14,7 +15,7 @@ test:
 tc: test.cov
 test.cov:
 	$(ENV_LOCAL_TEST) \
-	go test -race -covermode=atomic -coverprofile=covprofile.out ./internal/core/... ./internal/feature/...
+	go test -race -covermode=atomic -coverprofile=covprofile.out ./modules/...
 	make test.cov.xml
 
 tc.xml: test.cov.xml

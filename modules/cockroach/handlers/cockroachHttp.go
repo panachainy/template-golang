@@ -6,13 +6,14 @@ import (
 	"template-golang/modules/cockroach/usecases"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 type cockroachHttpHandler struct {
 	cockroachUsecase usecases.CockroachUsecase
 }
 
-func NewCockroachHttpHandler(cockroachUsecase usecases.CockroachUsecase) CockroachHandler {
+func Provide(cockroachUsecase usecases.CockroachUsecase) *cockroachHttpHandler {
 	return &cockroachHttpHandler{
 		cockroachUsecase: cockroachUsecase,
 	}
@@ -42,7 +43,19 @@ func (h *cockroachHttpHandler) DetectCockroach(c *gin.Context) {
 		return
 	}
 
-	if err := h.cockroachUsecase.CockroachDataProcessing(reqBody); err != nil {
+	validate := validator.New(validator.WithRequiredStructEnabled())
+
+	// Validate the request body
+	if err := validate.Struct(reqBody); err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			gin.H{"message": err.Error()},
+		)
+		c.Error(err)
+		return
+	}
+
+	if err := h.cockroachUsecase.ProcessData(reqBody); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Processing data failed"})
 		c.Error(err)
 		return

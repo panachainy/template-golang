@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"template-golang/config"
-	cockroachHandlers "template-golang/modules/cockroach/handlers"
+	"template-golang/modules/cockroach"
 
 	docs "template-golang/docs"
 
@@ -19,7 +19,7 @@ const (
 )
 
 type Handlers struct {
-	cockroachH cockroachHandlers.CockroachHandler
+	cockroach *cockroach.Cockroach
 }
 
 type ginServer struct {
@@ -28,14 +28,14 @@ type ginServer struct {
 	handlers Handlers
 }
 
-func NewGinServer(conf *config.Config, cockroachH cockroachHandlers.CockroachHandler) *ginServer {
+func NewGinServer(conf *config.Config, cockroach *cockroach.Cockroach) *ginServer {
 	r := gin.Default()
 
 	return &ginServer{
 		router: r,
 		conf:   conf,
 		handlers: Handlers{
-			cockroachH: cockroachH,
+			cockroach: cockroach,
 		},
 	}
 }
@@ -79,5 +79,5 @@ func (s *ginServer) initSwagger() {
 func (s *ginServer) initializeCockroachHttpHandler() {
 	v1 := s.router.Group(apiV1Path)
 	cockroachRouters := v1.Group("/cockroach")
-	cockroachRouters.POST("", s.handlers.cockroachH.DetectCockroach)
+	cockroachRouters.POST("", s.handlers.cockroach.Handler.DetectCockroach)
 }

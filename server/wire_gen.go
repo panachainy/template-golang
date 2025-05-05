@@ -9,18 +9,34 @@ package server
 import (
 	"github.com/google/wire"
 	"template-golang/config"
+	"template-golang/database"
 	"template-golang/modules/cockroach"
+	"template-golang/modules/cockroach/handlers"
+	"template-golang/modules/cockroach/repositories"
+	"template-golang/modules/cockroach/usecases"
 )
 
 // Injectors from wire.go:
 
-func Wire(conf *config.Config, cockroach2 *cockroach.Cockroach) (Server, error) {
-	serverGinServer := NewGinServer(conf, cockroach2)
+func Wire() (Server, error) {
+	configConfig := config.GetConfig()
+	postgresDatabase := database.NewPostgresDatabase(configConfig)
+	cockroachPostgresRepository := repositories.NewCockroachPostgresRepository(postgresDatabase)
+	cockroachFCMMessaging := repositories.NewCockroachFCMMessaging()
+	cockroachUsecaseImpl := usecases.NewCockroachUsecaseImpl(cockroachPostgresRepository, cockroachFCMMessaging)
+	cockroachHttpHandler := handlers.NewCockroachHttpHandler(cockroachUsecaseImpl)
+	cockroachCockroach := &cockroach.Cockroach{
+		Handler:    cockroachHttpHandler,
+		Repository: cockroachPostgresRepository,
+		Messaging:  cockroachFCMMessaging,
+		Usecase:    cockroachUsecaseImpl,
+	}
+	serverGinServer := NewGinServer(configConfig, cockroachCockroach)
 	return serverGinServer, nil
 }
 
 // wire.go:
 
 var ProviderSet = wire.NewSet(
-	NewGinServer, wire.Bind(new(Server), new(*ginServer)),
+	NewGinServer, wire.Bind(new(Server), new(*ginServer)), config.ProviderSet, database.ProviderSet, cockroach.ProviderSet,
 )

@@ -5,8 +5,8 @@ import (
 )
 
 var ProviderSet = wire.NewSet(
-	NewCockroachFCMMessaging,
+	ProvideFCMMessaging,
 	wire.Bind(new(CockroachMessaging), new(*cockroachFCMMessaging)),
-	NewCockroachPostgresRepository,
+	ProvidePostgresRepository,
 	wire.Bind(new(CockroachRepository), new(*cockroachPostgresRepository)),
 )

@@ -13,7 +13,7 @@ import (
 )
 
 var ProviderSet = wire.NewSet(
-	NewGinServer,
+	Provide,
 	wire.Bind(new(Server), new(*ginServer)),
 
 	// cores

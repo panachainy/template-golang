@@ -7,7 +7,7 @@ package config
 import "github.com/google/wire"
 
 var ProviderSet = wire.NewSet(
-	GetConfig,
+	Provide,
 )
 
 func Wire() (*Config, error) {

@@ -48,7 +48,7 @@ var (
 	}
 )
 
-func GetConfig() *Config {
+func Provide() *Config {
 	_once.Do(func() {
 		viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 

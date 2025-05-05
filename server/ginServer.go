@@ -28,7 +28,7 @@ type ginServer struct {
 	handlers Handlers
 }
 
-func NewGinServer(conf *config.Config, cockroach *cockroach.Cockroach) *ginServer {
+func Provide(conf *config.Config, cockroach *cockroach.Cockroach) *ginServer {
 	r := gin.Default()
 
 	return &ginServer{

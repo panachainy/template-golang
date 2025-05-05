@@ -12,7 +12,7 @@ type cockroachUsecaseImpl struct {
 	cockroachMessaging  repositories.CockroachMessaging
 }
 
-func NewCockroachUsecaseImpl(
+func Provide(
 	cockroachRepository repositories.CockroachRepository,
 	cockroachMessaging repositories.CockroachMessaging,
 ) *cockroachUsecaseImpl {

@@ -13,12 +13,12 @@ import (
 // Injectors from wire.go:
 
 func Wire() (*Config, error) {
-	config := GetConfig()
+	config := Provide()
 	return config, nil
 }
 
 // wire.go:
 
 var ProviderSet = wire.NewSet(
-	GetConfig,
+	Provide,
 )

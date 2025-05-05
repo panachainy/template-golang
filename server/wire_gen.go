@@ -19,24 +19,24 @@ import (
 // Injectors from wire.go:
 
 func Wire() (Server, error) {
-	configConfig := config.GetConfig()
-	postgresDatabase := database.NewPostgresDatabase(configConfig)
-	cockroachPostgresRepository := repositories.NewCockroachPostgresRepository(postgresDatabase)
-	cockroachFCMMessaging := repositories.NewCockroachFCMMessaging()
-	cockroachUsecaseImpl := usecases.NewCockroachUsecaseImpl(cockroachPostgresRepository, cockroachFCMMessaging)
-	cockroachHttpHandler := handlers.NewCockroachHttpHandler(cockroachUsecaseImpl)
+	configConfig := config.Provide()
+	postgresDatabase := database.Provide(configConfig)
+	cockroachPostgresRepository := repositories.ProvidePostgresRepository(postgresDatabase)
+	cockroachFCMMessaging := repositories.ProvideFCMMessaging()
+	cockroachUsecaseImpl := usecases.Provide(cockroachPostgresRepository, cockroachFCMMessaging)
+	cockroachHttpHandler := handlers.Provide(cockroachUsecaseImpl)
 	cockroachCockroach := &cockroach.Cockroach{
 		Handler:    cockroachHttpHandler,
 		Repository: cockroachPostgresRepository,
 		Messaging:  cockroachFCMMessaging,
 		Usecase:    cockroachUsecaseImpl,
 	}
-	serverGinServer := NewGinServer(configConfig, cockroachCockroach)
+	serverGinServer := Provide(configConfig, cockroachCockroach)
 	return serverGinServer, nil
 }
 
 // wire.go:
 
 var ProviderSet = wire.NewSet(
-	NewGinServer, wire.Bind(new(Server), new(*ginServer)), config.ProviderSet, database.ProviderSet, cockroach.ProviderSet,
+	Provide, wire.Bind(new(Server), new(*ginServer)), config.ProviderSet, database.ProviderSet, cockroach.ProviderSet,
 )

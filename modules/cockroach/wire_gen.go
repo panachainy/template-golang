@@ -17,10 +17,10 @@ import (
 // Injectors from wire.go:
 
 func Wire(db database.Database) (*Cockroach, error) {
-	cockroachPostgresRepository := repositories.NewCockroachPostgresRepository(db)
-	cockroachFCMMessaging := repositories.NewCockroachFCMMessaging()
-	cockroachUsecaseImpl := usecases.NewCockroachUsecaseImpl(cockroachPostgresRepository, cockroachFCMMessaging)
-	cockroachHttpHandler := handlers.NewCockroachHttpHandler(cockroachUsecaseImpl)
+	cockroachPostgresRepository := repositories.ProvidePostgresRepository(db)
+	cockroachFCMMessaging := repositories.ProvideFCMMessaging()
+	cockroachUsecaseImpl := usecases.Provide(cockroachPostgresRepository, cockroachFCMMessaging)
+	cockroachHttpHandler := handlers.Provide(cockroachUsecaseImpl)
 	cockroach := &Cockroach{
 		Handler:    cockroachHttpHandler,
 		Repository: cockroachPostgresRepository,

@@ -5,6 +5,6 @@ import (
 )
 
 var ProviderSet = wire.NewSet(
-	NewCockroachHttpHandler,
+	Provide,
 	wire.Bind(new(CockroachHandler), new(*cockroachHttpHandler)),
 )

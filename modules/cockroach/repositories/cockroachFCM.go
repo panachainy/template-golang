@@ -8,7 +8,7 @@ import (
 
 type cockroachFCMMessaging struct{}
 
-func NewCockroachFCMMessaging() *cockroachFCMMessaging {
+func ProvideFCMMessaging() *cockroachFCMMessaging {
 	return &cockroachFCMMessaging{}
 }
 

@@ -14,12 +14,12 @@ import (
 // Injectors from wire.go:
 
 func Wire(conf *config.Config) (Database, error) {
-	databasePostgresDatabase := NewPostgresDatabase(conf)
+	databasePostgresDatabase := Provide(conf)
 	return databasePostgresDatabase, nil
 }
 
 // wire.go:
 
 var ProviderSet = wire.NewSet(
-	NewPostgresDatabase, wire.Bind(new(Database), new(*postgresDatabase)),
+	Provide, wire.Bind(new(Database), new(*postgresDatabase)),
 )

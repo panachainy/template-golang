@@ -5,6 +5,6 @@ import (
 )
 
 var ProviderSet = wire.NewSet(
-	NewCockroachUsecaseImpl,
+	Provide,
 	wire.Bind(new(CockroachUsecase), new(*cockroachUsecaseImpl)),
 )

@@ -14,10 +14,10 @@ import (
 )
 
 var ProviderSet = wire.NewSet(
-	NewCockroach,
 	handlers.ProviderSet,
 	repositories.ProviderSet,
 	usecases.ProviderSet,
+	wire.Struct(new(Cockroach), "*"),
 )
 
 func Wire(db database.Database) (*Cockroach, error) {

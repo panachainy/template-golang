@@ -13,19 +13,3 @@ type Cockroach struct {
 	Messaging  repositories.CockroachMessaging
 	Usecase    usecases.CockroachUsecase
 }
-
-// NewDependencies initializes all dependencies
-func NewCockroach(
-	h handlers.CockroachHandler,
-	r repositories.CockroachRepository,
-	m repositories.CockroachMessaging,
-	u usecases.CockroachUsecase,
-) *Cockroach {
-
-	return &Cockroach{
-		Handler:    h,
-		Repository: r,
-		Messaging:  m,
-		Usecase:    u,
-	}
-}

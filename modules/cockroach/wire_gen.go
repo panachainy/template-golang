@@ -21,12 +21,15 @@ func Wire(db database.Database) (*Cockroach, error) {
 	cockroachFCMMessaging := repositories.NewCockroachFCMMessaging()
 	cockroachUsecaseImpl := usecases.NewCockroachUsecaseImpl(cockroachPostgresRepository, cockroachFCMMessaging)
 	cockroachHttpHandler := handlers.NewCockroachHttpHandler(cockroachUsecaseImpl)
-	cockroach := NewCockroach(cockroachHttpHandler, cockroachPostgresRepository, cockroachFCMMessaging, cockroachUsecaseImpl)
+	cockroach := &Cockroach{
+		Handler:    cockroachHttpHandler,
+		Repository: cockroachPostgresRepository,
+		Messaging:  cockroachFCMMessaging,
+		Usecase:    cockroachUsecaseImpl,
+	}
 	return cockroach, nil
 }
 
 // wire.go:
 
-var ProviderSet = wire.NewSet(
-	NewCockroach, handlers.ProviderSet, repositories.ProviderSet, usecases.ProviderSet,
-)
+var ProviderSet = wire.NewSet(handlers.ProviderSet, repositories.ProviderSet, usecases.ProviderSet, wire.Struct(new(Cockroach), "*"))

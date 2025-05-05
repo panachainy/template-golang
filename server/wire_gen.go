@@ -4,22 +4,23 @@
 //go:build !wireinject
 // +build !wireinject
 
-package database
+package server
 
 import (
 	"github.com/google/wire"
 	"template-golang/config"
+	"template-golang/modules/cockroach/handlers"
 )
 
 // Injectors from wire.go:
 
-func Wire(conf *config.Config) (Database, error) {
-	databasePostgresDatabase := NewPostgresDatabase(conf)
-	return databasePostgresDatabase, nil
+func Wire(conf *config.Config, cockroachH handlers.CockroachHandler) (Server, error) {
+	serverGinServer := NewGinServer(conf, cockroachH)
+	return serverGinServer, nil
 }
 
 // wire.go:
 
 var ProviderSet = wire.NewSet(
-	NewPostgresDatabase, wire.Bind(new(Database), new(*postgresDatabase)),
+	NewGinServer, wire.Bind(new(Server), new(*ginServer)),
 )

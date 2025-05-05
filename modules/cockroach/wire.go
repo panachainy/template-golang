@@ -13,14 +13,14 @@ import (
 	"github.com/google/wire"
 )
 
-var CockroachSet = wire.NewSet(
+var ProviderSet = wire.NewSet(
 	NewCockroach,
-	handlers.HandlerSet,
-	repositories.RepositorySet,
-	usecases.UsecaseSet,
+	handlers.ProviderSet,
+	repositories.ProviderSet,
+	usecases.ProviderSet,
 )
 
 func Wire(db database.Database) (*Cockroach, error) {
-	wire.Build(CockroachSet)
+	wire.Build(ProviderSet)
 	return &Cockroach{}, nil
 }

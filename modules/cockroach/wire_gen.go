@@ -27,6 +27,6 @@ func Wire(db database.Database) (*Cockroach, error) {
 
 // wire.go:
 
-var CockroachSet = wire.NewSet(
-	NewCockroach, handlers.HandlerSet, repositories.RepositorySet, usecases.UsecaseSet,
+var ProviderSet = wire.NewSet(
+	NewCockroach, handlers.ProviderSet, repositories.ProviderSet, usecases.ProviderSet,
 )

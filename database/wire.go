@@ -10,12 +10,12 @@ import (
 	"github.com/google/wire"
 )
 
-var DatabaseSet = wire.NewSet(
+var ProviderSet = wire.NewSet(
 	NewPostgresDatabase,
 	wire.Bind(new(Database), new(*postgresDatabase)),
 )
 
 func Wire(conf *config.Config) (Database, error) {
-	wire.Build(DatabaseSet)
+	wire.Build(ProviderSet)
 	return &postgresDatabase{}, nil
 }

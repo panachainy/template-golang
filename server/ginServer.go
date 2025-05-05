@@ -4,11 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"template-golang/config"
-	"template-golang/database"
-
 	cockroachHandlers "template-golang/modules/cockroach/handlers"
-	cockroachRepositories "template-golang/modules/cockroach/repositories"
-	cockroachUsecases "template-golang/modules/cockroach/usecases"
 
 	docs "template-golang/docs"
 
@@ -22,19 +18,25 @@ const (
 	apiV1Path = "/api/v1"
 )
 
-type ginServer struct {
-	router *gin.Engine
-	db     database.Database
-	conf   *config.Config
+type Handlers struct {
+	cockroachH cockroachHandlers.CockroachHandler
 }
 
-func NewGinServer(conf *config.Config, db database.Database) Server {
+type ginServer struct {
+	router   *gin.Engine
+	conf     *config.Config
+	handlers Handlers
+}
+
+func NewGinServer(conf *config.Config, cockroachH cockroachHandlers.CockroachHandler) *ginServer {
 	r := gin.Default()
 
 	return &ginServer{
 		router: r,
-		db:     db,
 		conf:   conf,
+		handlers: Handlers{
+			cockroachH: cockroachH,
+		},
 	}
 }
 
@@ -75,16 +77,7 @@ func (s *ginServer) initSwagger() {
 }
 
 func (s *ginServer) initializeCockroachHttpHandler() {
-
-	cockroachPostgresRepository := cockroachRepositories.NewCockroachPostgresRepository(s.db)
-	cockroachFCMMessaging := cockroachRepositories.NewCockroachFCMMessaging()
-	cockroachUsecase := cockroachUsecases.NewCockroachUsecaseImpl(
-		cockroachPostgresRepository,
-		cockroachFCMMessaging,
-	)
-	cockroachHttpHandler := cockroachHandlers.NewCockroachHttpHandler(cockroachUsecase)
-
 	v1 := s.router.Group(apiV1Path)
 	cockroachRouters := v1.Group("/cockroach")
-	cockroachRouters.POST("", cockroachHttpHandler.DetectCockroach)
+	cockroachRouters.POST("", s.handlers.cockroachH.DetectCockroach)
 }

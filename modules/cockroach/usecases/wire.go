@@ -4,7 +4,7 @@ import (
 	"github.com/google/wire"
 )
 
-var UsecaseSet = wire.NewSet(
+var ProviderSet = wire.NewSet(
 	NewCockroachUsecaseImpl,
 	wire.Bind(new(CockroachUsecase), new(*cockroachUsecaseImpl)),
 )

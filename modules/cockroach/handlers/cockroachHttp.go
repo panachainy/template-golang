@@ -13,7 +13,7 @@ type cockroachHttpHandler struct {
 	cockroachUsecase usecases.CockroachUsecase
 }
 
-func NewCockroachHttpHandler(cockroachUsecase usecases.CockroachUsecase) CockroachHandler {
+func NewCockroachHttpHandler(cockroachUsecase usecases.CockroachUsecase) *cockroachHttpHandler {
 	return &cockroachHttpHandler{
 		cockroachUsecase: cockroachUsecase,
 	}

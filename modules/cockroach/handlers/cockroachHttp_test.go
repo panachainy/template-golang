@@ -122,7 +122,7 @@ func TestDetectCockroach(t *testing.T) {
 
 			// Setup router
 			r := gin.New()
-			handler := NewCockroachHttpHandler(mockUsecase)
+			handler := Provide(mockUsecase)
 			r.POST("/detect-cockroach", handler.DetectCockroach)
 
 			if !tt.skipSetupMock {

@@ -18,14 +18,14 @@ const (
 	apiV1Path = "/api/v1"
 )
 
-type Handlers struct {
+type Modules struct {
 	cockroach *cockroach.Cockroach
 }
 
 type ginServer struct {
-	router   *gin.Engine
-	conf     *config.Config
-	handlers Handlers
+	router  *gin.Engine
+	conf    *config.Config
+	modules Modules
 }
 
 func Provide(conf *config.Config, cockroach *cockroach.Cockroach) *ginServer {
@@ -34,7 +34,7 @@ func Provide(conf *config.Config, cockroach *cockroach.Cockroach) *ginServer {
 	return &ginServer{
 		router: r,
 		conf:   conf,
-		handlers: Handlers{
+		modules: Modules{
 			cockroach: cockroach,
 		},
 	}
@@ -79,5 +79,5 @@ func (s *ginServer) initSwagger() {
 func (s *ginServer) initializeCockroachHttpHandler() {
 	v1 := s.router.Group(apiV1Path)
 	cockroachRouters := v1.Group("/cockroach")
-	cockroachRouters.POST("", s.handlers.cockroach.Handler.DetectCockroach)
+	cockroachRouters.POST("", s.modules.cockroach.Handler.DetectCockroach)
 }

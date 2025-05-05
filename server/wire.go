@@ -15,8 +15,12 @@ import (
 var ProviderSet = wire.NewSet(
 	NewGinServer,
 	wire.Bind(new(Server), new(*ginServer)),
+
+	// cores
 	config.ProviderSet,
 	database.ProviderSet,
+
+	// modules
 	cockroach.ProviderSet,
 )
 

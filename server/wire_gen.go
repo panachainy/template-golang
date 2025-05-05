@@ -9,13 +9,13 @@ package server
 import (
 	"github.com/google/wire"
 	"template-golang/config"
-	"template-golang/modules/cockroach/handlers"
+	"template-golang/modules/cockroach"
 )
 
 // Injectors from wire.go:
 
-func Wire(conf *config.Config, cockroachH handlers.CockroachHandler) (Server, error) {
-	serverGinServer := NewGinServer(conf, cockroachH)
+func Wire(conf *config.Config, cockroach2 *cockroach.Cockroach) (Server, error) {
+	serverGinServer := NewGinServer(conf, cockroach2)
 	return serverGinServer, nil
 }
 

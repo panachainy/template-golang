@@ -7,7 +7,7 @@ import (
 type userAuthMiddleware struct {
 }
 
-func Provide() UserAuthMiddleware {
+func Provide() *userAuthMiddleware {
 	return &userAuthMiddleware{}
 }
 

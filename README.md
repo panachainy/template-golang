@@ -16,6 +16,7 @@
 - [ ] Redis
 - [X] [Validator](https://github.com/go-playground/validator)
 - [ ] Logger system
+- [ ] [Casbin](https://github.com/casbin/casbin)
 
 ## Design pattern
 

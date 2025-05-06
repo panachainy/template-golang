@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"template-golang/config"
 	"template-golang/modules/cockroach"
+	"template-golang/modules/userauth"
 
 	docs "template-golang/docs"
 
@@ -20,6 +21,7 @@ const (
 
 type Modules struct {
 	cockroach *cockroach.Cockroach
+	userauth  *userauth.UserAuth
 }
 
 type ginServer struct {
@@ -28,7 +30,11 @@ type ginServer struct {
 	modules Modules
 }
 
-func Provide(conf *config.Config, cockroach *cockroach.Cockroach) *ginServer {
+func Provide(
+	conf *config.Config,
+	cockroach *cockroach.Cockroach,
+	userauth *userauth.UserAuth,
+) *ginServer {
 	r := gin.Default()
 
 	return &ginServer{
@@ -36,6 +42,7 @@ func Provide(conf *config.Config, cockroach *cockroach.Cockroach) *ginServer {
 		conf:   conf,
 		modules: Modules{
 			cockroach: cockroach,
+			userauth:  userauth,
 		},
 	}
 }

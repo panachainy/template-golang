@@ -8,6 +8,7 @@ import (
 	"template-golang/config"
 	"template-golang/database"
 	"template-golang/modules/cockroach"
+	"template-golang/modules/userauth"
 
 	"github.com/google/wire"
 )
@@ -22,6 +23,7 @@ var ProviderSet = wire.NewSet(
 
 	// modules
 	cockroach.ProviderSet,
+	userauth.ProviderSet,
 )
 
 func Wire() (Server, error) {

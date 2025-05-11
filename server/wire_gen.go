@@ -10,6 +10,10 @@ import (
 	"github.com/google/wire"
 	"template-golang/config"
 	"template-golang/database"
+	"template-golang/modules/auth"
+	handlers2 "template-golang/modules/auth/handlers"
+	"template-golang/modules/auth/middlewares"
+	usecases2 "template-golang/modules/auth/usecases"
 	"template-golang/modules/cockroach"
 	"template-golang/modules/cockroach/handlers"
 	"template-golang/modules/cockroach/repositories"
@@ -31,12 +35,20 @@ func Wire() (Server, error) {
 		Messaging:  cockroachFCMMessaging,
 		Usecase:    cockroachUsecaseImpl,
 	}
-	serverGinServer := Provide(configConfig, cockroachCockroach)
+	authUsecaseImpl := usecases2.Provide()
+	authHttpHandler := handlers2.Provide(authUsecaseImpl)
+	userAuthMiddleware := middlewares.Provide()
+	authAuth := &auth.Auth{
+		Handler:    authHttpHandler,
+		Middleware: userAuthMiddleware,
+		Usecase:    authUsecaseImpl,
+	}
+	serverGinServer := Provide(configConfig, cockroachCockroach, authAuth)
 	return serverGinServer, nil
 }
 
 // wire.go:
 
 var ProviderSet = wire.NewSet(
-	Provide, wire.Bind(new(Server), new(*ginServer)), config.ProviderSet, database.ProviderSet, cockroach.ProviderSet,
+	Provide, wire.Bind(new(Server), new(*ginServer)), config.ProviderSet, database.ProviderSet, cockroach.ProviderSet, auth.ProviderSet,
 )

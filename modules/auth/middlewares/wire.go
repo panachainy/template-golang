@@ -6,5 +6,5 @@ import (
 
 var ProviderSet = wire.NewSet(
 	Provide,
-	wire.Bind(new(UserAuthMiddleware), new(*userAuthMiddleware)),
+	wire.Bind(new(AuthMiddleware), new(*userAuthMiddleware)),
 )

@@ -4,6 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type UserAuthMiddleware interface {
+type AuthMiddleware interface {
 	Handle() gin.HandlerFunc
 }

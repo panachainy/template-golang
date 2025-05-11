@@ -2,21 +2,21 @@
 // +build wireinject
 
 //go:generate wire
-package userauth
+package auth
 
 import (
 	"template-golang/database"
-	"template-golang/modules/userauth/middlewares"
+	"template-golang/modules/auth/middlewares"
 
 	"github.com/google/wire"
 )
 
 var ProviderSet = wire.NewSet(
 	middlewares.ProviderSet,
-	wire.Struct(new(UserAuth), "*"),
+	wire.Struct(new(Auth), "*"),
 )
 
-func Wire(db database.Database) (*UserAuth, error) {
+func Wire(db database.Database) (*Auth, error) {
 	wire.Build(ProviderSet)
-	return &UserAuth{}, nil
+	return &Auth{}, nil
 }

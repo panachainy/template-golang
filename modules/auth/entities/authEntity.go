@@ -17,8 +17,8 @@ type AuthMethod struct {
 	RefreshToken string   `json:"refresh_token"` // SSO provider refresh token
 }
 
-// UserAuth represents user authentication data
-type UserAuth struct {
+// Auth represents user authentication data
+type Auth struct {
 	ID          string       `json:"id"`
 	Username    string       `json:"username"`
 	Password    string       `json:"password,omitempty"` // Optional for SSO

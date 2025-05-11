@@ -4,24 +4,24 @@
 //go:build !wireinject
 // +build !wireinject
 
-package userauth
+package auth
 
 import (
 	"github.com/google/wire"
 	"template-golang/database"
-	"template-golang/modules/userauth/middlewares"
+	"template-golang/modules/auth/middlewares"
 )
 
 // Injectors from wire.go:
 
-func Wire(db database.Database) (*UserAuth, error) {
+func Wire(db database.Database) (*Auth, error) {
 	userAuthMiddleware := middlewares.Provide()
-	userAuth := &UserAuth{
+	auth := &Auth{
 		Handler: userAuthMiddleware,
 	}
-	return userAuth, nil
+	return auth, nil
 }
 
 // wire.go:
 
-var ProviderSet = wire.NewSet(middlewares.ProviderSet, wire.Struct(new(UserAuth), "*"))
+var ProviderSet = wire.NewSet(middlewares.ProviderSet, wire.Struct(new(Auth), "*"))

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"template-golang/config"
+	"template-golang/modules/auth"
 	"template-golang/modules/cockroach"
-	"template-golang/modules/userauth"
 
 	docs "template-golang/docs"
 
@@ -21,7 +21,7 @@ const (
 
 type Modules struct {
 	cockroach *cockroach.Cockroach
-	userauth  *userauth.UserAuth
+	auth      *auth.Auth
 }
 
 type ginServer struct {
@@ -33,7 +33,7 @@ type ginServer struct {
 func Provide(
 	conf *config.Config,
 	cockroach *cockroach.Cockroach,
-	userauth *userauth.UserAuth,
+	auth *auth.Auth,
 ) *ginServer {
 	r := gin.Default()
 
@@ -42,7 +42,7 @@ func Provide(
 		conf:   conf,
 		modules: Modules{
 			cockroach: cockroach,
-			userauth:  userauth,
+			auth:      auth,
 		},
 	}
 }

@@ -1,10 +1,13 @@
 package auth
 
 import (
+	"template-golang/modules/auth/handlers"
 	"template-golang/modules/auth/middlewares"
+	"template-golang/modules/auth/usecases"
 )
 
-// Dependencies contains all dependencies for the module
 type Auth struct {
-	Handler middlewares.AuthMiddleware
+	Handler    handlers.AuthHandler
+	Middleware middlewares.AuthMiddleware
+	Usecase    usecases.AuthUsecase
 }

@@ -9,19 +9,25 @@ package auth
 import (
 	"github.com/google/wire"
 	"template-golang/database"
+	"template-golang/modules/auth/handlers"
 	"template-golang/modules/auth/middlewares"
+	"template-golang/modules/auth/usecases"
 )
 
 // Injectors from wire.go:
 
 func Wire(db database.Database) (*Auth, error) {
+	authUsecaseImpl := usecases.Provide()
+	authHttpHandler := handlers.Provide(authUsecaseImpl)
 	userAuthMiddleware := middlewares.Provide()
 	auth := &Auth{
-		Handler: userAuthMiddleware,
+		Handler:    authHttpHandler,
+		Middleware: userAuthMiddleware,
+		Usecase:    authUsecaseImpl,
 	}
 	return auth, nil
 }
 
 // wire.go:
 
-var ProviderSet = wire.NewSet(middlewares.ProviderSet, wire.Struct(new(Auth), "*"))
+var ProviderSet = wire.NewSet(middlewares.ProviderSet, handlers.AuthProviderSet, usecases.ProviderSet, wire.Struct(new(Auth), "*"))

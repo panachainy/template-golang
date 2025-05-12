@@ -111,9 +111,8 @@ func (h *authHttpHandler) Logout(c *gin.Context) {
 
 func (h *authHttpHandler) Routes(routerGroup *gin.RouterGroup) {
 	authGroup := routerGroup.Group("/auth/:provider")
-	{
-		authGroup.GET("/login", h.Login)
-		authGroup.GET("/callback", h.AuthCallback)
-		authGroup.GET("/logout", h.Logout)
-	}
+
+	authGroup.GET("/login", h.Login)
+	authGroup.GET("/callback", h.AuthCallback)
+	authGroup.GET("/logout", h.Logout)
 }

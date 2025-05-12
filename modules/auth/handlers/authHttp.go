@@ -27,30 +27,7 @@ func Provide(jwtUsecase usecases.JWTUsecase, conf *config.Config) *authHttpHandl
 }
 
 func (h *authHttpHandler) Login(c *gin.Context) {
-	// reqBody := new(models.LoginRequest)
-
-	// if err := c.ShouldBindJSON(reqBody); err != nil {
-	// 	c.JSON(
-	// 		http.StatusBadRequest,
-	// 		gin.H{"message": err.Error()},
-	// 	)
-	// 	c.Error(err)
-	// 	return
-	// }
-
-	// validate := validator.New(validator.WithRequiredStructEnabled())
-
-	// if err := validate.Struct(reqBody); err != nil {
-	// 	c.JSON(
-	// 		http.StatusBadRequest,
-	// 		gin.H{"message": err.Error()},
-	// 	)
-	// 	c.Error(err)
-	// 	return
-	// }
-
-	// === new
-
+	// Translate provider
 	provider := c.Param("provider")
 	if provider == "" {
 		c.JSON(400, gin.H{"message": "Provider is required"})
@@ -60,8 +37,6 @@ func (h *authHttpHandler) Login(c *gin.Context) {
 	q := c.Request.URL.Query()
 	q.Add("provider", c.Param("provider"))
 	c.Request.URL.RawQuery = q.Encode()
-
-	// c.Request = c.Request.WithContext(gothic.WithProvider(c.Request.Context(), provider))
 
 	// if gothUser, err := gothic.CompleteUserAuth(c.Writer, c.Request); err == nil {
 	// 	t, _ := template.New("foo").Parse(userTemplate)
@@ -84,11 +59,16 @@ func (h *authHttpHandler) Login(c *gin.Context) {
 }
 
 func (h *authHttpHandler) AuthCallback(c *gin.Context) {
-	// provider := c.Param("provider")
-	// if provider == "" {
-	// 	c.JSON(400, gin.H{"message": "Provider is required"})
-	// 	return
-	// }
+	// Translate provider
+	provider := c.Param("provider")
+	if provider == "" {
+		c.JSON(400, gin.H{"message": "Provider is required"})
+		return
+	}
+
+	q := c.Request.URL.Query()
+	q.Add("provider", c.Param("provider"))
+	c.Request.URL.RawQuery = q.Encode()
 
 	// FIXME: check provider
 	user, err := gothic.CompleteUserAuth(c.Writer, c.Request)
@@ -113,14 +93,17 @@ func (h *authHttpHandler) AuthCallback(c *gin.Context) {
 }
 
 func (h *authHttpHandler) Logout(c *gin.Context) {
-	// provider := c.Param("provider")
-	// if provider == "" {
-	// 	c.JSON(400, gin.H{"message": "Provider is required"})
-	// 	return
-	// }
+	// Translate provider
+	provider := c.Param("provider")
+	if provider == "" {
+		c.JSON(400, gin.H{"message": "Provider is required"})
+		return
+	}
 
-	// c.Request = c.Request.WithContext(gothic.WithProvider(c.Request.Context(), provider))
-	// FIXME: check provider
+	q := c.Request.URL.Query()
+	q.Add("provider", c.Param("provider"))
+	c.Request.URL.RawQuery = q.Encode()
+
 	err := gothic.Logout(c.Writer, c.Request)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

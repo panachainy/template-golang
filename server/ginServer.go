@@ -37,7 +37,6 @@ func Provide(
 	cockroach *cockroach.Cockroach,
 	auth *auth.Auth,
 ) *ginServer {
-
 	corsHandler := cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},

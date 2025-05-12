@@ -3,23 +3,10 @@ import axios from 'axios'
 // https://partnerpens.hashnode.dev/jwt-authentication-in-react-go
 
 async function loginWithLine() {
-  try {
-    const response = await axios.get(
-      'http://localhost:8080/api/v1/auth/line/login',
-      {
-        withCredentials: true,
-      },
-    )
-    if (response.data.redirectUrl) {
-      window.location.href = response.data.redirectUrl
-    } else {
-      console.log('Login successful:', response.data)
-      // Handle successful login (e.g., store token)
-    }
-  } catch (error) {
-    console.error('Login failed:', error)
-    // Handle login error
-  }
+  // Redirect to the LINE login page
+  // This URL should be the one provided by your backend for LINE login
+  // Use this way because avoid redirect 2 times and stuck on cors origin
+  window.location.href = "http://localhost:8080/api/v1/auth/line/login";
 }
 
 export function LoginPage() {

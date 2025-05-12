@@ -1,31 +1,59 @@
 {
-  "name": "client",
+  "name": "dip-prototype",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "t": "vitest",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "format": "biome check --write --unsafe ./src ./**/*.{ts,tsx,css}",
+    "check": "biome check ./src ./**/*.{ts,tsx,css}",
+    "prepare": "husky",
+    "e2e": "bunx playwright test",
+    "e2e:refresh": "bunx playwright test --update-snapshots"
   },
   "dependencies": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-router-dom": "^7.6.0"
+    "@headlessui/react": "^2.2.0",
+    "@heroicons/react": "^2.2.0",
+    "@tailwindcss/vite": "^4.0.9",
+    "@tanstack/react-query": "^5.69.0",
+    "clsx": "^2.1.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.2.0",
+    "styled-components": "^6.1.16",
+    "tailwindcss": "^4.0.9",
+    "vite-plugin-image-optimizer": "^1.1.8",
+    "vite-tsconfig-paths": "^5.1.4",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@eslint/js": "^9.25.0",
-    "@types/react": "^19.1.2",
-    "@types/react-dom": "^19.1.2",
-    "@types/react-router-dom": "^5.3.3",
-    "@vitejs/plugin-react": "^4.4.1",
-    "eslint": "^9.25.0",
-    "eslint-plugin-react-hooks": "^5.2.0",
+    "@biomejs/biome": "1.9.4",
+    "@eslint/js": "^9.21.0",
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.13.17",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@types/styled-components": "^5.1.34",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.21.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
-    "globals": "^16.0.0",
-    "typescript": "~5.8.3",
-    "typescript-eslint": "^8.30.1",
-    "vite": "^6.3.5"
+    "globals": "^15.15.0",
+    "husky": "^9.1.7",
+    "prettier": "^3.5.2",
+    "prettier-plugin-tailwindcss": "^0.6.11",
+    "sharp": "^0.33.5",
+    "svgo": "^3.3.2",
+    "typescript": "~5.7.2",
+    "typescript-eslint": "^8.24.1",
+    "vite": "^6.2.0",
+    "vite-plugin-inspect": "^11.0.0",
+    "vitest": "^3.1.1"
+  },
+  "engines": {
+    "bun": ">=1.2.6"
   }
 }

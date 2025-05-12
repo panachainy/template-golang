@@ -1,54 +1,112 @@
-# React + TypeScript + Vite
+[![Playwright Tests](https://github.com/panachainy/template-react-vite-tailwind/actions/workflows/playwright.yml/badge.svg)](https://github.com/panachainy/template-react-vite-tailwind/actions/workflows/playwright.yml)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Setup
 
-Currently, two official plugins are available:
+[Web](https://template-react-vite-tailwind.pages.dev)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Install Tailwind CSS
 
-## Expanding the ESLint configuration
+1. [Tailwind CSS with Vite](https://tailwindcss.com/docs/installation/using-vite)
+2. [Tailwind UI Icons](https://tailwindui.com/documentation#icons)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Install Prettier
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+[Automatic Class Sorting with Prettier](https://tailwindcss.com/blog/automatic-class-sorting-with-prettier)
+
+## Command Documentation
+
+### How to Run static
+
+To build the project, run:
+
+```sh
+bun build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+artifacts will be generated in the `dist` folder.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### How to Run with Node
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+To run the project in development mode, run:
+
+```sh
+bun dev
 ```
+
+To start the project in production mode, run:
+
+```sh
+bun start
+```
+
+### Public Directory
+
+The `public` directory is used to serve static assets. Files in this directory are served at the root URL.
+
+For example, if you add a file named `logo.png` in the `public` directory, it will be available at `http://localhost:3000/logo.png`.
+
+### Environment Variables
+
+Vite supports environment variables and modes. You can define environment variables in `.env` files. For example, to define a variable for development mode, create a file named `.env.development` and add your variables:
+
+```bash
+VITE_API_URL=https://api.example.com
+```
+
+To access these variables in your code, use the `import.meta.env` object:
+
+```javascript
+console.log(import.meta.env.VITE_API_URL)
+```
+
+For more information, refer to the [Vite Environment Variables and Modes](https://vite.dev/guide/env-and-mode#modes) documentation.
+
+## Husky
+
+To set up Husky, run the following command:
+
+TODO: husky is not work on bun will fix later
+
+```sh
+bun prepare
+```
+
+This will configure Husky to manage your Git hooks.
+
+## E2E
+
+```sh
+  bunx playwright test
+    Runs the end-to-end tests.
+
+  bunx playwright test --ui
+    Starts the interactive UI mode.
+
+  bunx playwright test --project=chromium
+    Runs the tests only on Desktop Chrome.
+
+  bunx playwright test example
+    Runs the tests in a specific file.
+
+  bunx playwright test --debug
+    Runs the tests in debug mode.
+
+  bunx playwright codegen
+    Auto generate tests with Codegen.
+
+We suggest that you begin by typing:
+
+    bunx playwright test
+```
+
+## Dependencies tools
+
+- bun
+- zod
+- clsx
+- tailwindcss
+- useQuery
+- vite-plugin-inspect
+- styled
+- [vitest](https://vitest.dev/guide/snapshot)
+- [playwright](https://playwright.dev/docs/intro)

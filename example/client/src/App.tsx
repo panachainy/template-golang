@@ -1,26 +1,59 @@
-import { Routes, Route, Link } from 'react-router-dom';
+import './App.css'
 
-function Home() {
-  return <h2>Home Page</h2>;
-}
+import { LogsProvider } from '@/providers/Logs'
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+import ErrorPage from './core/Error'
+import { MainLayout } from './layouts/Main'
+import Home from './pages/Home/Home'
+import PokemonPage from './pages/Pokemon/Index'
+import { StyledExamplePage } from './pages/Styled/Index'
+import ZodExample from './pages/Zod/Index'
 
-function About() {
-  return <h2>About Page</h2>;
-}
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: (
+      <MainLayout>
+        <Home />
+      </MainLayout>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/pokemon',
+    element: (
+      <MainLayout>
+        <PokemonPage />
+      </MainLayout>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/zod',
+    element: (
+      <MainLayout>
+        <ZodExample />
+      </MainLayout>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: '/styled',
+    element: (
+      <MainLayout>
+        <StyledExamplePage />
+      </MainLayout>
+    ),
+    errorElement: <ErrorPage />,
+  },
+])
 
 function App() {
   return (
-    <div>
-      <nav>
-        <Link to="/">Home</Link> | <Link to="/about">About</Link>
-      </nav>
-
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-      </Routes>
-    </div>
-  );
+    <LogsProvider>
+      <RouterProvider router={router} />
+    </LogsProvider>
+  )
 }
 
-export default App;
+export default App

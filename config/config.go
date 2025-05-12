@@ -17,7 +17,8 @@ type (
 	}
 
 	ServerConfig struct {
-		Port int `mapstructure:"SERVER_PORT"`
+		Port int    `mapstructure:"SERVER_PORT"`
+		Mode string `mapstructure:"GIN_MODE"`
 	}
 
 	DbConfig struct {
@@ -85,7 +86,11 @@ func Provide() *Config {
 
 		fmt.Println("Config loaded successfully")
 
-		fmt.Printf("Loaded Config: %+v\n", _config)
+		if _config.Server.Mode != "release" {
+			fmt.Println("======================================================")
+			fmt.Printf("[Loaded] Config: %+v\n", _config)
+			fmt.Println("======================================================")
+		}
 	})
 
 	return _config

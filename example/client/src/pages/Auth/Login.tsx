@@ -1,13 +1,23 @@
 import axios from 'axios'
-import { useState } from 'react';
+
+// https://partnerpens.hashnode.dev/jwt-authentication-in-react-go
 
 async function loginWithLine() {
   try {
-    const response = await axios.get('http://localhost:8080/api/v1/auth/line/login');
-    console.log('Login successful:', response.data);
-    // Handle successful login (e.g., redirect or store token)
+    const response = await axios.get(
+      'http://localhost:8080/api/v1/auth/line/login',
+      {
+        withCredentials: true,
+      },
+    )
+    if (response.data.redirectUrl) {
+      window.location.href = response.data.redirectUrl
+    } else {
+      console.log('Login successful:', response.data)
+      // Handle successful login (e.g., store token)
+    }
   } catch (error) {
-    console.error('Login failed:', error);
+    console.error('Login failed:', error)
     // Handle login error
   }
 }

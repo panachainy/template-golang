@@ -3,4 +3,5 @@
 package usecases
 
 type JWTUsecase interface {
+	GenerateJWT(userID string) (string, error)
 }

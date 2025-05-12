@@ -42,12 +42,15 @@ func loadPrivateKey(path string) *ecdsa.PrivateKey {
 	return key
 }
 
-func (a *jwtUsecaseImpl) generateJWT() (string, error) {
+func (a *jwtUsecaseImpl) GenerateJWT(userID string) (string, error) {
+	// TODO: implement MapClaims
 	// Create a new JWT token
 	token := jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
-		"iss": "my-auth-server",
-		"sub": "john",
-		"foo": 2,
+		"sub":       userID,
+		"name":      "John",
+		"last_name": "Doe",
+		"iss":       "my-auth-server-issuer",
+		"foo":       2,
 	})
 
 	// Sign the token with the private key

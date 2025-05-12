@@ -1,14 +1,11 @@
-import axios from 'axios'
-
-// https://partnerpens.hashnode.dev/jwt-authentication-in-react-go
-
 async function loginWithLine() {
   // Redirect to the LINE login page
   // This URL should be the one provided by your backend for LINE login
   // Use this way because avoid redirect 2 times and stuck on cors origin
-  window.location.href = "http://localhost:8080/api/v1/auth/line/login";
+  window.location.href = 'http://localhost:8080/api/v1/auth/line/login'
 }
 
+// TODO: https://partnerpens.hashnode.dev/jwt-authentication-in-react-go
 export function LoginPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100">

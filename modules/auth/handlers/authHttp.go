@@ -71,7 +71,18 @@ func (h *authHttpHandler) AuthCallback(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Generate JWT for the authenticated user
+	token, err := generateJWT(user.UserID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
+		"message": "Authentication successful",
+		"token":   token,
+		// FIXME: user not sure it important or not?
 		"user": user,
 	})
 }

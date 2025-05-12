@@ -18,7 +18,8 @@ import (
 // Injectors from wire.go:
 
 func Wire(db database.Database, conf *config.Config) (*Auth, error) {
-	authHttpHandler := handlers.Provide()
+	jwtUsecaseImpl := usecases.Provide(conf)
+	authHttpHandler := handlers.Provide(jwtUsecaseImpl)
 	userAuthMiddleware := middlewares.Provide()
 	auth := &Auth{
 		Handler:    authHttpHandler,

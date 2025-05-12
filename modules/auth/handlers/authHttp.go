@@ -2,16 +2,21 @@ package handlers
 
 import (
 	"net/http"
+	"template-golang/modules/auth/usecases"
 
 	"github.com/gin-gonic/gin"
 	"github.com/markbates/goth/gothic"
 )
 
 type authHttpHandler struct {
+	jwtUsecase usecases.JWTUsecase
 }
 
-func Provide() *authHttpHandler {
-	return &authHttpHandler{}
+func Provide(jwtUsecase usecases.JWTUsecase) *authHttpHandler {
+	return &authHttpHandler{
+
+		jwtUsecase: jwtUsecase,
+	}
 }
 
 func (h *authHttpHandler) Login(c *gin.Context) {

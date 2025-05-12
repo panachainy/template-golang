@@ -4,7 +4,7 @@ import { LogsProvider } from '@/providers/Logs'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import ErrorPage from './core/Error'
 import { MainLayout } from './layouts/Main'
-import { CallbackPage } from './pages/Auth/Callback'
+import { AuthCallbackPage } from './pages/Auth/Callback'
 import { LoginPage } from './pages/Auth/Login'
 import Home from './pages/Home/Home'
 
@@ -31,19 +31,10 @@ const router = createBrowserRouter([
     path: 'auth/callback',
     element: (
       <MainLayout>
-        <CallbackPage />
+        <AuthCallbackPage />
       </MainLayout>
     ),
     errorElement: <ErrorPage />,
-    loader: ({ request }) => {
-      const url = new URL(request.url)
-      const token = url.searchParams.get('token')
-      if (token) {
-        console.log('Token:', token)
-        localStorage.setItem('token', token)
-      }
-      return null
-    },
   },
 ])
 

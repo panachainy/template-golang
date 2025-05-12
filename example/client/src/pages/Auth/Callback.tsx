@@ -1,9 +1,20 @@
-export function CallbackPage() {
-  return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
-        this is callback page
-      </div>
-    </div>
-  )
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+export function AuthCallbackPage() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+
+    if (token) {
+      localStorage.setItem('jwt', token);
+      navigate('/dashboard');
+    } else {
+      navigate('/login');
+    }
+  }, [navigate]);
+
+  return <div>Processing authentication...</div>;
 }

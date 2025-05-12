@@ -14,7 +14,7 @@ type jwtUsecaseImpl struct {
 }
 
 func Provide(conf *config.Config) *jwtUsecaseImpl {
-	key := loadPrivateKey(os.Getenv("PRIVATE_KEY_PATH"))
+	key := loadPrivateKey(conf.Auth.PrivateKeyPath)
 
 	return &jwtUsecaseImpl{
 		key: key,

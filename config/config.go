@@ -31,7 +31,8 @@ type (
 	}
 
 	AuthConfig struct {
-		// os.Getenv("LINE_KEY"), os.Getenv("LINE_SECRET")
+		PrivateKeyPath string `mapstructure:"PRIVATE_KEY_PATH"`
+
 		Line struct {
 			ClientID     string `mapstructure:"LINE_CLIENT_ID"`
 			ClientSecret string `mapstructure:"LINE_CLIENT_SECRET"`

@@ -59,11 +59,11 @@ func (h *authHttpHandler) Login(c *gin.Context) {
 }
 
 func (h *authHttpHandler) AuthCallback(c *gin.Context) {
-	provider := c.Param("provider")
-	if provider == "" {
-		c.JSON(400, gin.H{"message": "Provider is required"})
-		return
-	}
+	// provider := c.Param("provider")
+	// if provider == "" {
+	// 	c.JSON(400, gin.H{"message": "Provider is required"})
+	// 	return
+	// }
 
 	// FIXME: check provider
 	user, err := gothic.CompleteUserAuth(c.Writer, c.Request)
@@ -77,11 +77,11 @@ func (h *authHttpHandler) AuthCallback(c *gin.Context) {
 }
 
 func (h *authHttpHandler) Logout(c *gin.Context) {
-	provider := c.Param("provider")
-	if provider == "" {
-		c.JSON(400, gin.H{"message": "Provider is required"})
-		return
-	}
+	// provider := c.Param("provider")
+	// if provider == "" {
+	// 	c.JSON(400, gin.H{"message": "Provider is required"})
+	// 	return
+	// }
 
 	// c.Request = c.Request.WithContext(gothic.WithProvider(c.Request.Context(), provider))
 	// FIXME: check provider
@@ -91,13 +91,6 @@ func (h *authHttpHandler) Logout(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "logged out"})
-
-	if err != nil {
-		c.JSON(500, gin.H{"message": "Logout failed", "error": err.Error()})
-		return
-	}
-
-	c.JSON(200, gin.H{"message": "Logout successful"})
 }
 
 func (h *authHttpHandler) Routes(routerGroup *gin.RouterGroup) {

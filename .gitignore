@@ -30,3 +30,7 @@ apiserver
 */__debug_bin*
 
 **/.DS_Store
+
+# auth
+private_key.pem
+public_key.pem

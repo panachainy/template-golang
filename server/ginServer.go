@@ -6,9 +6,11 @@ import (
 	"template-golang/config"
 	"template-golang/modules/auth"
 	"template-golang/modules/cockroach"
+	"time"
 
 	docs "template-golang/docs"
 
+	"github.com/gin-contrib/cors"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
@@ -35,7 +37,22 @@ func Provide(
 	cockroach *cockroach.Cockroach,
 	auth *auth.Auth,
 ) *ginServer {
+
+	config := cors.New(cors.Config{
+		AllowOrigins:     []string{"https://foo.com"},
+		AllowMethods:     []string{"PUT", "PATCH"},
+		AllowHeaders:     []string{"Origin"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		AllowOriginFunc: func(origin string) bool {
+			return origin == "https://github.com"
+		},
+		MaxAge: 12 * time.Hour,
+	})
+
 	r := gin.Default()
+
+	r.Use(config)
 
 	return &ginServer{
 		router: r,

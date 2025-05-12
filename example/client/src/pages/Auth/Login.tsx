@@ -1,3 +1,17 @@
+import axios from 'axios'
+import { useState } from 'react';
+
+async function loginWithLine() {
+  try {
+    const response = await axios.get('http://localhost:8080/api/v1/auth/line/login');
+    console.log('Login successful:', response.data);
+    // Handle successful login (e.g., redirect or store token)
+  } catch (error) {
+    console.error('Login failed:', error);
+    // Handle login error
+  }
+}
+
 export function LoginPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100">
@@ -7,7 +21,11 @@ export function LoginPage() {
         </h1>
 
         <div className="social-login space-y-4">
-          <button className="w-full rounded-lg bg-green-500 px-4 py-2 text-white transition hover:bg-green-600">
+          <button
+            type="button"
+            className="w-full rounded-lg bg-green-500 px-4 py-2 text-white transition hover:bg-green-600"
+            onClick={loginWithLine}
+          >
             Line
           </button>
         </div>

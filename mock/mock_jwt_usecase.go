@@ -10,6 +10,8 @@
 package mock
 
 import (
+	reflect "reflect"
+
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -35,4 +37,19 @@ func NewMockJWTUsecase(ctrl *gomock.Controller) *MockJWTUsecase {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockJWTUsecase) EXPECT() *MockJWTUsecaseMockRecorder {
 	return m.recorder
+}
+
+// GenerateJWT mocks base method.
+func (m *MockJWTUsecase) GenerateJWT(userID string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GenerateJWT", userID)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GenerateJWT indicates an expected call of GenerateJWT.
+func (mr *MockJWTUsecaseMockRecorder) GenerateJWT(userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateJWT", reflect.TypeOf((*MockJWTUsecase)(nil).GenerateJWT), userID)
 }

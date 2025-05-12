@@ -14,15 +14,17 @@ import (
 
 type authHttpHandler struct {
 	jwtUsecase usecases.JWTUsecase
+	conf       *config.Config
 }
 
 func Provide(jwtUsecase usecases.JWTUsecase, conf *config.Config) *authHttpHandler {
 	goth.UseProviders(
-		line.New(conf.Auth.Line.ClientID, conf.Auth.Line.ClientSecret, "http://localhost:3000/auth/line/callback", "profile", "openid", "email"),
+		line.New(conf.Auth.LineClientID, conf.Auth.LineClientSecret, conf.Auth.LineCallbackURL, "profile", "openid", "email"),
 	)
 
 	return &authHttpHandler{
 		jwtUsecase: jwtUsecase,
+		conf:       conf,
 	}
 }
 

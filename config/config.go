@@ -33,10 +33,9 @@ type (
 	AuthConfig struct {
 		PrivateKeyPath string `mapstructure:"PRIVATE_KEY_PATH"`
 
-		Line struct {
-			ClientID     string `mapstructure:"LINE_CLIENT_ID"`
-			ClientSecret string `mapstructure:"LINE_CLIENT_SECRET"`
-		}
+		LineClientID     string `mapstructure:"LINE_CLIENT_ID"`
+		LineClientSecret string `mapstructure:"LINE_CLIENT_SECRET"`
+		LineCallbackURL  string `mapstructure:"LINE_CALLBACK_URL"`
 	}
 )
 
@@ -54,6 +53,9 @@ var (
 			DBName:   "postgres",
 			SSLMode:  "disable",
 			TimeZone: "Asia/Bangkok",
+		},
+		Auth: AuthConfig{
+			PrivateKeyPath: "private.pem",
 		},
 	}
 )
@@ -82,6 +84,8 @@ func Provide() *Config {
 		}
 
 		fmt.Println("Config loaded successfully")
+
+		fmt.Printf("Loaded Config: %+v\n", _config)
 	})
 
 	return _config

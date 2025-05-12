@@ -19,7 +19,7 @@ import (
 
 func Wire(db database.Database, conf *config.Config) (*Auth, error) {
 	jwtUsecaseImpl := usecases.Provide(conf)
-	authHttpHandler := handlers.Provide(jwtUsecaseImpl)
+	authHttpHandler := handlers.Provide(jwtUsecaseImpl, conf)
 	userAuthMiddleware := middlewares.Provide()
 	auth := &Auth{
 		Handler:    authHttpHandler,

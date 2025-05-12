@@ -9,3 +9,7 @@ curl --location 'http://localhost:8080/api/v1/cockroach' \
 --data '{
     "amount": 3
 }'
+
+### /api/v1/auth/line/login
+
+curl --location 'http://localhost:8080/api/v1/auth/line/login'

@@ -2,19 +2,26 @@ package handlers
 
 import (
 	"net/http"
+	"template-golang/config"
 	"template-golang/modules/auth/usecases"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
+	"github.com/markbates/goth/providers/line"
 )
 
 type authHttpHandler struct {
 	jwtUsecase usecases.JWTUsecase
 }
 
-func Provide(jwtUsecase usecases.JWTUsecase) *authHttpHandler {
-	return &authHttpHandler{
+func Provide(jwtUsecase usecases.JWTUsecase, conf *config.Config) *authHttpHandler {
+	goth.UseProviders(
+		line.New(conf.Auth.Line.ClientID, conf.Auth.Line.ClientSecret, "http://localhost:3000/auth/line/callback", "profile", "openid", "email"),
+	)
 
+	return &authHttpHandler{
 		jwtUsecase: jwtUsecase,
 	}
 }
@@ -44,10 +51,23 @@ func (h *authHttpHandler) Login(c *gin.Context) {
 
 	// === new
 
+	provider := c.Param("provider")
+	if provider == "" {
+		c.JSON(400, gin.H{"message": "Provider is required"})
+		return
+	}
+
+	q := c.Request.URL.Query()
+	q.Add("provider", c.Param("provider"))
+	c.Request.URL.RawQuery = q.Encode()
+
+	// c.Request = c.Request.WithContext(gothic.WithProvider(c.Request.Context(), provider))
+
 	// if gothUser, err := gothic.CompleteUserAuth(c.Writer, c.Request); err == nil {
 	// 	t, _ := template.New("foo").Parse(userTemplate)
 	// 	t.Execute(res, gothUser)
 	// } else {
+
 	gothic.BeginAuthHandler(c.Writer, c.Request)
 	// }
 

@@ -1,19 +1,17 @@
 package handlers
 
 import (
-	"template-golang/modules/auth/usecases"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/markbates/goth/gothic"
 )
 
 type authHttpHandler struct {
-	authUsecase usecases.AuthUsecase
 }
 
-func Provide(authUsecase usecases.AuthUsecase) *authHttpHandler {
-	return &authHttpHandler{
-		authUsecase: authUsecase,
-	}
+func Provide() *authHttpHandler {
+	return &authHttpHandler{}
 }
 
 func (h *authHttpHandler) Login(c *gin.Context) {
@@ -39,6 +37,17 @@ func (h *authHttpHandler) Login(c *gin.Context) {
 	// 	return
 	// }
 
+	// === new
+
+	// if gothUser, err := gothic.CompleteUserAuth(c.Writer, c.Request); err == nil {
+	// 	t, _ := template.New("foo").Parse(userTemplate)
+	// 	t.Execute(res, gothUser)
+	// } else {
+	gothic.BeginAuthHandler(c.Writer, c.Request)
+	// }
+
+	// ===
+
 	// if err := h.authUsecase.ProcessLogin(reqBody); err != nil {
 	// 	c.JSON(http.StatusUnauthorized, gin.H{"message": "Authentication failed"})
 	// 	c.Error(err)
@@ -47,4 +56,55 @@ func (h *authHttpHandler) Login(c *gin.Context) {
 
 	// c.JSON(http.StatusOK, gin.H{"message": "Login successful"})
 	// return
+}
+
+func (h *authHttpHandler) AuthCallback(c *gin.Context) {
+	provider := c.Param("provider")
+	if provider == "" {
+		c.JSON(400, gin.H{"message": "Provider is required"})
+		return
+	}
+
+	// FIXME: check provider
+	user, err := gothic.CompleteUserAuth(c.Writer, c.Request)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"user": user,
+	})
+}
+
+func (h *authHttpHandler) Logout(c *gin.Context) {
+	provider := c.Param("provider")
+	if provider == "" {
+		c.JSON(400, gin.H{"message": "Provider is required"})
+		return
+	}
+
+	// c.Request = c.Request.WithContext(gothic.WithProvider(c.Request.Context(), provider))
+	// FIXME: check provider
+	err := gothic.Logout(c.Writer, c.Request)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "logged out"})
+
+	if err != nil {
+		c.JSON(500, gin.H{"message": "Logout failed", "error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "Logout successful"})
+}
+
+func (h *authHttpHandler) Routes(routerGroup *gin.RouterGroup) {
+	authGroup := routerGroup.Group("/auth/:provider")
+	{
+		authGroup.GET("/login", h.Login)
+		authGroup.GET("/callback", h.AuthCallback)
+		authGroup.GET("/logout", h.Logout)
+	}
 }

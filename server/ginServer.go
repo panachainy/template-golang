@@ -57,6 +57,9 @@ func (s *ginServer) Start() {
 	})
 
 	s.initializeCockroachHttpHandler()
+
+	s.modules.auth.Handler.Routes(v1)
+
 	if gin.Mode() == gin.DebugMode {
 		s.initSwagger()
 	}

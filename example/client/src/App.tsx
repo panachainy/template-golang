@@ -4,10 +4,8 @@ import { LogsProvider } from '@/providers/Logs'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import ErrorPage from './core/Error'
 import { MainLayout } from './layouts/Main'
+import { LoginPage } from './pages/Auth/Login'
 import Home from './pages/Home/Home'
-import PokemonPage from './pages/Pokemon/Index'
-import { StyledExamplePage } from './pages/Styled/Index'
-import ZodExample from './pages/Zod/Index'
 
 const router = createBrowserRouter([
   {
@@ -20,28 +18,10 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
   },
   {
-    path: '/pokemon',
+    path: '/login',
     element: (
       <MainLayout>
-        <PokemonPage />
-      </MainLayout>
-    ),
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: '/zod',
-    element: (
-      <MainLayout>
-        <ZodExample />
-      </MainLayout>
-    ),
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: '/styled',
-    element: (
-      <MainLayout>
-        <StyledExamplePage />
+        <LoginPage />
       </MainLayout>
     ),
     errorElement: <ErrorPage />,

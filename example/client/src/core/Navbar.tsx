@@ -1,5 +1,4 @@
-import './Navbar.css' // นำเข้า Navbar.css สำหรับการตกแต่ง
-
+import './Navbar.css'
 function Navbar() {
   return (
     <nav className="navbar">
@@ -9,13 +8,7 @@ function Navbar() {
           <a href="/">Home</a>
         </li>
         <li>
-          <a href="/pokemon">Pokemon</a>
-        </li>
-        <li>
-          <a href="/zod">Zod</a>
-        </li>
-        <li>
-          <a href="/styled">Styled</a>
+          <a href="/login">Login</a>
         </li>
       </ul>
     </nav>

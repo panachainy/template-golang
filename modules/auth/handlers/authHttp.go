@@ -72,7 +72,6 @@ func (h *authHttpHandler) AuthCallback(c *gin.Context) {
 	q.Add("provider", c.Param("provider"))
 	c.Request.URL.RawQuery = q.Encode()
 
-	// FIXME: check provider
 	user, err := gothic.CompleteUserAuth(c.Writer, c.Request)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
@@ -86,12 +85,11 @@ func (h *authHttpHandler) AuthCallback(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Authentication successful",
-		"token":   token,
-		// FIXME: user not sure it important or not?
-		"user": user,
-	})
+	// TODO: add redirect url to FE page such as home page
+	// Redirect with the token as a query parameter
+	redirectURL := "http://localhost:3000/auth/callback?token=" + token
+	c.Redirect(http.StatusFound, redirectURL)
+	return
 }
 
 func (h *authHttpHandler) Logout(c *gin.Context) {

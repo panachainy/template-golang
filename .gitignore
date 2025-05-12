@@ -34,3 +34,6 @@ apiserver
 # auth
 private_key.pem
 public_key.pem
+
+ecdsa_private_key.pem
+ecdsa_public_key.pem

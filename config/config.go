@@ -13,6 +13,7 @@ type (
 		// Note: The mapstructure:",squash" tag ensures that nested fields are treated as top-level environment variables.
 		Server ServerConfig `mapstructure:",squash"`
 		Db     DbConfig     `mapstructure:",squash"`
+		Auth   AuthConfig   `mapstructure:",squash"`
 	}
 
 	ServerConfig struct {
@@ -27,6 +28,14 @@ type (
 		DBName   string `mapstructure:"DB_DBNAME"`
 		SSLMode  string `mapstructure:"DB_SSLMODE"`
 		TimeZone string `mapstructure:"DB_TIMEZONE"`
+	}
+
+	AuthConfig struct {
+		// os.Getenv("LINE_KEY"), os.Getenv("LINE_SECRET")
+		Line struct {
+			ClientID     string `mapstructure:"LINE_CLIENT_ID"`
+			ClientSecret string `mapstructure:"LINE_CLIENT_SECRET"`
+		}
 	}
 )
 

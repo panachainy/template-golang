@@ -4,6 +4,7 @@ import { LogsProvider } from '@/providers/Logs'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import ErrorPage from './core/Error'
 import { MainLayout } from './layouts/Main'
+import { AuthProvider } from './pages/Auth/AuthContext'
 import { AuthCallbackPage } from './pages/Auth/Callback'
 import { LoginPage } from './pages/Auth/Login'
 import Home from './pages/Home/Home'
@@ -40,9 +41,11 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <LogsProvider>
-      <RouterProvider router={router} />
-    </LogsProvider>
+    <AuthProvider>
+      <LogsProvider>
+        <RouterProvider router={router} />
+      </LogsProvider>
+    </AuthProvider>
   )
 }
 

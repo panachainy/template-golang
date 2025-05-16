@@ -1,0 +1,36 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Vite in Chrome",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}/src",
+      "sourceMaps": true,
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Run Bun Dev",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["dev"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true,
+      "presentation": {
+        "hidden": true
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug",
+      "configurations": ["Debug Vite in Chrome", "Run Bun Dev"]
+    }
+  ]
+}

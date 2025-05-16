@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+// FIXME: check navigate path
 export function AuthCallbackPage() {
   const navigate = useNavigate()
 
@@ -10,9 +11,9 @@ export function AuthCallbackPage() {
 
     if (token) {
       localStorage.setItem('jwt', token)
-      navigate('/dashboard')
+      navigate('auth/dashboard')
     } else {
-      navigate('/login')
+      navigate('auth/login')
     }
   }, [navigate])
 

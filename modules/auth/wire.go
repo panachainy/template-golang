@@ -5,6 +5,7 @@
 package auth
 
 import (
+	"template-golang/config"
 	"template-golang/database"
 	"template-golang/modules/auth/handlers"
 	"template-golang/modules/auth/middlewares"
@@ -20,7 +21,7 @@ var ProviderSet = wire.NewSet(
 	wire.Struct(new(Auth), "*"),
 )
 
-func Wire(db database.Database) (*Auth, error) {
+func Wire(db database.Database, conf *config.Config) (*Auth, error) {
 	wire.Build(ProviderSet)
 	return &Auth{}, nil
 }

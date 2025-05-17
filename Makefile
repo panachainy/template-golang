@@ -45,3 +45,11 @@ migrate:
 
 swag.init:
 	swag init -g cmd/main.go
+
+# auth
+
+auth.newkey:
+	# openssl genpkey -algorithm RSA -out private.pem -pkeyopt rsa_keygen_bits:2048
+	# openssl rsa -in private.pem -pubout -out public.pem
+	openssl ecparam -name prime256v1 -genkey -noout -out ecdsa_private_key.pem
+	openssl ec -in ecdsa_private_key.pem -pubout -out ecdsa_public_key.pem

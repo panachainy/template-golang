@@ -8,6 +8,11 @@
       "url": "http://localhost:3000",
       "webRoot": "${workspaceFolder}/src",
       "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        "webpack:///src/*": "${webRoot}/*",
+        "vite:///src/*": "${webRoot}/*",
+        "webpack:///*": "${webRoot}/*"
+      },
       "presentation": {
         "hidden": true
       }

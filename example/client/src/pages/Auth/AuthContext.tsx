@@ -6,7 +6,7 @@ import type { ReactNode } from 'react'
 import type { UserInfo } from './interfaces/UserInfo'
 
 interface AuthContextType {
-  userInfo: unknown | null
+  userInfo: UserInfo | null
   setAccessToken: (accessToken: string) => void
 
   loginWithLine: () => void

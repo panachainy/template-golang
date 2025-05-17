@@ -6,7 +6,7 @@ import ErrorPage from './core/Error'
 import { MainLayout } from './layouts/Main'
 import { AuthProvider } from './pages/Auth/AuthContext'
 import { AuthCallbackPage } from './pages/Auth/Callback'
-import { LoginPage } from './pages/Auth/Login'
+import { LoginPage } from './pages/Auth/LoginPage'
 import Home from './pages/Home/Home'
 
 const router = createBrowserRouter([

@@ -62,9 +62,7 @@ export default defineConfig({
       cache: false,
       cacheLocation: undefined,
     }),
-    Inspect({
-      build: false,
-    }),
+    Inspect(),
   ],
   resolve: {
     alias: {
@@ -75,5 +73,8 @@ export default defineConfig({
   server: {
     port: 3000,
     // open: true,
+  },
+  build: {
+    sourcemap: true, // Generate sourcemaps for better debugging
   },
 });

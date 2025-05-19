@@ -14,25 +14,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        const response = await fetch('http://localhost:8080/api/v1/auth/status', {
-          credentials: 'include', // This is important for sending cookies
-        });
+        const response = await fetch(
+          'http://localhost:8080/api/v1/auth/status',
+          {
+            credentials: 'include', // This is important for sending cookies
+          },
+        )
         if (response.ok) {
-          const data = await response.json();
+          const data = await response.json()
           setUserInfo({
             accessToken: data.accessToken || null,
             refreshToken: data.refreshToken || null,
-          });
+          })
         } else {
-          setUserInfo(null);
+          setUserInfo(null)
         }
       } catch (error) {
-        console.error('Failed to check auth status:', error);
-        setUserInfo(null);
+        console.error('Failed to check auth status:', error)
+        setUserInfo(null)
       }
-    };
+    }
 
-    checkAuthStatus();
+    checkAuthStatus()
   }, [])
 
   // Function to refresh access token

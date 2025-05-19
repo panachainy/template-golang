@@ -5,4 +5,5 @@ export interface AuthContextType {
   setAccessToken: (accessToken: string) => void
   loginWithLine: () => void
   refreshAccessToken: () => void
+  logout: () => void
 }

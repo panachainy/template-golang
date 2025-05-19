@@ -5,42 +5,58 @@ import { Navigate } from 'react-router-dom'
 import type { AuthContextType } from './interfaces/AuthContext'
 import type { UserInfo } from './interfaces/UserInfo'
 
+const AUTH_STORAGE_KEY = 'auth_user_info'
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(() => {
+    console.log('action: AUTH_STORAGE_KEY')
+    const storedData = localStorage.getItem(AUTH_STORAGE_KEY)
+    return storedData ? JSON.parse(storedData) : null
+  })
+
+  // Save to localStorage whenever userInfo changes
+  useEffect(() => {
+    if (userInfo) {
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(userInfo))
+    } else {
+      localStorage.removeItem(AUTH_STORAGE_KEY)
+    }
+  }, [userInfo])
 
   // Check authentication status on mount and after token refresh
   useEffect(() => {
-    const checkAuthStatus = async () => {
-      try {
-        const response = await fetch(
-          'http://localhost:8080/api/v1/auth/status',
-          {
-            credentials: 'include', // This is important for sending cookies
-          },
-        )
-        if (response.ok) {
-          const data = await response.json()
-          setUserInfo({
-            accessToken: data.accessToken || null,
-            refreshToken: data.refreshToken || null,
-          })
-        } else {
-          setUserInfo(null)
-        }
-      } catch (error) {
-        console.error('Failed to check auth status:', error)
-        setUserInfo(null)
-      }
-    }
+    console.log('TODO: 1. implement later Refreshing access token...')
+    // const checkAuthStatus = async () => {
+    //   try {
+    //     const response = await fetch(
+    //       'http://localhost:8080/api/v1/auth/status',
+    //       {
+    //         credentials: 'include', // This is important for sending cookies
+    //       },
+    //     )
+    //     if (response.ok) {
+    //       const data = await response.json()
+    //       setUserInfo({
+    //         accessToken: data.accessToken || null,
+    //         refreshToken: data.refreshToken || null,
+    //       })
+    //     } else {
+    //       setUserInfo(null)
+    //     }
+    //   } catch (error) {
+    //     console.error('Failed to check auth status:', error)
+    //     setUserInfo(null)
+    //   }
+    // }
 
-    checkAuthStatus()
+    // checkAuthStatus()
   }, [])
 
   // Function to refresh access token
   const refreshAccessToken = async () => {
-    console.log('TODO: implement later Refreshing access token...')
+    console.log('TODO: 2. implement later Refreshing access token...')
   }
 
   // Function to handle login
@@ -58,9 +74,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     })
   }
 
+  const logout = () => {
+    setUserInfo(null)
+  }
+
   return (
     <AuthContext.Provider
-      value={{ userInfo, setAccessToken, loginWithLine, refreshAccessToken }}
+      value={{
+        userInfo,
+        setAccessToken,
+        loginWithLine,
+        refreshAccessToken,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>

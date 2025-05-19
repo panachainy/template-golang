@@ -110,3 +110,4 @@ We suggest that you begin by typing:
 - styled
 - [vitest](https://vitest.dev/guide/snapshot)
 - [playwright](https://playwright.dev/docs/intro)
+- [global state management zustand](https://github.com/pmndrs/zustand)

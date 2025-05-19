@@ -7,7 +7,7 @@ function Navbar() {
     <nav className="navbar">
       <div className="logo">React Router</div>
       <div className="user-status">
-        {userInfo ? `Logged in` : 'Not logged in'}
+        {userInfo ? 'Logged in' : 'Not logged in'}
       </div>
       <ul className="nav-links">
         <li>

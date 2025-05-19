@@ -42,7 +42,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Function to handle login
   const loginWithLine = async () => {
-    console.log('TODO: implement later Logging in with LINE...')
     window.location.href = 'http://localhost:8080/api/v1/auth/line/login'
   }
 

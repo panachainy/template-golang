@@ -1,9 +1,9 @@
-import { Navigate } from 'react-router-dom'
-import { useAuth } from './AuthContext'
 import { useEffect, useState } from 'react'
+import { Navigate } from 'react-router-dom'
+import { UseAuth } from './AuthContext'
 
 export function AuthCallbackPage() {
-  const { setAccessToken } = useAuth()
+  const { setAccessToken } = UseAuth()
   const [error, setError] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(true)
 
@@ -33,7 +33,9 @@ export function AuthCallbackPage() {
       <div className="flex min-h-screen items-center justify-center bg-gray-100">
         <div className="rounded-lg bg-white p-8 shadow-md">
           <div className="text-center">
-            <div className="mb-4 text-gray-600">Processing authentication...</div>
+            <div className="mb-4 text-gray-600">
+              Processing authentication...
+            </div>
             <div className="h-4 w-24 animate-pulse rounded bg-gray-200" />
           </div>
         </div>

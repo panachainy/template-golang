@@ -1,59 +1,59 @@
 import { useContext } from 'react'
-import { Navigate } from 'react-router-dom'
-
-import { createContext, useState } from 'react'
+import { createContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
+import { Navigate } from 'react-router-dom'
+import type { AuthContextType } from './interfaces/AuthContext'
 import type { UserInfo } from './interfaces/UserInfo'
-
-interface AuthContextType {
-  userInfo: UserInfo | null
-  setAccessToken: (accessToken: string) => void
-
-  loginWithLine: () => void
-  refreshAccessToken: () => void
-}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
 
+  // Check authentication status on mount and after token refresh
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/api/v1/auth/status', {
+          credentials: 'include', // This is important for sending cookies
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setUserInfo({
+            accessToken: data.accessToken || null,
+            refreshToken: data.refreshToken || null,
+          });
+        } else {
+          setUserInfo(null);
+        }
+      } catch (error) {
+        console.error('Failed to check auth status:', error);
+        setUserInfo(null);
+      }
+    };
+
+    checkAuthStatus();
+  }, [])
+
   // Function to refresh access token
   const refreshAccessToken = async () => {
-    // TODO: implement later
-
     console.log('TODO: implement later Refreshing access token...')
-    // try {
-    //   const response = await axios.post(
-    //     '/api/refresh-token',
-    //     {},
-    //     { withCredentials: true },
-    //   )
-    //   setAccessToken(response.data.accessToken)
-    // } catch (error) {
-    //   console.error('Failed to refresh access token:', error)
-    //   setAccessToken(null)
-    // }
   }
 
   // Function to handle login
   const loginWithLine = async () => {
     console.log('TODO: implement later Logging in with LINE...')
-
     window.location.href = 'http://localhost:8080/api/v1/auth/line/login'
-    // try {
-    //   const response = await axios.get('/api/sso-login', { withCredentials: true });
-    //   setAccessToken(response.data.accessToken);
-    // } catch (error) {
-    //   console.error('SSO login failed:', error);
-    // }
   }
 
   const setAccessToken = (accessToken: string | null) => {
-    setUserInfo((prevUserInfo) => ({
-      accessToken,
-      refreshToken: prevUserInfo?.refreshToken || '',
-    }))
+    setUserInfo((prevUserInfo) => {
+      const newUserInfo = {
+        accessToken,
+        refreshToken: prevUserInfo?.refreshToken || '',
+      }
+      return newUserInfo
+    })
   }
 
   return (
@@ -75,10 +75,12 @@ export const PrivateRoute = ({ children }: { children: ReactNode }) => {
   return authCtx.userInfo ? children : <Navigate to="auth/login" />
 }
 
-export const useAuth = (): AuthContextType => {
+const UseAuth = (): AuthContextType => {
   const context = useContext(AuthContext)
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider')
   }
   return context
 }
+
+export { AuthContext, UseAuth }

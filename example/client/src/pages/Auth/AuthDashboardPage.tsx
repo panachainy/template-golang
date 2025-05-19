@@ -1,7 +1,7 @@
-import { useAuth } from './AuthContext'
+import { UseAuth } from './AuthContext'
 
 export function AuthDashboardPage() {
-  const { userInfo } = useAuth()
+  const { userInfo } = UseAuth()
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">

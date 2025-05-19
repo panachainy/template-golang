@@ -1,8 +1,8 @@
-import { useAuth } from './AuthContext'
+import { UseAuth } from './AuthContext'
 
 // TODO: https://partnerpens.hashnode.dev/jwt-authentication-in-react-go
 export function LoginPage() {
-  const { loginWithLine } = useAuth()
+  const { loginWithLine } = UseAuth()
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100">

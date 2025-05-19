@@ -1,13 +1,13 @@
-import { useAuth } from '@/pages/Auth/AuthContext'
+import { UseAuth } from '@/pages/Auth/AuthContext'
 import './Navbar.css'
 function Navbar() {
-  const { userInfo } = useAuth()
+  const { userInfo } = UseAuth()
 
   return (
     <nav className="navbar">
       <div className="logo">React Router</div>
       <div className="user-status">
-        {userInfo ? `Logged in as ${userInfo.accessToken}` : 'Not logged in'}
+        {userInfo ? `Logged in` : 'Not logged in'}
       </div>
       <ul className="nav-links">
         <li>

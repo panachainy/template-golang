@@ -101,13 +101,14 @@ We suggest that you begin by typing:
 
 ## Dependencies tools
 
-- bun
-- zod
-- clsx
-- tailwindcss
-- useQuery
-- vite-plugin-inspect
-- styled
-- [vitest](https://vitest.dev/guide/snapshot)
-- [playwright](https://playwright.dev/docs/intro)
-- [global state management zustand](https://github.com/pmndrs/zustand)
+- [X] bun
+- [X] zod
+- [X] clsx
+- [X] tailwindcss
+- [X] useQuery
+- [X] vite-plugin-inspect
+- [X] styled
+- [X] [vitest](https://vitest.dev/guide/snapshot)
+- [X] [playwright](https://playwright.dev/docs/intro)
+- [ ] [global state management zustand](https://github.com/pmndrs/zustand)
+- [ ] [shadcn](https://ui.shadcn.com/)

@@ -16,7 +16,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [userInfo, setUserInfo] = useState<UserInfo | null>()
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
 
   // Function to refresh access token
   const refreshAccessToken = async () => {

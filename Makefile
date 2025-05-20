@@ -1,6 +1,9 @@
 dev:
 	air
 
+start:
+	go run ./cmd/main.go
+
 setup:
 	go install go.uber.org/mock/mockgen@latest
 	go install github.com/axw/gocov/gocov@latest

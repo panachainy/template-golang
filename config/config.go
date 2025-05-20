@@ -68,6 +68,10 @@ func Provide() *Config {
 		// Automatically override default values with environment variables
 		viper.AutomaticEnv()
 
+		// TODO: Make it support dynamic .env file path
+
+		fmt.Println("===================== Load .env =============================")
+
 		// Load .env file
 		viper.SetConfigName(".env")
 		// Set the configuration file type
@@ -78,6 +82,22 @@ func Provide() *Config {
 		if err := viper.ReadInConfig(); err != nil {
 			fmt.Printf("Fatal error loading config file: %s\n", err)
 		}
+
+		fmt.Println("======================================================")
+		fmt.Println("===================== Load ../.env =============================")
+
+		// Load .env file
+		viper.SetConfigName(".env")
+		// Set the configuration file type
+		viper.SetConfigType("env")
+		viper.AddConfigPath("../")
+
+		// Read the configuration file
+		if err := viper.ReadInConfig(); err != nil {
+			fmt.Printf("Fatal error loading config file: %s\n", err)
+		}
+
+		fmt.Println("======================================================")
 
 		// Unmarshal the configuration into the Config struct
 		if err := viper.Unmarshal(&_config); err != nil {

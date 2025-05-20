@@ -19,6 +19,7 @@
 - [ ] [Casbin](https://github.com/casbin/casbin)
 - [ ] [goth](https://github.com/markbates/goth)
   - [ ] [JWT goth](https://github.com/markbates/goth/issues/310)
+- [ ] Do corsHandler to support configurable.
 
 ## Design pattern
 

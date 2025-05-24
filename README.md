@@ -21,6 +21,7 @@
   - [ ] [JWT goth](https://github.com/markbates/goth/issues/310)
 - [ ] Do corsHandler to support configurable.
 - [ ] try [WTF](https://github.com/pallat/wtf)
+- [ ] try [failover](https://github.com/wongnai/lmwn_gomeetup_failover)
 
 ## Design pattern
 

@@ -6,9 +6,11 @@ import (
 	"template-golang/config"
 	"template-golang/modules/auth"
 	"template-golang/modules/cockroach"
+	"time"
 
 	docs "template-golang/docs"
 
+	"github.com/gin-contrib/cors"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
@@ -35,7 +37,19 @@ func Provide(
 	cockroach *cockroach.Cockroach,
 	auth *auth.Auth,
 ) *ginServer {
+	// TODO: make it configurable
+	corsHandler := cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	})
+
 	r := gin.Default()
+
+	r.Use(corsHandler)
 
 	return &ginServer{
 		router: r,
@@ -57,6 +71,9 @@ func (s *ginServer) Start() {
 	})
 
 	s.initializeCockroachHttpHandler()
+
+	s.modules.auth.Handler.Routes(v1)
+
 	if gin.Mode() == gin.DebugMode {
 		s.initSwagger()
 	}

@@ -6,5 +6,5 @@ import (
 
 var ProviderSet = wire.NewSet(
 	Provide,
-	wire.Bind(new(AuthUsecase), new(*authUsecaseImpl)),
+	wire.Bind(new(JWTUsecase), new(*jwtUsecaseImpl)),
 )

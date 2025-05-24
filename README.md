@@ -20,6 +20,7 @@
 - [ ] [goth](https://github.com/markbates/goth)
   - [ ] [JWT goth](https://github.com/markbates/goth/issues/310)
 - [ ] Do corsHandler to support configurable.
+- [ ] try [WTF](https://github.com/pallat/wtf)
 
 ## Design pattern
 

@@ -34,9 +34,10 @@ type (
 	AuthConfig struct {
 		PrivateKeyPath string `mapstructure:"PRIVATE_KEY_PATH"`
 
-		LineClientID     string `mapstructure:"LINE_CLIENT_ID"`
-		LineClientSecret string `mapstructure:"LINE_CLIENT_SECRET"`
-		LineCallbackURL  string `mapstructure:"LINE_CALLBACK_URL"`
+		LineClientID      string `mapstructure:"LINE_CLIENT_ID"`
+		LineClientSecret  string `mapstructure:"LINE_CLIENT_SECRET"`
+		LineCallbackURL   string `mapstructure:"LINE_CALLBACK_URL"`
+		LineFECallbackURL string `mapstructure:"LINE_FE_CALLBACK_URL"`
 	}
 )
 

@@ -68,9 +68,8 @@ func (h *authHttpHandler) AuthCallback(c *gin.Context) {
 		return
 	}
 
-	// TODO: add redirect url to FE page such as home page
 	// Redirect with the token as a query parameter
-	redirectURL := "http://localhost:3000/auth/callback?token=" + token
+	redirectURL := h.conf.Auth.LineFECallbackURL + "?token=" + token
 	c.Redirect(http.StatusFound, redirectURL)
 	return
 }

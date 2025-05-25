@@ -40,24 +40,7 @@ func (h *authHttpHandler) Login(c *gin.Context) {
 	q.Add("provider", c.Param("provider"))
 	c.Request.URL.RawQuery = q.Encode()
 
-	// if gothUser, err := gothic.CompleteUserAuth(c.Writer, c.Request); err == nil {
-	// 	t, _ := template.New("foo").Parse(userTemplate)
-	// 	t.Execute(res, gothUser)
-	// } else {
-
 	gothic.BeginAuthHandler(c.Writer, c.Request)
-	// }
-
-	// ===
-
-	// if err := h.authUsecase.ProcessLogin(reqBody); err != nil {
-	// 	c.JSON(http.StatusUnauthorized, gin.H{"message": "Authentication failed"})
-	// 	c.Error(err)
-	// 	return
-	// }
-
-	// c.JSON(http.StatusOK, gin.H{"message": "Login successful"})
-	// return
 }
 
 func (h *authHttpHandler) AuthCallback(c *gin.Context) {

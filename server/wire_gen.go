@@ -35,13 +35,12 @@ func Wire() (Server, error) {
 		Messaging:  cockroachFCMMessaging,
 		Usecase:    cockroachUsecaseImpl,
 	}
-	authUsecaseImpl := usecases2.Provide()
-	authHttpHandler := handlers2.Provide(authUsecaseImpl)
+	jwtUsecaseImpl := usecases2.Provide(configConfig)
+	authHttpHandler := handlers2.Provide(jwtUsecaseImpl, configConfig)
 	userAuthMiddleware := middlewares.Provide()
 	authAuth := &auth.Auth{
 		Handler:    authHttpHandler,
 		Middleware: userAuthMiddleware,
-		Usecase:    authUsecaseImpl,
 	}
 	serverGinServer := Provide(configConfig, cockroachCockroach, authAuth)
 	return serverGinServer, nil

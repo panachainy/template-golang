@@ -8,17 +8,22 @@
 - [x] Viper config
 - [x] Docker
 - [x] Gorm
-- [X] [Swagger-Gin](https://github.com/swaggo/gin-swagger)
-- [X] Wire [need to refactor all code to wire]
-- [X] Unit Test
-- [X] Mock
+- [x] [Swagger-Gin](https://github.com/swaggo/gin-swagger)
+- [x] Wire [need to refactor all code to wire]
+- [x] Unit Test
+- [x] Mock
+- [x] [Validator](https://github.com/go-playground/validator)
 - [ ] Auth JWT
+  - [ ] [goth](https://github.com/markbates/goth)
+    - [x] [JWT goth](https://github.com/markbates/goth/issues/310)
+    - [ ] Refresh token (doing)
+    - [ ] Save db
 - [ ] Redis
-- [X] [Validator](https://github.com/go-playground/validator)
 - [ ] Logger system
 - [ ] [Casbin](https://github.com/casbin/casbin)
-- [ ] [goth](https://github.com/markbates/goth)
-  - [ ] [JWT goth](https://github.com/markbates/goth/issues/310)
+- [ ] try [WTF](https://github.com/pallat/wtf)
+  - [ ] Do corsHandler to support configurable.
+- [ ] try [failover](https://github.com/wongnai/lmwn_gomeetup_failover)
 
 ## Design pattern
 

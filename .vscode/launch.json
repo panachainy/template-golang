@@ -9,10 +9,12 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "cmd/main.go",
-            "env": {},
+            "program": "./cmd/main.go",
+            "env": {
+                "PRIVATE_KEY_PATH": "../ecdsa_private_key.pem"
+            },
             "envFile": "${workspaceFolder}/.env",
             "args": []
         }
     ]
-}
+}w

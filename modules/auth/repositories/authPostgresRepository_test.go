@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"fmt"
 	"template-golang/modules/auth/entities"
 	"testing"
 
@@ -276,4 +277,293 @@ func TestAuthMethodRelationship(t *testing.T) {
 	assert.Equal(t, "line-rel-test", lineMethod.ProviderID)
 	assert.Equal(t, "line-access", lineMethod.AccessToken)
 	assert.Equal(t, "line-refresh", lineMethod.RefreshToken)
+}
+
+func TestInsertData_ErrorCases(t *testing.T) {
+	tests := []struct {
+		name        string
+		auth        *entities.Auth
+		expectError bool
+		expectedMsg string
+	}{
+		{
+			name: "Error - duplicate ID",
+			auth: &entities.Auth{
+				ID:       "duplicate-id",
+				Username: "user1",
+				Email:    "user1@example.com",
+				Role:     "user",
+				Active:   true,
+			},
+			expectError: true,
+			expectedMsg: "UNIQUE constraint failed",
+		},
+		{
+			name: "Error - duplicate email",
+			auth: &entities.Auth{
+				ID:       "test-id-unique-1",
+				Username: "user2",
+				Email:    "duplicate@example.com",
+				Role:     "user",
+				Active:   true,
+			},
+			expectError: true,
+			expectedMsg: "UNIQUE constraint failed",
+		},
+		{
+			name: "Error - duplicate username",
+			auth: &entities.Auth{
+				ID:       "test-id-unique-2",
+				Username: "duplicateuser",
+				Email:    "user3@example.com",
+				Role:     "user",
+				Active:   true,
+			},
+			expectError: true,
+			expectedMsg: "UNIQUE constraint failed",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			testDB := setupTestDB(t)
+			repo := &authPostgresRepository{db: testDB}
+
+			// First, insert the initial record to create duplicates
+			if tt.name == "Error - duplicate ID" {
+				initialAuth := &entities.Auth{
+					ID:       "duplicate-id",
+					Username: "initialuser",
+					Email:    "initial@example.com",
+					Role:     "user",
+					Active:   true,
+				}
+				err := repo.InsertData(initialAuth)
+				assert.NoError(t, err)
+			} else if tt.name == "Error - duplicate email" {
+				initialAuth := &entities.Auth{
+					ID:       "initial-id",
+					Username: "initialuser",
+					Email:    "duplicate@example.com",
+					Role:     "user",
+					Active:   true,
+				}
+				err := repo.InsertData(initialAuth)
+				assert.NoError(t, err)
+			} else if tt.name == "Error - duplicate username" {
+				initialAuth := &entities.Auth{
+					ID:       "initial-id-2",
+					Username: "duplicateuser",
+					Email:    "initial2@example.com",
+					Role:     "user",
+					Active:   true,
+				}
+				err := repo.InsertData(initialAuth)
+				assert.NoError(t, err)
+			}
+
+			// Now test the duplicate insertion
+			err := repo.InsertData(tt.auth)
+
+			if tt.expectError {
+				assert.Error(t, err)
+				if tt.expectedMsg != "" {
+					assert.Contains(t, err.Error(), tt.expectedMsg)
+				}
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestInsertData_NilInput(t *testing.T) {
+	testDB := setupTestDB(t)
+	repo := &authPostgresRepository{db: testDB}
+
+	err := repo.InsertData(nil)
+	assert.Error(t, err)
+}
+
+func TestInsertData_EmptyFields(t *testing.T) {
+	tests := []struct {
+		name        string
+		auth        *entities.Auth
+		expectError bool
+	}{
+		{
+			name: "Empty ID",
+			auth: &entities.Auth{
+				ID:       "",
+				Username: "testuser",
+				Email:    "test@example.com",
+				Role:     "user",
+				Active:   true,
+			},
+			expectError: false, // GORM will auto-generate ID if empty
+		},
+		{
+			name: "Empty email",
+			auth: &entities.Auth{
+				ID:       "test-empty-email",
+				Username: "testuser",
+				Email:    "",
+				Role:     "user",
+				Active:   true,
+			},
+			expectError: false, // Depends on entity validation
+		},
+		{
+			name: "Empty username",
+			auth: &entities.Auth{
+				ID:       "test-empty-username",
+				Username: "",
+				Email:    "empty-username@example.com",
+				Role:     "user",
+				Active:   true,
+			},
+			expectError: false, // Depends on entity validation
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			testDB := setupTestDB(t)
+			repo := &authPostgresRepository{db: testDB}
+
+			err := repo.InsertData(tt.auth)
+
+			if tt.expectError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestInsertData_AuthMethodValidation(t *testing.T) {
+	tests := []struct {
+		name        string
+		auth        *entities.Auth
+		expectError bool
+		expectedMsg string
+	}{
+		{
+			name: "Success - auth method with minimal data",
+			auth: &entities.Auth{
+				ID:     "minimal-method-test",
+				Email:  "minimal-method@example.com",
+				Role:   "user",
+				Active: true,
+				AuthMethods: []entities.AuthMethod{
+					{
+						AuthID:     "minimal-method-test",
+						Provider:   entities.ProviderLocal,
+						ProviderID: "minimal-provider-id",
+					},
+				},
+			},
+			expectError: false,
+		},
+		{
+			name: "Success - auth method with all fields",
+			auth: &entities.Auth{
+				ID:     "full-method-test",
+				Email:  "full-method@example.com",
+				Role:   "user",
+				Active: true,
+				AuthMethods: []entities.AuthMethod{
+					{
+						AuthID:       "full-method-test",
+						Provider:     entities.ProviderFirebase,
+						ProviderID:   "firebase-full-id",
+						AccessToken:  "full-access-token",
+						RefreshToken: "full-refresh-token",
+					},
+				},
+			},
+			expectError: false,
+		},
+		{
+			name: "Auth method with empty provider ID",
+			auth: &entities.Auth{
+				ID:     "empty-provider-test",
+				Email:  "empty-provider@example.com",
+				Role:   "user",
+				Active: true,
+				AuthMethods: []entities.AuthMethod{
+					{
+						AuthID:     "empty-provider-test",
+						Provider:   entities.ProviderLocal,
+						ProviderID: "",
+					},
+				},
+			},
+			expectError: false, // Depends on entity validation
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			testDB := setupTestDB(t)
+			repo := &authPostgresRepository{db: testDB}
+
+			err := repo.InsertData(tt.auth)
+
+			if tt.expectError {
+				assert.Error(t, err)
+				if tt.expectedMsg != "" {
+					assert.Contains(t, err.Error(), tt.expectedMsg)
+				}
+			} else {
+				assert.NoError(t, err)
+
+				// Verify the insertion
+				var retrievedAuth entities.Auth
+				result := testDB.GetDb().Preload("AuthMethods").First(&retrievedAuth, "id = ?", tt.auth.ID)
+				assert.NoError(t, result.Error)
+				assert.Equal(t, len(tt.auth.AuthMethods), len(retrievedAuth.AuthMethods))
+			}
+		})
+	}
+}
+
+func TestInsertData_ConcurrentInserts(t *testing.T) {
+	testDB := setupTestDB(t)
+	repo := &authPostgresRepository{db: testDB}
+
+	// Test concurrent insertions
+	const numGoroutines = 10
+	results := make(chan error, numGoroutines)
+
+	for i := 0; i < numGoroutines; i++ {
+		go func(index int) {
+			auth := &entities.Auth{
+				ID:       fmt.Sprintf("concurrent-test-%d", index),
+				Username: fmt.Sprintf("user%d", index),
+				Email:    fmt.Sprintf("user%d@example.com", index),
+				Role:     "user",
+				Active:   true,
+			}
+			results <- repo.InsertData(auth)
+		}(i)
+	}
+
+	// Collect results
+	successCount := 0
+	for i := 0; i < numGoroutines; i++ {
+		err := <-results
+		if err == nil {
+			successCount++
+		}
+	}
+
+	// All insertions should succeed since they have unique data
+	assert.Equal(t, numGoroutines, successCount)
+
+	// Verify all records were inserted
+	var count int64
+	testDB.GetDb().Model(&entities.Auth{}).Where("id LIKE ?", "concurrent-test-%").Count(&count)
+	assert.Equal(t, int64(numGoroutines), count)
 }

@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"fmt"
 	"template-golang/modules/auth/entities"
 	"testing"
 
@@ -278,7 +277,6 @@ func TestAuthMethodRelationship(t *testing.T) {
 	assert.Equal(t, "line-access", lineMethod.AccessToken)
 	assert.Equal(t, "line-refresh", lineMethod.RefreshToken)
 }
-
 func TestInsertData_ErrorCases(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -367,7 +365,7 @@ func TestInsertData_ErrorCases(t *testing.T) {
 
 			if tt.expectError {
 				assert.Error(t, err)
-				if tt.expectedMsg != "" {
+				if tt.expectedMsg != "" && err != nil {
 					assert.Contains(t, err.Error(), tt.expectedMsg)
 				}
 			} else {

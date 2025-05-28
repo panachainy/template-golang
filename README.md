@@ -17,6 +17,9 @@
   - [ ] [goth](https://github.com/markbates/goth)
     - [x] [JWT goth](https://github.com/markbates/goth/issues/310)
     - [ ] Refresh token (doing)
+      - [x] add exp for JWT
+      - [ ] add func verify token (1. expired, 2. not exist, 3. valid)
+      - [ ] implement middleware jwt for call verify func
     - [ ] Save db
 - [ ] Redis
 - [ ] Logger system

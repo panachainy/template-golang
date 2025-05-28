@@ -28,9 +28,9 @@ type AuthMethod struct {
 // Auth represents user authentication data
 type Auth struct {
 	ID          string       `gorm:"primaryKey" json:"id"`
-	Username    string       `json:"username"`
+	Username    string       `gorm:"uniqueIndex" json:"username"`
 	Password    string       `json:"password,omitempty"` // Optional for SSO
-	Email       string       `json:"email"`
+	Email       string       `gorm:"uniqueIndex" json:"email"`
 	Role        string       `json:"role"`
 	Active      bool         `json:"active"`
 	AuthMethods []AuthMethod `gorm:"foreignKey:AuthID" json:"auth_methods"` // Support multiple login methods

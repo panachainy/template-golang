@@ -26,4 +26,3 @@ func (r *authPostgresRepository) InsertData(in *entities.Auth) error {
 	log.Debugf("InsertAuth: %v", result.RowsAffected)
 	return nil
 }
-}

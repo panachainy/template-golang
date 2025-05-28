@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"template-golang/config"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -52,6 +53,10 @@ func (a *jwtUsecaseImpl) GenerateJWT(userID string) (string, error) {
 		"iss":       "my-auth-server-issuer",
 		"foo":       2,
 	})
+
+	// Set expiration time (e.g., 24 hours from now)
+	claims := token.Claims.(jwt.MapClaims)
+	claims["exp"] = jwt.NewNumericDate(time.Now().Add(24 * time.Hour))
 
 	// Sign the token with the private key
 	signedString, err := token.SignedString(a.key)

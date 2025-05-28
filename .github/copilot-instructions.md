@@ -23,7 +23,7 @@ This is a Go template project using Clean Architecture with modular design, Gin 
 
 ## Module Architecture Pattern
 Each module follows Clean Architecture with this structure:
-- `entities/` - Domain entities and DTOs
+- `entities/` - Domain entities
 - `repositories/` - Data access layer interfaces and implementations
 - `usecases/` - Business logic layer
 - `handlers/` - HTTP handlers and request/response models

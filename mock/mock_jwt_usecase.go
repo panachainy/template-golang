@@ -55,17 +55,17 @@ func (mr *MockJWTUsecaseMockRecorder) GenerateJWT(userID any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateJWT", reflect.TypeOf((*MockJWTUsecase)(nil).GenerateJWT), userID)
 }
 
-// VerifyToken mocks base method.
-func (m *MockJWTUsecase) VerifyToken(tokenString string) (*usecases.TokenValidationResult, error) {
+// ValidateJWT mocks base method.
+func (m *MockJWTUsecase) ValidateJWT(tokenString string) (*usecases.TokenValidationResult, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "VerifyToken", tokenString)
+	ret := m.ctrl.Call(m, "ValidateJWT", tokenString)
 	ret0, _ := ret[0].(*usecases.TokenValidationResult)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// VerifyToken indicates an expected call of VerifyToken.
-func (mr *MockJWTUsecaseMockRecorder) VerifyToken(tokenString any) *gomock.Call {
+// ValidateJWT indicates an expected call of ValidateJWT.
+func (mr *MockJWTUsecaseMockRecorder) ValidateJWT(tokenString any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyToken", reflect.TypeOf((*MockJWTUsecase)(nil).VerifyToken), tokenString)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidateJWT", reflect.TypeOf((*MockJWTUsecase)(nil).ValidateJWT), tokenString)
 }

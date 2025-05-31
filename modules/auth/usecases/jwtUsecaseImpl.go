@@ -71,8 +71,7 @@ func (a *jwtUsecaseImpl) GenerateJWT(userID string) (string, error) {
 	return signedString, nil
 }
 
-// VerifyToken verifies the JWT token and returns validation result
-func (a *jwtUsecaseImpl) VerifyToken(tokenString string) (*TokenValidationResult, error) {
+func (a *jwtUsecaseImpl) ValidateJWT(tokenString string) (*TokenValidationResult, error) {
 	result := &TokenValidationResult{
 		Valid:    false,
 		Expired:  false,

@@ -28,7 +28,7 @@ func TestGenerateJWT(t *testing.T) {
 	assert.NotEmpty(t, token)
 
 	// Verify the token contains the expected user ID
-	result, err := jwtUsecase.VerifyToken(token)
+	result, err := jwtUsecase.ValidateJWT(token)
 	assert.NoError(t, err)
 	assert.True(t, result.Valid)
 	assert.False(t, result.Expired)
@@ -46,7 +46,7 @@ func TestVerifyToken_ValidToken(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Verify the token
-	result, err := jwtUsecase.VerifyToken(token)
+	result, err := jwtUsecase.ValidateJWT(token)
 	assert.NoError(t, err)
 	assert.True(t, result.Valid)
 	assert.False(t, result.Expired)
@@ -61,7 +61,7 @@ func TestVerifyToken_ValidToken(t *testing.T) {
 func TestVerifyToken_EmptyToken(t *testing.T) {
 	jwtUsecase := setupJWTUsecase(t)
 
-	result, err := jwtUsecase.VerifyToken("")
+	result, err := jwtUsecase.ValidateJWT("")
 	assert.NoError(t, err)
 	assert.False(t, result.Valid)
 	assert.False(t, result.Expired)
@@ -84,7 +84,7 @@ func TestVerifyToken_ExpiredToken(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Verify the expired token
-	result, err := jwtUsecase.VerifyToken(expiredTokenString)
+	result, err := jwtUsecase.ValidateJWT(expiredTokenString)
 	assert.NoError(t, err)
 	assert.False(t, result.Valid)
 	assert.True(t, result.Expired)
@@ -95,7 +95,7 @@ func TestVerifyToken_InvalidToken(t *testing.T) {
 	jwtUsecase := setupJWTUsecase(t)
 
 	// Test with malformed token
-	result, err := jwtUsecase.VerifyToken("invalid-token")
+	result, err := jwtUsecase.ValidateJWT("invalid-token")
 	assert.Error(t, err)
 	assert.False(t, result.Valid)
 	assert.False(t, result.Expired)
@@ -108,7 +108,7 @@ func TestVerifyToken_InvalidSignature(t *testing.T) {
 	// Create a token with wrong signature (using a different key)
 	wrongToken := "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LXVzZXIiLCJleHAiOjk5OTk5OTk5OTksImlzcyI6Im15LWF1dGgtc2VydmVyLWlzc3VlciJ9.wrong_signature"
 
-	result, err := jwtUsecase.VerifyToken(wrongToken)
+	result, err := jwtUsecase.ValidateJWT(wrongToken)
 	assert.Error(t, err)
 	assert.False(t, result.Valid)
 	assert.False(t, result.Expired)

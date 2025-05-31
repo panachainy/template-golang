@@ -15,5 +15,5 @@ type TokenValidationResult struct {
 
 type JWTUsecase interface {
 	GenerateJWT(userID string) (string, error)
-	VerifyToken(tokenString string) (*TokenValidationResult, error)
+	ValidateJWT(tokenString string) (*TokenValidationResult, error)
 }

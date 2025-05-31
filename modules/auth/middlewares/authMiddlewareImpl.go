@@ -48,7 +48,7 @@ func (m *userAuthMiddleware) Handle() gin.HandlerFunc {
 		tokenString := tokenParts[1]
 
 		// Verify the token
-		result, err := m.jwtUsecase.VerifyToken(tokenString)
+		result, err := m.jwtUsecase.ValidateJWT(tokenString)
 		if err != nil {
 			log.Errorf("Token verification error: %v", err)
 			c.JSON(http.StatusUnauthorized, gin.H{

@@ -96,10 +96,43 @@ func (h *authHttpHandler) Logout(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "logged out"})
 }
 
-func (h *authHttpHandler) Routes(routerGroup *gin.RouterGroup) {
-	authGroup := routerGroup.Group("/auth/:provider")
+func (h *authHttpHandler) Information(c *gin.Context) {
+	// Extract JWT from Authorization header
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
+		return
+	}
 
-	authGroup.GET("/login", h.Login)
-	authGroup.GET("/callback", h.AuthCallback)
-	authGroup.GET("/logout", h.Logout)
+	// Remove "Bearer " prefix if present
+	token := authHeader
+	if len(authHeader) > 7 && authHeader[:7] == "Bearer " {
+		token = authHeader[7:]
+	}
+
+	// Validate and parse JWT
+	tokenInfo, err := h.jwtUsecase.ValidateJWT(token)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"user_id": tokenInfo,
+		"message": "User authenticated successfully",
+	})
+}
+
+func (h *authHttpHandler) Routes(routerGroup *gin.RouterGroup) {
+	authProviderGroup := routerGroup.Group("/auth/:provider")
+
+	authProviderGroup.GET("/login", h.Login)
+	authProviderGroup.GET("/callback", h.AuthCallback)
+	authProviderGroup.GET("/logout", h.Logout)
+
+	authGroup := routerGroup.Group("/auth")
+	// need auth
+	// TODO: should't call this client should be check with it self.
+	authGroup.GET("/info", h.Information)
+
 }

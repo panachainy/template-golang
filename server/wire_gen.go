@@ -37,7 +37,7 @@ func Wire() (Server, error) {
 	}
 	jwtUsecaseImpl := usecases2.Provide(configConfig)
 	authHttpHandler := handlers2.Provide(jwtUsecaseImpl, configConfig)
-	userAuthMiddleware := middlewares.Provide()
+	userAuthMiddleware := middlewares.Provide(jwtUsecaseImpl)
 	authAuth := &auth.Auth{
 		Handler:    authHttpHandler,
 		Middleware: userAuthMiddleware,

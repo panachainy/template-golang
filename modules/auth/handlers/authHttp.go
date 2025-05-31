@@ -111,14 +111,20 @@ func (h *authHttpHandler) Information(c *gin.Context) {
 	}
 
 	// Validate and parse JWT
-	tokenInfo, err := h.jwtUsecase.ValidateJWT(token)
+	result, err := h.jwtUsecase.ValidateJWT(token)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
 		return
 	}
 
+	// Check validation result
+	if !result.Valid || result.Expired || result.NotExist {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"user_id": tokenInfo,
+		"result":  result,
 		"message": "User authenticated successfully",
 	})
 }

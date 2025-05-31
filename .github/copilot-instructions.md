@@ -92,6 +92,12 @@ Each module follows Clean Architecture with this structure:
 
 ## Code Generation
 - Use `//go:generate` directives for code generation
-- Generate mocks with `gomock` for interfaces
+- Generate everything via `make g`
 - Use Wire for dependency injection code generation
 - Keep generated files separate and clearly marked
+
+## Mock Generation
+- Use gomock for generating mocks
+- Write generate config in file that need to generate mock e.g. `//go:generate mockgen -source=jwtUsecase.go -destination=../../../mock/mock_jwt_usecase.go -package=mock`
+- Store every mock in the `mock` package
+- If not have generated mock, must not create new one in test file but create a new one using `mockgen`

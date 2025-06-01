@@ -27,3 +27,9 @@ curl --location 'http://localhost:8080/api/v1/auth/example' \
 ### auth info - case no auth
 
 curl --location 'http://localhost:8080/api/v1/auth/example'
+
+# Admin
+
+### admin/auth/users
+
+curl --location 'http://localhost:8080/api/v1/admin/auth/users

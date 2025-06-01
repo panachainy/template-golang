@@ -33,7 +33,11 @@ type AuthMethod struct {
 
 // Auth represents user authentication data
 type Auth struct {
-	gorm.Model
+	ID        uint `gorm:"primarykey"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+
 	UserID string `gorm:"index;not null" json:"user_id" validate:"required"`
 	// username in this system & must be unique if provided
 	// For SSO, this field is optional and can be empty

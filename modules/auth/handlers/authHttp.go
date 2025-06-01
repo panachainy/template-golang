@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"template-golang/config"
 	"template-golang/modules/auth/middlewares"
+	"template-golang/modules/auth/models"
 	"template-golang/modules/auth/repositories"
 	"template-golang/modules/auth/usecases"
 
@@ -169,7 +170,9 @@ func (h *authHttpHandler) Routes(routerGroup *gin.RouterGroup) {
 	authGroup.GET("/example", h.Example)
 
 	authAdminGroup := routerGroup.Group("/admin/auth")
-	// TODO: middleware for AdminOnly
-	// authAdminGroup.Use(h.authMiddleware.Handle(), h.authMiddleware.AdminOnly())
+	authAdminGroup.Use(h.authMiddleware.Handle(),
+		h.authMiddleware.Allows(
+			[]models.Role{models.RoleAdmin}),
+	)
 	authAdminGroup.GET("/users", h.GetUsers)
 }

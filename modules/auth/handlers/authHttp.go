@@ -114,6 +114,5 @@ func (h *authHttpHandler) Routes(routerGroup *gin.RouterGroup) {
 
 	authGroup := routerGroup.Group("/auth")
 	authGroup.Use(h.authMiddleware.Handle())
-	// TODO: should't call this client should be check with it self.
 	authGroup.GET("/example", h.Example)
 }

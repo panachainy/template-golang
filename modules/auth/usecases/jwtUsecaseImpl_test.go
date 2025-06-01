@@ -12,7 +12,7 @@ import (
 func setupJWTUsecase(t *testing.T) *jwtUsecaseImpl {
 	conf := &config.Config{
 		Auth: config.AuthConfig{
-			PrivateKeyPath: "../../../ecdsa_private_key.pem",
+			PrivateKeyPath: "../../../config/ecdsa_private_key_test.pem",
 		},
 	}
 	return Provide(conf)

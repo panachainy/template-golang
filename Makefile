@@ -34,8 +34,10 @@ test.cov.html:
 	go tool cover -html=covprofile.out -o covprofile.html
 	open covprofile.html
 
-clean.test:
+c: clean
+clean:
 	rm -f covprofile.out covprofile.xml covprofile.html
+	rm -rf tmp
 
 f: fmt
 fmt:

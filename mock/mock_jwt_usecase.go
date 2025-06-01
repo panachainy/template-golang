@@ -11,7 +11,7 @@ package mock
 
 import (
 	reflect "reflect"
-	usecases "template-golang/modules/auth/usecases"
+	entities "template-golang/modules/auth/entities"
 
 	goth "github.com/markbates/goth"
 	gomock "go.uber.org/mock/gomock"
@@ -71,10 +71,10 @@ func (mr *MockJWTUsecaseMockRecorder) UpsertUser(userID any) *gomock.Call {
 }
 
 // ValidateJWT mocks base method.
-func (m *MockJWTUsecase) ValidateJWT(tokenString string) (*usecases.TokenValidationResult, error) {
+func (m *MockJWTUsecase) ValidateJWT(tokenString string) (*entities.TokenValidationResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ValidateJWT", tokenString)
-	ret0, _ := ret[0].(*usecases.TokenValidationResult)
+	ret0, _ := ret[0].(*entities.TokenValidationResult)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

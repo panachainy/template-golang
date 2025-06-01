@@ -104,7 +104,8 @@ func TestAuthRepository_UpsertData_UpdateExistingAuthRecord(t *testing.T) {
 	}
 	testDB.GetDb().Create(existingAuth)
 
-	auth := &entities.Auth{
+	newAuthData := &entities.Auth{
+		ID:        existingAuth.ID, // Use existing ID to update
 		UserID:    "user456",
 		Username:  "existinguser",
 		Password:  "hashedpassword",
@@ -124,18 +125,36 @@ func TestAuthRepository_UpsertData_UpdateExistingAuthRecord(t *testing.T) {
 		},
 	}
 
-	err := repo.UpsertData(auth)
-
+	err := repo.UpsertData(newAuthData)
 	assert.NoError(t, err)
-	assert.NotZero(t, auth.ID)
-	assert.Equal(t, "user456", auth.UserID)
-	assert.Equal(t, "existinguser", auth.Username)
-	assert.Equal(t, "existing@example.com", auth.Email)
-	assert.Equal(t, "admin", auth.Role)
-	assert.False(t, auth.Active)
-	assert.Equal(t, "Updated User", auth.Name)
-	assert.Len(t, auth.AuthMethods, 1)
-	assert.Equal(t, entities.ProviderFirebase, auth.AuthMethods[0].Provider)
+
+	var retrievesData []*entities.Auth
+	testDB.GetDb().Find(&retrievesData)
+
+	// Verify only one record exists (updated, not created new)
+	assert.Len(t, retrievesData, 1)
+
+	// Verify the record was updated with new data
+	updatedAuth := retrievesData[0]
+	assert.Equal(t, existingAuth.ID, updatedAuth.ID) // Same ID as existing record
+	assert.Equal(t, "user456", updatedAuth.UserID)
+	assert.Equal(t, "existinguser", updatedAuth.Username)
+	assert.Equal(t, "hashedpassword", updatedAuth.Password)
+	assert.Equal(t, "existing@example.com", updatedAuth.Email)
+	assert.Equal(t, "admin", updatedAuth.Role)
+	assert.False(t, updatedAuth.Active)
+	assert.Equal(t, "Updated User", updatedAuth.Name)
+	assert.Equal(t, "Updated", updatedAuth.FirstName)
+	assert.Equal(t, "User", updatedAuth.LastName)
+
+	// Verify auth methods were updated
+	var authMethods []entities.AuthMethod
+	testDB.GetDb().Where("auth_id = ?", updatedAuth.ID).Find(&authMethods)
+	assert.Len(t, authMethods, 1)
+	assert.Equal(t, entities.ProviderFirebase, authMethods[0].Provider)
+	assert.Equal(t, "google123", authMethods[0].ProviderID)
+	assert.Equal(t, "newtoken", authMethods[0].AccessToken)
+	assert.Equal(t, "newrefresh", authMethods[0].RefreshToken)
 }
 
 func TestAuthRepository_UpsertData_CreateAuthWithMultipleAuthMethods(t *testing.T) {

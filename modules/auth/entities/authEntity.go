@@ -19,9 +19,11 @@ const (
 type AuthMethod struct {
 	gorm.Model
 	// FIXME: check
-	AuthID            string    `gorm:"index" json:"auth_id"` // Foreign key to Auth
-	Provider          Provider  `json:"provider"`
-	ProviderID        string    `json:"provider_id"`                   // ID from the SSO provider
+	AuthID     string   `gorm:"index" json:"auth_id"` // Foreign key to Auth
+	Provider   Provider `json:"provider"`
+	ProviderID string   `json:"provider_id"` // ID from the SSO provider
+
+	// FIXME: split to new table for support multiple login.
 	AccessToken       string    `json:"access_token"`                  // SSO provider access token
 	RefreshToken      string    `json:"refresh_token"`                 // SSO provider refresh token
 	IDToken           string    `json:"id_token"`                      // SSO provider ID token

@@ -133,9 +133,10 @@ func (a *jwtUsecaseImpl) ValidateJWT(tokenString string) (*TokenValidationResult
 
 func (a *jwtUsecaseImpl) UpsertUser(user goth.User) error {
 	if err := a.repo.UpsertData(&entities.Auth{
-		ID:    user.UserID,
-		Name:  user.Name,
-		Email: user.Email,
+		UserID: user.UserID,
+		Name:   user.Name,
+		Email:  user.Email,
+		// Username: , // FIXME: gen by system if empty
 
 		AvatarURL: user.AvatarURL,
 		Location:  user.Location,

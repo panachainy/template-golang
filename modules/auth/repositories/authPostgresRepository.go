@@ -29,6 +29,7 @@ func (r *authPostgresRepository) UpsertData(in *entities.Auth) error {
 
 func (r *authPostgresRepository) Gets(limit int) ([]*entities.Auth, error) {
 	var auths []*entities.Auth
+	// result := r.db.GetDb().Model(&entities.Auth{}).Limit(limit).Find(&auths)
 	result := r.db.GetDb().Limit(limit).Find(&auths)
 
 	if result.Error != nil {

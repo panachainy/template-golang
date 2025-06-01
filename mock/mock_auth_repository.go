@@ -40,16 +40,31 @@ func (m *MockAuthRepository) EXPECT() *MockAuthRepositoryMockRecorder {
 	return m.recorder
 }
 
-// InsertData mocks base method.
-func (m *MockAuthRepository) InsertData(in *entities.Auth) error {
+// Gets mocks base method.
+func (m *MockAuthRepository) Gets(limit int) ([]*entities.Auth, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "InsertData", in)
+	ret := m.ctrl.Call(m, "Gets", limit)
+	ret0, _ := ret[0].([]*entities.Auth)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Gets indicates an expected call of Gets.
+func (mr *MockAuthRepositoryMockRecorder) Gets(limit any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Gets", reflect.TypeOf((*MockAuthRepository)(nil).Gets), limit)
+}
+
+// UpsertData mocks base method.
+func (m *MockAuthRepository) UpsertData(in *entities.Auth) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpsertData", in)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// InsertData indicates an expected call of InsertData.
-func (mr *MockAuthRepositoryMockRecorder) InsertData(in any) *gomock.Call {
+// UpsertData indicates an expected call of UpsertData.
+func (mr *MockAuthRepositoryMockRecorder) UpsertData(in any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertData", reflect.TypeOf((*MockAuthRepository)(nil).InsertData), in)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpsertData", reflect.TypeOf((*MockAuthRepository)(nil).UpsertData), in)
 }

@@ -14,7 +14,7 @@ func main() {
 }
 
 func cockroachMigrate(db database.Database) {
-	err := db.GetDb().Migrator().CreateTable(&entities.Cockroach{})
+	err := db.GetDb().AutoMigrate(&entities.Cockroach{})
 	if err != nil {
 		panic(err)
 	}

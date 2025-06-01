@@ -13,6 +13,7 @@ import (
 	"template-golang/modules/auth"
 	handlers2 "template-golang/modules/auth/handlers"
 	"template-golang/modules/auth/middlewares"
+	repositories2 "template-golang/modules/auth/repositories"
 	usecases2 "template-golang/modules/auth/usecases"
 	"template-golang/modules/cockroach"
 	"template-golang/modules/cockroach/handlers"
@@ -35,9 +36,10 @@ func Wire() (Server, error) {
 		Messaging:  cockroachFCMMessaging,
 		Usecase:    cockroachUsecaseImpl,
 	}
-	jwtUsecaseImpl := usecases2.Provide(configConfig)
+	authPostgresRepository := repositories2.ProvideAuthRepository(postgresDatabase)
+	jwtUsecaseImpl := usecases2.Provide(configConfig, authPostgresRepository)
 	userAuthMiddleware := middlewares.Provide(jwtUsecaseImpl)
-	authHttpHandler := handlers2.Provide(jwtUsecaseImpl, configConfig, userAuthMiddleware)
+	authHttpHandler := handlers2.Provide(jwtUsecaseImpl, configConfig, userAuthMiddleware, authPostgresRepository)
 	authAuth := &auth.Auth{
 		Handler:    authHttpHandler,
 		Middleware: userAuthMiddleware,

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"template-golang/config"
 	"template-golang/mock"
+	"template-golang/modules/auth/models"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -22,6 +23,8 @@ func TestProvide(t *testing.T) {
 
 	mockJWTUsecase := mock.NewMockJWTUsecase(ctrl)
 	mockAuthMiddleware := mock.NewMockAuthMiddleware(ctrl)
+	mockAuthRepo := mock.NewMockAuthRepository(ctrl)
+
 	conf := &config.Config{
 		Auth: config.AuthConfig{
 			LineClientID:      "test-client-id",
@@ -32,7 +35,7 @@ func TestProvide(t *testing.T) {
 	}
 
 	// Execute
-	handler := Provide(mockJWTUsecase, conf, mockAuthMiddleware)
+	handler := Provide(mockJWTUsecase, conf, mockAuthMiddleware, mockAuthRepo)
 
 	// Assert
 	assert.NotNil(t, handler)
@@ -291,6 +294,9 @@ func TestAuthHttpHandler_Routes(t *testing.T) {
 	mockAuthMiddleware := mock.NewMockAuthMiddleware(ctrl)
 	// Set up expectation for authMiddleware.Handle() to be called
 	mockAuthMiddleware.EXPECT().Handle().Return(gin.HandlerFunc(func(c *gin.Context) {
+		c.Next()
+	})).AnyTimes()
+	mockAuthMiddleware.EXPECT().Allows([]models.Role{models.RoleAdmin}).Return(gin.HandlerFunc(func(c *gin.Context) {
 		c.Next()
 	})).AnyTimes()
 

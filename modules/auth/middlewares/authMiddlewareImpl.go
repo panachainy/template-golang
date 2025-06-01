@@ -3,6 +3,7 @@ package middlewares
 import (
 	"net/http"
 	"strings"
+	"template-golang/modules/auth/models"
 	"template-golang/modules/auth/usecases"
 
 	"github.com/gin-gonic/gin"
@@ -99,5 +100,71 @@ func (m *userAuthMiddleware) Handle() gin.HandlerFunc {
 		log.Infof("Successfully authenticated user: %s", result.UserID)
 
 		c.Next()
+	}
+}
+
+func (m *userAuthMiddleware) Allows(roles []models.Role) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Get user claims from context (set by Handle middleware)
+		claims, exists := c.Get("claims")
+		if !exists {
+			log.Warn("No user claims found in context")
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error":   "Unauthorized",
+				"message": "No user claims found",
+			})
+			c.Abort()
+			return
+		}
+
+		userClaims, ok := claims.(map[string]interface{})
+		if !ok {
+			log.Warn("Invalid claims format")
+			c.JSON(http.StatusForbidden, gin.H{
+				"error":   "Forbidden",
+				"message": "Invalid user claims",
+			})
+			c.Abort()
+			return
+		}
+
+		// Extract user role from claims
+		userRole, exists := userClaims["role"]
+		if !exists {
+			log.Warn("No role found in user claims")
+			c.JSON(http.StatusForbidden, gin.H{
+				"error":   "Forbidden",
+				"message": "No role found in user claims",
+			})
+			c.Abort()
+			return
+		}
+
+		userRoleStr, ok := userRole.(string)
+		if !ok {
+			log.Warn("Invalid role format in claims")
+			c.JSON(http.StatusForbidden, gin.H{
+				"error":   "Forbidden",
+				"message": "Invalid role format",
+			})
+			c.Abort()
+			return
+		}
+
+		// Check if user role is in allowed roles
+		for _, allowedRole := range roles {
+			if userRoleStr == allowedRole.ToString() {
+				log.Infof("User role %s is authorized", userRoleStr)
+				c.Next()
+				return
+			}
+		}
+
+		log.Warnf("User role %s is not authorized for this resource", userRoleStr)
+		c.JSON(http.StatusForbidden, gin.H{
+			"error":   "Forbidden",
+			"message": "Insufficient permissions",
+		})
+		c.Abort()
 	}
 }

@@ -11,6 +11,7 @@ package mock
 
 import (
 	reflect "reflect"
+	models "template-golang/modules/auth/models"
 
 	gin "github.com/gin-gonic/gin"
 	gomock "go.uber.org/mock/gomock"
@@ -38,6 +39,20 @@ func NewMockAuthMiddleware(ctrl *gomock.Controller) *MockAuthMiddleware {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockAuthMiddleware) EXPECT() *MockAuthMiddlewareMockRecorder {
 	return m.recorder
+}
+
+// Allows mocks base method.
+func (m *MockAuthMiddleware) Allows(roles []models.Role) gin.HandlerFunc {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Allows", roles)
+	ret0, _ := ret[0].(gin.HandlerFunc)
+	return ret0
+}
+
+// Allows indicates an expected call of Allows.
+func (mr *MockAuthMiddlewareMockRecorder) Allows(roles any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Allows", reflect.TypeOf((*MockAuthMiddleware)(nil).Allows), roles)
 }
 
 // Handle mocks base method.

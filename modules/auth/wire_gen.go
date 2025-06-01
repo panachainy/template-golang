@@ -12,15 +12,17 @@ import (
 	"template-golang/database"
 	"template-golang/modules/auth/handlers"
 	"template-golang/modules/auth/middlewares"
+	"template-golang/modules/auth/repositories"
 	"template-golang/modules/auth/usecases"
 )
 
 // Injectors from wire.go:
 
 func Wire(db database.Database, conf *config.Config) (*Auth, error) {
-	jwtUsecaseImpl := usecases.Provide(conf)
+	authPostgresRepository := repositories.ProvideAuthRepository(db)
+	jwtUsecaseImpl := usecases.Provide(conf, authPostgresRepository)
 	userAuthMiddleware := middlewares.Provide(jwtUsecaseImpl)
-	authHttpHandler := handlers.Provide(jwtUsecaseImpl, conf, userAuthMiddleware)
+	authHttpHandler := handlers.Provide(jwtUsecaseImpl, conf, userAuthMiddleware, authPostgresRepository)
 	auth := &Auth{
 		Handler:    authHttpHandler,
 		Middleware: userAuthMiddleware,
@@ -30,4 +32,4 @@ func Wire(db database.Database, conf *config.Config) (*Auth, error) {
 
 // wire.go:
 
-var ProviderSet = wire.NewSet(middlewares.ProviderSet, handlers.AuthProviderSet, usecases.ProviderSet, wire.Struct(new(Auth), "*"))
+var ProviderSet = wire.NewSet(middlewares.ProviderSet, handlers.AuthProviderSet, usecases.ProviderSet, repositories.ProviderSet, wire.Struct(new(Auth), "*"))

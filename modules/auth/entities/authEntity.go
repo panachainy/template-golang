@@ -3,7 +3,7 @@ package entities
 import (
 	"time"
 
-	"gorm.io/datatypes"
+	"gorm.io/gorm"
 )
 
 // Provider represents supported SSO providers
@@ -17,7 +17,8 @@ const (
 
 // AuthMethod represents a single authentication method
 type AuthMethod struct {
-	ID                uint      `gorm:"primaryKey" json:"id"`
+	gorm.Model
+	// FIXME: check
 	AuthID            string    `gorm:"index" json:"auth_id"` // Foreign key to Auth
 	Provider          Provider  `json:"provider"`
 	ProviderID        string    `json:"provider_id"`                   // ID from the SSO provider
@@ -26,15 +27,13 @@ type AuthMethod struct {
 	IDToken           string    `json:"id_token"`                      // SSO provider ID token
 	ExpiresAt         time.Time `json:"expires_at,omitempty"`          // Optional for SSO
 	AccessTokenSecret string    `json:"access_token_secret,omitempty"` // Optional for SSO
-
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at"`
-	DeletedAt *time.Time `gorm:"index" json:"deleted_at,omitempty"`
 }
 
 // Auth represents user authentication data
 type Auth struct {
-	ID          string       `gorm:"primaryKey" json:"id"`
+	gorm.Model
+	// FIXME: check =============== AuthMethod.AuthID
+
 	UserID      string       `gorm:"index" json:"user_id"`
 	Username    string       `gorm:"uniqueIndex" json:"username"`
 	Password    string       `json:"password,omitempty"` // Optional for SSO
@@ -51,9 +50,5 @@ type Auth struct {
 	AvatarURL   string `json:"avatar_url,omitempty"`  // Optional for SSO
 	Location    string `json:"location,omitempty"`    // Optional for SSO
 
-	RawData datatypes.JSON `json:"raw_data,omitempty"`
-
-	CreatedAt time.Time  `json:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at"`
-	DeletedAt *time.Time `gorm:"index" json:"deleted_at,omitempty"`
+	// RawData datatypes.JSON `json:"raw_data,omitempty"`
 }

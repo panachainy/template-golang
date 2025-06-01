@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"template-golang/mock"
-	"template-golang/modules/auth/entities"
+	"template-golang/modules/auth/models"
 	"template-golang/modules/auth/usecases"
 	"testing"
 
@@ -42,7 +42,7 @@ func TestAuthMiddleware_ValidToken(t *testing.T) {
 	router, _ := setupTestMiddleware(mockJWT)
 
 	// Mock successful token validation
-	mockResult := &entities.TokenValidationResult{
+	mockResult := &models.TokenValidationResult{
 		Valid:    true,
 		Expired:  false,
 		NotExist: false,
@@ -142,7 +142,7 @@ func TestAuthMiddleware_ExpiredToken(t *testing.T) {
 	router, _ := setupTestMiddleware(mockJWT)
 
 	// Mock expired token validation
-	mockResult := &entities.TokenValidationResult{
+	mockResult := &models.TokenValidationResult{
 		Valid:    false,
 		Expired:  true,
 		NotExist: false,
@@ -173,7 +173,7 @@ func TestAuthMiddleware_InvalidToken(t *testing.T) {
 	router, _ := setupTestMiddleware(mockJWT)
 
 	// Mock invalid token validation
-	mockResult := &entities.TokenValidationResult{
+	mockResult := &models.TokenValidationResult{
 		Valid:    false,
 		Expired:  false,
 		NotExist: false,

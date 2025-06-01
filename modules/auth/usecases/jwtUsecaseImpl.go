@@ -132,13 +132,19 @@ func (a *jwtUsecaseImpl) ValidateJWT(tokenString string) (*models.TokenValidatio
 	return result, nil
 }
 
-func (a *jwtUsecaseImpl) UpsertUser(user goth.User) error {
+func (a *jwtUsecaseImpl) UpsertUser(user goth.User, role ...models.Role) error {
+	// Set default role if none provided
+	userRole := models.RoleUser
+	if len(role) > 0 {
+		userRole = role[0]
+	}
+
 	if err := a.repo.UpsertData(&entities.Auth{
 		UserID: user.UserID,
 		Name:   user.Name,
 		Email:  user.Email,
 		// Username: , // FIXME: gen by system if empty
-
+		Role:      userRole,
 		AvatarURL: user.AvatarURL,
 		Location:  user.Location,
 

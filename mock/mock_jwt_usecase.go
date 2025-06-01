@@ -57,17 +57,22 @@ func (mr *MockJWTUsecaseMockRecorder) GenerateJWT(userID any) *gomock.Call {
 }
 
 // UpsertUser mocks base method.
-func (m *MockJWTUsecase) UpsertUser(userID goth.User) error {
+func (m *MockJWTUsecase) UpsertUser(user goth.User, role ...models.Role) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpsertUser", userID)
+	varargs := []any{user}
+	for _, a := range role {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "UpsertUser", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpsertUser indicates an expected call of UpsertUser.
-func (mr *MockJWTUsecaseMockRecorder) UpsertUser(userID any) *gomock.Call {
+func (mr *MockJWTUsecaseMockRecorder) UpsertUser(user any, role ...any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpsertUser", reflect.TypeOf((*MockJWTUsecase)(nil).UpsertUser), userID)
+	varargs := append([]any{user}, role...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpsertUser", reflect.TypeOf((*MockJWTUsecase)(nil).UpsertUser), varargs...)
 }
 
 // ValidateJWT mocks base method.

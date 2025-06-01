@@ -11,5 +11,5 @@ import (
 type JWTUsecase interface {
 	GenerateJWT(userID string) (string, error)
 	ValidateJWT(tokenString string) (*models.TokenValidationResult, error)
-	UpsertUser(userID goth.User) error
+	UpsertUser(user goth.User, role ...models.Role) error
 }

@@ -2,24 +2,33 @@ package usecases
 
 import (
 	"template-golang/config"
+	"template-golang/mock"
 	"testing"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
 )
 
-func setupJWTUsecase(t *testing.T) *jwtUsecaseImpl {
+func setupJWTUsecase(t *testing.T, ctrl *gomock.Controller) *jwtUsecaseImpl {
 	conf := &config.Config{
 		Auth: config.AuthConfig{
 			PrivateKeyPath: "../../../config/ecdsa_private_key_test.pem",
 		},
 	}
-	return Provide(conf)
+
+	// Create a mock auth repository for testing
+	mockRepo := mock.NewMockAuthRepository(ctrl)
+
+	return Provide(conf, mockRepo)
 }
 
 func TestGenerateJWT(t *testing.T) {
-	jwtUsecase := setupJWTUsecase(t)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	jwtUsecase := setupJWTUsecase(t, ctrl)
 
 	userID := "test-user-123"
 	token, err := jwtUsecase.GenerateJWT(userID)
@@ -38,7 +47,9 @@ func TestGenerateJWT(t *testing.T) {
 }
 
 func TestVerifyToken_ValidToken(t *testing.T) {
-	jwtUsecase := setupJWTUsecase(t)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	jwtUsecase := setupJWTUsecase(t, ctrl)
 
 	// Generate a valid token
 	userID := "test-user-456"
@@ -59,7 +70,9 @@ func TestVerifyToken_ValidToken(t *testing.T) {
 }
 
 func TestVerifyToken_EmptyToken(t *testing.T) {
-	jwtUsecase := setupJWTUsecase(t)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	jwtUsecase := setupJWTUsecase(t, ctrl)
 
 	result, err := jwtUsecase.ValidateJWT("")
 	assert.NoError(t, err)
@@ -71,7 +84,9 @@ func TestVerifyToken_EmptyToken(t *testing.T) {
 }
 
 func TestVerifyToken_ExpiredToken(t *testing.T) {
-	jwtUsecase := setupJWTUsecase(t)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	jwtUsecase := setupJWTUsecase(t, ctrl)
 
 	// Create an expired token manually
 	token := jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
@@ -92,7 +107,9 @@ func TestVerifyToken_ExpiredToken(t *testing.T) {
 }
 
 func TestVerifyToken_InvalidToken(t *testing.T) {
-	jwtUsecase := setupJWTUsecase(t)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	jwtUsecase := setupJWTUsecase(t, ctrl)
 
 	// Test with malformed token
 	result, err := jwtUsecase.ValidateJWT("invalid-token")
@@ -103,7 +120,9 @@ func TestVerifyToken_InvalidToken(t *testing.T) {
 }
 
 func TestVerifyToken_InvalidSignature(t *testing.T) {
-	jwtUsecase := setupJWTUsecase(t)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	jwtUsecase := setupJWTUsecase(t, ctrl)
 
 	// Create a token with wrong signature (using a different key)
 	wrongToken := "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0LXVzZXIiLCJleHAiOjk5OTk5OTk5OTksImlzcyI6Im15LWF1dGgtc2VydmVyLWlzc3VlciJ9.wrong_signature"

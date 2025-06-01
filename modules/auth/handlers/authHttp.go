@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	"template-golang/config"
+	"template-golang/modules/auth/middlewares"
 	"template-golang/modules/auth/usecases"
 
 	"github.com/gin-gonic/gin"
@@ -15,18 +16,20 @@ import (
 // TODO: fix goth/gothic: no SESSION_SECRET environment variable is set. The default cookie store is not available and any calls will fail. Ignore this warning if you are using a different store.
 
 type authHttpHandler struct {
-	jwtUsecase usecases.JWTUsecase
-	conf       *config.Config
+	jwtUsecase     usecases.JWTUsecase
+	conf           *config.Config
+	authMiddleware middlewares.AuthMiddleware
 }
 
-func Provide(jwtUsecase usecases.JWTUsecase, conf *config.Config) *authHttpHandler {
+func Provide(jwtUsecase usecases.JWTUsecase, conf *config.Config, authMiddleware middlewares.AuthMiddleware) *authHttpHandler {
 	goth.UseProviders(
 		line.New(conf.Auth.LineClientID, conf.Auth.LineClientSecret, conf.Auth.LineCallbackURL, "profile", "openid", "email"),
 	)
 
 	return &authHttpHandler{
-		jwtUsecase: jwtUsecase,
-		conf:       conf,
+		jwtUsecase:     jwtUsecase,
+		conf:           conf,
+		authMiddleware: authMiddleware,
 	}
 }
 
@@ -97,35 +100,8 @@ func (h *authHttpHandler) Logout(c *gin.Context) {
 }
 
 func (h *authHttpHandler) Information(c *gin.Context) {
-	// Extract JWT from Authorization header
-	authHeader := c.GetHeader("Authorization")
-	if authHeader == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is required"})
-		return
-	}
-
-	// Remove "Bearer " prefix if present
-	token := authHeader
-	if len(authHeader) > 7 && authHeader[:7] == "Bearer " {
-		token = authHeader[7:]
-	}
-
-	// Validate and parse JWT
-	result, err := h.jwtUsecase.ValidateJWT(token)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
-		return
-	}
-
-	// Check validation result
-	if !result.Valid || result.Expired || result.NotExist {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
-		return
-	}
-
 	c.JSON(http.StatusOK, gin.H{
-		"result":  result,
-		"message": "User authenticated successfully",
+		"message": "info",
 	})
 }
 
@@ -137,8 +113,7 @@ func (h *authHttpHandler) Routes(routerGroup *gin.RouterGroup) {
 	authProviderGroup.GET("/logout", h.Logout)
 
 	authGroup := routerGroup.Group("/auth")
-	// need auth
+	authGroup.Use(h.authMiddleware.Handle())
 	// TODO: should't call this client should be check with it self.
 	authGroup.GET("/info", h.Information)
-
 }

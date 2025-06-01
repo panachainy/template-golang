@@ -14,7 +14,7 @@ func main() {
 }
 
 func authMigrate(db database.Database) {
-	err := db.GetDb().Migrator().CreateTable(&entities.Auth{}, &entities.AuthMethod{})
+	err := db.GetDb().AutoMigrate(&entities.Auth{}, &entities.AuthMethod{})
 	if err != nil {
 		panic(err)
 	}

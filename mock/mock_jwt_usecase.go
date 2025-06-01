@@ -13,6 +13,7 @@ import (
 	reflect "reflect"
 	usecases "template-golang/modules/auth/usecases"
 
+	goth "github.com/markbates/goth"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -53,6 +54,20 @@ func (m *MockJWTUsecase) GenerateJWT(userID string) (string, error) {
 func (mr *MockJWTUsecaseMockRecorder) GenerateJWT(userID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateJWT", reflect.TypeOf((*MockJWTUsecase)(nil).GenerateJWT), userID)
+}
+
+// UpsertUser mocks base method.
+func (m *MockJWTUsecase) UpsertUser(userID goth.User) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpsertUser", userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpsertUser indicates an expected call of UpsertUser.
+func (mr *MockJWTUsecaseMockRecorder) UpsertUser(userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpsertUser", reflect.TypeOf((*MockJWTUsecase)(nil).UpsertUser), userID)
 }
 
 // ValidateJWT mocks base method.

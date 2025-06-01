@@ -99,9 +99,9 @@ func (h *authHttpHandler) Logout(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "logged out"})
 }
 
-func (h *authHttpHandler) Information(c *gin.Context) {
+func (h *authHttpHandler) Example(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"message": "info",
+		"message": "example",
 	})
 }
 
@@ -115,5 +115,5 @@ func (h *authHttpHandler) Routes(routerGroup *gin.RouterGroup) {
 	authGroup := routerGroup.Group("/auth")
 	authGroup.Use(h.authMiddleware.Handle())
 	// TODO: should't call this client should be check with it self.
-	authGroup.GET("/info", h.Information)
+	authGroup.GET("/example", h.Example)
 }

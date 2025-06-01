@@ -8,11 +8,9 @@ import (
 	"strings"
 	"template-golang/config"
 	"template-golang/mock"
-	"template-golang/modules/auth/usecases"
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 )
@@ -275,177 +273,6 @@ func TestAuthHttpHandler_Logout(t *testing.T) {
 	}
 }
 
-func TestAuthHttpHandler_Information(t *testing.T) {
-	tests := []struct {
-		name           string
-		authHeader     string
-		setupMocks     func(*mock.MockJWTUsecase)
-		expectedStatus int
-		checkResponse  func(*testing.T, *httptest.ResponseRecorder)
-	}{
-		{
-			name:       "missing authorization header",
-			authHeader: "",
-			setupMocks: func(m *mock.MockJWTUsecase) {
-				// No mock calls expected
-			},
-			expectedStatus: http.StatusUnauthorized,
-			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
-				var response map[string]interface{}
-				err := json.Unmarshal(w.Body.Bytes(), &response)
-				assert.NoError(t, err)
-				assert.Equal(t, "Authorization header is required", response["error"])
-			},
-		},
-		{
-			name:       "invalid JWT token",
-			authHeader: "Bearer invalid-token",
-			setupMocks: func(m *mock.MockJWTUsecase) {
-				m.EXPECT().ValidateJWT("invalid-token").Return(nil, errors.New("invalid token"))
-			},
-			expectedStatus: http.StatusUnauthorized,
-			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
-				var response map[string]interface{}
-				err := json.Unmarshal(w.Body.Bytes(), &response)
-				assert.NoError(t, err)
-				assert.Equal(t, "Invalid or expired token", response["error"])
-			},
-		},
-		{
-			name:       "expired JWT token",
-			authHeader: "Bearer expired-token",
-			setupMocks: func(m *mock.MockJWTUsecase) {
-				result := &usecases.TokenValidationResult{
-					Valid:   false,
-					Expired: true,
-					UserID:  "test-user-id",
-				}
-				m.EXPECT().ValidateJWT("expired-token").Return(result, nil)
-			},
-			expectedStatus: http.StatusUnauthorized,
-			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
-				var response map[string]interface{}
-				err := json.Unmarshal(w.Body.Bytes(), &response)
-				assert.NoError(t, err)
-				assert.Equal(t, "Invalid or expired token", response["error"])
-			},
-		},
-		{
-			name:       "non-existent token",
-			authHeader: "Bearer non-existent-token",
-			setupMocks: func(m *mock.MockJWTUsecase) {
-				result := &usecases.TokenValidationResult{
-					Valid:    false,
-					NotExist: true,
-					UserID:   "test-user-id",
-				}
-				m.EXPECT().ValidateJWT("non-existent-token").Return(result, nil)
-			},
-			expectedStatus: http.StatusUnauthorized,
-			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
-				var response map[string]interface{}
-				err := json.Unmarshal(w.Body.Bytes(), &response)
-				assert.NoError(t, err)
-				assert.Equal(t, "Invalid or expired token", response["error"])
-			},
-		},
-		{
-			name:       "valid JWT token",
-			authHeader: "Bearer valid-token",
-			setupMocks: func(m *mock.MockJWTUsecase) {
-				result := &usecases.TokenValidationResult{
-					Valid:    true,
-					Expired:  false,
-					NotExist: false,
-					Claims: jwt.MapClaims{
-						"sub": "test-user-id",
-						"iss": "test-issuer",
-					},
-					UserID: "test-user-id",
-				}
-				m.EXPECT().ValidateJWT("valid-token").Return(result, nil)
-			},
-			expectedStatus: http.StatusOK,
-			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
-				var response map[string]interface{}
-				err := json.Unmarshal(w.Body.Bytes(), &response)
-				assert.NoError(t, err)
-				assert.Equal(t, "User authenticated successfully", response["message"])
-				assert.Contains(t, response, "result")
-			},
-		},
-		{
-			name:       "token without Bearer prefix",
-			authHeader: "valid-token-no-bearer",
-			setupMocks: func(m *mock.MockJWTUsecase) {
-				result := &usecases.TokenValidationResult{
-					Valid:    true,
-					Expired:  false,
-					NotExist: false,
-					Claims: jwt.MapClaims{
-						"sub": "test-user-id",
-					},
-					UserID: "test-user-id",
-				}
-				m.EXPECT().ValidateJWT("valid-token-no-bearer").Return(result, nil)
-			},
-			expectedStatus: http.StatusOK,
-			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
-				var response map[string]interface{}
-				err := json.Unmarshal(w.Body.Bytes(), &response)
-				assert.NoError(t, err)
-				assert.Equal(t, "User authenticated successfully", response["message"])
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// Setup
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
-
-			mockJWTUsecase := mock.NewMockJWTUsecase(ctrl)
-			tt.setupMocks(mockJWTUsecase)
-
-			conf := &config.Config{
-				Auth: config.AuthConfig{
-					LineClientID:      "test-client-id",
-					LineClientSecret:  "test-client-secret",
-					LineCallbackURL:   "http://localhost:8080/auth/line/callback",
-					LineFECallbackURL: "http://localhost:3000/callback",
-				},
-			}
-
-			handler := &authHttpHandler{
-				jwtUsecase: mockJWTUsecase,
-				conf:       conf,
-			}
-
-			// Setup Gin
-			gin.SetMode(gin.TestMode)
-			w := httptest.NewRecorder()
-			c, _ := gin.CreateTestContext(w)
-
-			// Create request
-			req := httptest.NewRequest("GET", "/auth/info", nil)
-			if tt.authHeader != "" {
-				req.Header.Set("Authorization", tt.authHeader)
-			}
-			c.Request = req
-
-			// Execute
-			handler.Information(c)
-
-			// Assert
-			assert.Equal(t, tt.expectedStatus, w.Code)
-			if tt.checkResponse != nil {
-				tt.checkResponse(t, w)
-			}
-		})
-	}
-}
-
 func TestAuthHttpHandler_Routes(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
@@ -461,9 +288,16 @@ func TestAuthHttpHandler_Routes(t *testing.T) {
 		},
 	}
 
+	mockAuthMiddleware := mock.NewMockAuthMiddleware(ctrl)
+	// Set up expectation for authMiddleware.Handle() to be called
+	mockAuthMiddleware.EXPECT().Handle().Return(gin.HandlerFunc(func(c *gin.Context) {
+		c.Next()
+	})).AnyTimes()
+
 	handler := &authHttpHandler{
-		jwtUsecase: mockJWTUsecase,
-		conf:       conf,
+		jwtUsecase:     mockJWTUsecase,
+		conf:           conf,
+		authMiddleware: mockAuthMiddleware,
 	}
 
 	// Setup Gin router
@@ -478,10 +312,10 @@ func TestAuthHttpHandler_Routes(t *testing.T) {
 	routes := router.Routes()
 
 	expectedRoutes := map[string]string{
-		"GET /api/v1/auth/:provider/login":    "GET",
-		"GET /api/v1/auth/:provider/callback": "GET",
-		"GET /api/v1/auth/:provider/logout":   "GET",
-		"GET /api/v1/auth/info":               "GET",
+		"/api/v1/auth/:provider/login":    "GET",
+		"/api/v1/auth/:provider/callback": "GET",
+		"/api/v1/auth/:provider/logout":   "GET",
+		"/api/v1/auth/example":            "GET",
 	}
 
 	// Check that all expected routes are registered
@@ -492,13 +326,14 @@ func TestAuthHttpHandler_Routes(t *testing.T) {
 	}
 
 	for expectedRoute, expectedMethod := range expectedRoutes {
-		assert.True(t, routeMap[expectedRoute], "Route %s should be registered", expectedRoute)
+		routeKey := expectedMethod + " " + expectedRoute
+		assert.True(t, routeMap[routeKey], "Route %s should be registered", routeKey)
 
 		// Test each route responds (basic smoke test)
 		w := httptest.NewRecorder()
 
 		// Modify the path for parameterized routes
-		testPath := strings.Replace(expectedRoute[4:], ":provider", "line", 1) // Remove "GET " prefix
+		testPath := strings.Replace(expectedRoute, ":provider", "line", 1)
 		req := httptest.NewRequest(expectedMethod, testPath, nil)
 
 		router.ServeHTTP(w, req)

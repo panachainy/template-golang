@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"template-golang/modules/auth/entities"
+	"template-golang/modules/auth/models"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -49,7 +50,7 @@ func TestAuthRepository_UpsertData_CreateNewAuthRecord(t *testing.T) {
 		Username:  "",
 		Password:  "",
 		Email:     "testuser@example.com",
-		Role:      "user",
+		Role:      models.RoleUser,
 		Active:    true,
 		Name:      "Test User",
 		FirstName: "Test",
@@ -72,7 +73,7 @@ func TestAuthRepository_UpsertData_CreateNewAuthRecord(t *testing.T) {
 	assert.NotZero(t, auth.ID)
 	assert.Equal(t, "user123", auth.UserID)
 	assert.Equal(t, "testuser@example.com", auth.Email)
-	assert.Equal(t, "user", auth.Role)
+	assert.Equal(t, models.RoleUser, auth.Role)
 	assert.True(t, auth.Active)
 	assert.Equal(t, "Test User", auth.Name)
 	assert.Equal(t, "Test", auth.FirstName)
@@ -96,7 +97,7 @@ func TestAuthRepository_UpsertData_UpdateExistingAuthRecord(t *testing.T) {
 		Username:  "olduser",
 		Password:  "oldpassword",
 		Email:     "old@example.com",
-		Role:      "user",
+		Role:      models.RoleUser,
 		Active:    true,
 		Name:      "Old User",
 		FirstName: "Old",
@@ -110,7 +111,7 @@ func TestAuthRepository_UpsertData_UpdateExistingAuthRecord(t *testing.T) {
 		Username:  "existinguser",
 		Password:  "hashedpassword",
 		Email:     "existing@example.com",
-		Role:      "admin",
+		Role:      models.RoleAdmin,
 		Active:    false,
 		Name:      "Updated User",
 		FirstName: "Updated",
@@ -141,7 +142,7 @@ func TestAuthRepository_UpsertData_UpdateExistingAuthRecord(t *testing.T) {
 	assert.Equal(t, "existinguser", updatedAuth.Username)
 	assert.Equal(t, "hashedpassword", updatedAuth.Password)
 	assert.Equal(t, "existing@example.com", updatedAuth.Email)
-	assert.Equal(t, "admin", updatedAuth.Role)
+	assert.Equal(t, models.RoleAdmin, updatedAuth.Role)
 	assert.False(t, updatedAuth.Active)
 	assert.Equal(t, "Updated User", updatedAuth.Name)
 	assert.Equal(t, "Updated", updatedAuth.FirstName)

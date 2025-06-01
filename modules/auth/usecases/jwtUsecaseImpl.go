@@ -6,23 +6,28 @@ import (
 	"fmt"
 	"os"
 	"template-golang/config"
+	"template-golang/modules/auth/entities"
+	"template-golang/modules/auth/repositories"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/markbates/goth"
 )
 
 type jwtUsecaseImpl struct {
 	privateKey *ecdsa.PrivateKey
 	publicKey  *ecdsa.PublicKey
+	repo       repositories.AuthRepository
 }
 
-func Provide(conf *config.Config) *jwtUsecaseImpl {
+func Provide(conf *config.Config, repo repositories.AuthRepository) *jwtUsecaseImpl {
 	privateKey := loadPrivateKey(conf.Auth.PrivateKeyPath)
 	publicKey := &privateKey.PublicKey
 
 	return &jwtUsecaseImpl{
 		privateKey: privateKey,
 		publicKey:  publicKey,
+		repo:       repo,
 	}
 }
 
@@ -124,4 +129,39 @@ func (a *jwtUsecaseImpl) ValidateJWT(tokenString string) (*TokenValidationResult
 
 	// Token is not valid
 	return result, nil
+}
+
+func (a *jwtUsecaseImpl) UpsertUser(user goth.User) error {
+	if err := a.repo.UpsertData(&entities.Auth{
+		ID:    user.UserID,
+		Name:  user.Name,
+		Email: user.Email,
+
+		AvatarURL: user.AvatarURL,
+		Location:  user.Location,
+
+		RawData: user.RawData,
+
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		NickName:  user.NickName,
+
+		AuthMethods: []entities.AuthMethod{
+			{
+				Provider:          entities.Provider(user.Provider),
+				ProviderID:        "goth_" + user.Provider,
+				AccessToken:       user.AccessToken,
+				RefreshToken:      user.RefreshToken,
+				IDToken:           user.IDToken,
+				ExpiresAt:         user.ExpiresAt,
+				AccessTokenSecret: user.AccessTokenSecret,
+
+				CreatedAt: time.Now(),
+			},
+		}},
+	); err != nil {
+		return fmt.Errorf("failed to upsert user: %w", err)
+	}
+	// Return nil to indicate success
+	return nil
 }

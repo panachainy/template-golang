@@ -2,7 +2,10 @@
 
 package usecases
 
-import "github.com/golang-jwt/jwt/v5"
+import (
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/markbates/goth"
+)
 
 // TokenValidationResult represents the result of token validation
 type TokenValidationResult struct {
@@ -16,4 +19,5 @@ type TokenValidationResult struct {
 type JWTUsecase interface {
 	GenerateJWT(userID string) (string, error)
 	ValidateJWT(tokenString string) (*TokenValidationResult, error)
+	UpsertUser(userID goth.User) error
 }

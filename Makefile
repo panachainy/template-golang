@@ -57,6 +57,7 @@ build:
 
 migrate:
 	go run ./modules/cockroach/migrations/cockroachMigrate.go
+	go run ./modules/auth/migrations/authMigrate.go
 
 # swagger
 

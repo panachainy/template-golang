@@ -23,7 +23,6 @@ curl --location 'http://localhost:8080/api/v1/auth/line/callback?code=vvvvv&stat
 curl --location 'http://localhost:8080/api/v1/auth/example' \
 --header 'Authorization: Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOjIsImlzcyI6Im15LWF1dGgtc2VydmVyLWlzc3VlciIsImxhc3RfbmFtZSI6IkRvZSIsIm5hbWUiOiJKb2huIiwic3ViIjoiVWJmZWFhYmNmODcxZGYxNTdjYmNlZWE1OWZhMmFkOTAzIn0.GS1VAZTpZE9gw7n_ZcyETO5uMXdnE93k2-VyDBJV1Smea-4yg2XJ6Y5GoS4p7JuvgCar4NcR63YLmrcKCAWYiw'
 
-
 ### auth info - case no auth
 
 curl --location 'http://localhost:8080/api/v1/auth/example'

@@ -76,8 +76,8 @@ func (a *jwtUsecaseImpl) GenerateJWT(userID string) (string, error) {
 	return signedString, nil
 }
 
-func (a *jwtUsecaseImpl) ValidateJWT(tokenString string) (*TokenValidationResult, error) {
-	result := &TokenValidationResult{
+func (a *jwtUsecaseImpl) ValidateJWT(tokenString string) (*entities.TokenValidationResult, error) {
+	result := &entities.TokenValidationResult{
 		Valid:    false,
 		Expired:  false,
 		NotExist: false,

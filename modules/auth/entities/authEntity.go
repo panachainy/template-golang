@@ -3,6 +3,7 @@ package entities
 import (
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
 )
 
@@ -58,4 +59,13 @@ type Auth struct {
 	Location    string `json:"location,omitempty"`    // Optional for SSO
 
 	// RawData datatypes.JSON `json:"raw_data,omitempty"`
+}
+
+// TokenValidationResult represents the result of token validation
+type TokenValidationResult struct {
+	Valid    bool
+	Expired  bool
+	NotExist bool
+	Claims   jwt.MapClaims
+	UserID   string
 }

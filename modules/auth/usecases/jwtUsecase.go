@@ -3,21 +3,13 @@
 package usecases
 
 import (
-	"github.com/golang-jwt/jwt/v5"
+	"template-golang/modules/auth/entities"
+
 	"github.com/markbates/goth"
 )
 
-// TokenValidationResult represents the result of token validation
-type TokenValidationResult struct {
-	Valid    bool
-	Expired  bool
-	NotExist bool
-	Claims   jwt.MapClaims
-	UserID   string
-}
-
 type JWTUsecase interface {
 	GenerateJWT(userID string) (string, error)
-	ValidateJWT(tokenString string) (*TokenValidationResult, error)
+	ValidateJWT(tokenString string) (*entities.TokenValidationResult, error)
 	UpsertUser(userID goth.User) error
 }

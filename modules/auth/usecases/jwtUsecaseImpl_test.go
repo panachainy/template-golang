@@ -49,6 +49,7 @@ func TestGenerateJWT(t *testing.T) {
 func TestVerifyToken_ValidToken(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	jwtUsecase := setupJWTUsecase(t, ctrl)
 
 	// Generate a valid token
@@ -72,6 +73,7 @@ func TestVerifyToken_ValidToken(t *testing.T) {
 func TestVerifyToken_EmptyToken(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	jwtUsecase := setupJWTUsecase(t, ctrl)
 
 	result, err := jwtUsecase.ValidateJWT("")
@@ -86,6 +88,7 @@ func TestVerifyToken_EmptyToken(t *testing.T) {
 func TestVerifyToken_ExpiredToken(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	jwtUsecase := setupJWTUsecase(t, ctrl)
 
 	// Create an expired token manually
@@ -109,6 +112,7 @@ func TestVerifyToken_ExpiredToken(t *testing.T) {
 func TestVerifyToken_InvalidToken(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	jwtUsecase := setupJWTUsecase(t, ctrl)
 
 	// Test with malformed token
@@ -122,6 +126,7 @@ func TestVerifyToken_InvalidToken(t *testing.T) {
 func TestVerifyToken_InvalidSignature(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	jwtUsecase := setupJWTUsecase(t, ctrl)
 
 	// Create a token with wrong signature (using a different key)

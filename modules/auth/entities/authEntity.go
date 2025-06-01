@@ -1,9 +1,9 @@
 package entities
 
 import (
+	"template-golang/modules/auth/models"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
 )
 
@@ -46,7 +46,7 @@ type Auth struct {
 	Username    string       `gorm:"uniqueIndex" json:"username,omitempty"`
 	Password    string       `json:"password,omitempty"` // Optional for SSO
 	Email       string       `gorm:"uniqueIndex" json:"email" validate:"required,email"`
-	Role        string       `gorm:"not null" json:"role" validate:"required"`
+	Role        models.Role  `gorm:"not null" json:"role" validate:"required"`
 	Active      bool         `gorm:"not null;default:true" json:"active"`
 	AuthMethods []AuthMethod `gorm:"foreignKey:AuthID" json:"auth_methods"` // Support multiple login methods
 
@@ -59,13 +59,4 @@ type Auth struct {
 	Location    string `json:"location,omitempty"`    // Optional for SSO
 
 	// RawData datatypes.JSON `json:"raw_data,omitempty"`
-}
-
-// TokenValidationResult represents the result of token validation
-type TokenValidationResult struct {
-	Valid    bool
-	Expired  bool
-	NotExist bool
-	Claims   jwt.MapClaims
-	UserID   string
 }

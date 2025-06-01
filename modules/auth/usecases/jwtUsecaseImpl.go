@@ -2,22 +2,27 @@ package usecases
 
 import (
 	"crypto/ecdsa"
+	"errors"
 	"fmt"
 	"os"
 	"template-golang/config"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
 type jwtUsecaseImpl struct {
-	key *ecdsa.PrivateKey
+	privateKey *ecdsa.PrivateKey
+	publicKey  *ecdsa.PublicKey
 }
 
 func Provide(conf *config.Config) *jwtUsecaseImpl {
-	key := loadPrivateKey(conf.Auth.PrivateKeyPath)
+	privateKey := loadPrivateKey(conf.Auth.PrivateKeyPath)
+	publicKey := &privateKey.PublicKey
 
 	return &jwtUsecaseImpl{
-		key: key,
+		privateKey: privateKey,
+		publicKey:  publicKey,
 	}
 }
 
@@ -53,11 +58,70 @@ func (a *jwtUsecaseImpl) GenerateJWT(userID string) (string, error) {
 		"foo":       2,
 	})
 
+	// Set expiration time (e.g., 24 hours from now)
+	claims := token.Claims.(jwt.MapClaims)
+	claims["exp"] = jwt.NewNumericDate(time.Now().Add(24 * time.Hour))
+
 	// Sign the token with the private key
-	signedString, err := token.SignedString(a.key)
+	signedString, err := token.SignedString(a.privateKey)
 	if err != nil {
 		return "", fmt.Errorf("failed to sign token: %w", err)
 	}
 
 	return signedString, nil
+}
+
+func (a *jwtUsecaseImpl) ValidateJWT(tokenString string) (*TokenValidationResult, error) {
+	result := &TokenValidationResult{
+		Valid:    false,
+		Expired:  false,
+		NotExist: false,
+		Claims:   nil,
+		UserID:   "",
+	}
+
+	// Check if token string is empty
+	if tokenString == "" {
+		result.NotExist = true
+		return result, nil
+	}
+
+	// Parse and validate the token
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// Validate the signing method
+		if _, ok := token.Method.(*jwt.SigningMethodECDSA); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+
+		// FIXME: check this
+		return a.publicKey, nil
+	})
+
+	if err != nil {
+		// Check if error is due to token expiration
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			result.Expired = true
+			return result, nil
+		}
+		// Other validation errors (malformed token, invalid signature, etc.)
+		return result, fmt.Errorf("failed to parse token: %w", err)
+	}
+
+	// Check if token is valid and extract claims
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		result.Valid = true
+		result.Claims = claims
+
+		// Extract user ID from sub claim
+		if sub, exists := claims["sub"]; exists {
+			if userID, ok := sub.(string); ok {
+				result.UserID = userID
+			}
+		}
+
+		return result, nil
+	}
+
+	// Token is not valid
+	return result, nil
 }

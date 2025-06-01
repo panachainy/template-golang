@@ -36,8 +36,8 @@ func Wire() (Server, error) {
 		Usecase:    cockroachUsecaseImpl,
 	}
 	jwtUsecaseImpl := usecases2.Provide(configConfig)
-	authHttpHandler := handlers2.Provide(jwtUsecaseImpl, configConfig)
-	userAuthMiddleware := middlewares.Provide()
+	userAuthMiddleware := middlewares.Provide(jwtUsecaseImpl)
+	authHttpHandler := handlers2.Provide(jwtUsecaseImpl, configConfig, userAuthMiddleware)
 	authAuth := &auth.Auth{
 		Handler:    authHttpHandler,
 		Middleware: userAuthMiddleware,

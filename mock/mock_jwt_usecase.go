@@ -11,6 +11,7 @@ package mock
 
 import (
 	reflect "reflect"
+	usecases "template-golang/modules/auth/usecases"
 
 	gomock "go.uber.org/mock/gomock"
 )
@@ -52,4 +53,19 @@ func (m *MockJWTUsecase) GenerateJWT(userID string) (string, error) {
 func (mr *MockJWTUsecaseMockRecorder) GenerateJWT(userID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateJWT", reflect.TypeOf((*MockJWTUsecase)(nil).GenerateJWT), userID)
+}
+
+// ValidateJWT mocks base method.
+func (m *MockJWTUsecase) ValidateJWT(tokenString string) (*usecases.TokenValidationResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ValidateJWT", tokenString)
+	ret0, _ := ret[0].(*usecases.TokenValidationResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ValidateJWT indicates an expected call of ValidateJWT.
+func (mr *MockJWTUsecaseMockRecorder) ValidateJWT(tokenString any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidateJWT", reflect.TypeOf((*MockJWTUsecase)(nil).ValidateJWT), tokenString)
 }

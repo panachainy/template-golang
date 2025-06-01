@@ -1,5 +1,7 @@
 package entities
 
+import "time"
+
 // Provider represents supported SSO providers
 type Provider string
 
@@ -11,19 +13,29 @@ const (
 
 // AuthMethod represents a single authentication method
 type AuthMethod struct {
+	ID           uint     `gorm:"primaryKey" json:"id"`
+	AuthID       string   `gorm:"index" json:"auth_id"` // Foreign key to Auth
 	Provider     Provider `json:"provider"`
 	ProviderID   string   `json:"provider_id"`   // ID from the SSO provider
 	AccessToken  string   `json:"access_token"`  // SSO provider access token
 	RefreshToken string   `json:"refresh_token"` // SSO provider refresh token
+
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	DeletedAt *time.Time `gorm:"index" json:"deleted_at,omitempty"`
 }
 
 // Auth represents user authentication data
 type Auth struct {
-	ID          string       `json:"id"`
-	Username    string       `json:"username"`
+	ID          string       `gorm:"primaryKey" json:"id"`
+	Username    string       `gorm:"uniqueIndex" json:"username"`
 	Password    string       `json:"password,omitempty"` // Optional for SSO
-	Email       string       `json:"email"`
+	Email       string       `gorm:"uniqueIndex" json:"email"`
 	Role        string       `json:"role"`
 	Active      bool         `json:"active"`
-	AuthMethods []AuthMethod `json:"auth_methods"` // Support multiple login methods
+	AuthMethods []AuthMethod `gorm:"foreignKey:AuthID" json:"auth_methods"` // Support multiple login methods
+
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	DeletedAt *time.Time `gorm:"index" json:"deleted_at,omitempty"`
 }

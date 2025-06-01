@@ -37,3 +37,6 @@ public_key.pem
 
 ecdsa_private_key.pem
 ecdsa_public_key.pem
+
+covprofile.html
+covprofile.xml

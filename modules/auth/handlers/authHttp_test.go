@@ -23,6 +23,7 @@ func TestProvide(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockJWTUsecase := mock.NewMockJWTUsecase(ctrl)
+	mockAuthMiddleware := mock.NewMockAuthMiddleware(ctrl)
 	conf := &config.Config{
 		Auth: config.AuthConfig{
 			LineClientID:      "test-client-id",
@@ -33,7 +34,7 @@ func TestProvide(t *testing.T) {
 	}
 
 	// Execute
-	handler := Provide(mockJWTUsecase, conf)
+	handler := Provide(mockJWTUsecase, conf, mockAuthMiddleware)
 
 	// Assert
 	assert.NotNil(t, handler)

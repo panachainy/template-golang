@@ -140,13 +140,14 @@ func (a *jwtUsecaseImpl) UpsertUser(user goth.User) error {
 		AvatarURL: user.AvatarURL,
 		Location:  user.Location,
 
-		RawData: user.RawData,
+		// RawData: user.RawData,
 
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
 		NickName:  user.NickName,
 
 		AuthMethods: []entities.AuthMethod{
+			// TODO: when we have multiple auth methods, we need to handle it
 			{
 				Provider:          entities.Provider(user.Provider),
 				ProviderID:        "goth_" + user.Provider,
@@ -155,8 +156,6 @@ func (a *jwtUsecaseImpl) UpsertUser(user goth.User) error {
 				IDToken:           user.IDToken,
 				ExpiresAt:         user.ExpiresAt,
 				AccessTokenSecret: user.AccessTokenSecret,
-
-				CreatedAt: time.Now(),
 			},
 		}},
 	); err != nil {

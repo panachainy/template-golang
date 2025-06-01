@@ -7,6 +7,7 @@ import (
 	"os"
 	"template-golang/config"
 	"template-golang/modules/auth/entities"
+	"template-golang/modules/auth/models"
 	"template-golang/modules/auth/repositories"
 	"time"
 
@@ -76,8 +77,8 @@ func (a *jwtUsecaseImpl) GenerateJWT(userID string) (string, error) {
 	return signedString, nil
 }
 
-func (a *jwtUsecaseImpl) ValidateJWT(tokenString string) (*entities.TokenValidationResult, error) {
-	result := &entities.TokenValidationResult{
+func (a *jwtUsecaseImpl) ValidateJWT(tokenString string) (*models.TokenValidationResult, error) {
+	result := &models.TokenValidationResult{
 		Valid:    false,
 		Expired:  false,
 		NotExist: false,

@@ -3,13 +3,13 @@
 package usecases
 
 import (
-	"template-golang/modules/auth/entities"
+	"template-golang/modules/auth/models"
 
 	"github.com/markbates/goth"
 )
 
 type JWTUsecase interface {
 	GenerateJWT(userID string) (string, error)
-	ValidateJWT(tokenString string) (*entities.TokenValidationResult, error)
+	ValidateJWT(tokenString string) (*models.TokenValidationResult, error)
 	UpsertUser(userID goth.User) error
 }

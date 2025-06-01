@@ -4,18 +4,27 @@ import (
 	"template-golang/database"
 	"template-golang/modules/auth/entities"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/gommon/log"
 )
 
 type authPostgresRepository struct {
-	db database.Database
+	db        database.Database
+	validator *validator.Validate
 }
 
 func ProvideAuthRepository(db database.Database) *authPostgresRepository {
-	return &authPostgresRepository{db: db}
+	return &authPostgresRepository{db: db,
+		validator: validator.New(),
+	}
 }
 
 func (r *authPostgresRepository) UpsertData(in *entities.Auth) error {
+	if err := r.validator.Struct(in); err != nil {
+		log.Errorf("UpsertData validation failed: %v", err)
+		return err
+	}
+
 	result := r.db.GetDb().Save(in)
 
 	if result.Error != nil {

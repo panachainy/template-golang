@@ -16,6 +16,8 @@
 - [ ] Auth JWT
   - [ ] [goth](https://github.com/markbates/goth)
     - [x] [JWT goth](https://github.com/markbates/goth/issues/310)
+    - [x] Permission [admin, staff, user]
+      - [x] middleware with role
     - [ ] Refresh token (doing)
       - [x] add exp for JWT
       - [x] add func verify token (1. expired, 2. not exist, 3. valid)

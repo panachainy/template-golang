@@ -1,6 +1,10 @@
 package entities
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/datatypes"
+)
 
 // Provider represents supported SSO providers
 type Provider string
@@ -47,7 +51,7 @@ type Auth struct {
 	AvatarURL   string `json:"avatar_url,omitempty"`  // Optional for SSO
 	Location    string `json:"location,omitempty"`    // Optional for SSO
 
-	RawData map[string]interface{}
+	RawData datatypes.JSON `json:"raw_data,omitempty"`
 
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt time.Time  `json:"updated_at"`

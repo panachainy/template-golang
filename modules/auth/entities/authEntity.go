@@ -32,14 +32,15 @@ type AuthMethod struct {
 // Auth represents user authentication data
 type Auth struct {
 	gorm.Model
-	// FIXME: check =============== AuthMethod.AuthID
-
-	UserID      string       `gorm:"index" json:"user_id"`
-	Username    string       `gorm:"uniqueIndex" json:"username"`
+	UserID string `gorm:"index;not null" json:"user_id" validate:"required"`
+	// username in this system & must be unique if provided
+	// For SSO, this field is optional and can be empty
+	// If empty, the system will generate a unique username based on email or provider ID
+	Username    string       `gorm:"uniqueIndex" json:"username,omitempty"`
 	Password    string       `json:"password,omitempty"` // Optional for SSO
-	Email       string       `gorm:"uniqueIndex" json:"email"`
-	Role        string       `json:"role"`
-	Active      bool         `json:"active"`
+	Email       string       `gorm:"uniqueIndex" json:"email" validate:"required,email"`
+	Role        string       `gorm:"not null" json:"role" validate:"required"`
+	Active      bool         `gorm:"not null;default:true" json:"active"`
 	AuthMethods []AuthMethod `gorm:"foreignKey:AuthID" json:"auth_methods"` // Support multiple login methods
 
 	Name        string `json:"name,omitempty"` // Optional for SSO

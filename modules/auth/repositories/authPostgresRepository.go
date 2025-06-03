@@ -67,7 +67,7 @@ func (r *authPostgresRepository) GetUserByUserID(userID string) (*entities.Auth,
 		return nil, result.Error
 	}
 
-	if auth.ID == 0 {
+	if auth.ID == "" {
 		log.Errorf("GetUserByUserID: auth not found for user_id %s", userID)
 		return nil, nil // or return an error if preferred
 	}

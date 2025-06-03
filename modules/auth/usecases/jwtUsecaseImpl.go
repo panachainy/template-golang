@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"os"
 	"template-golang/config"
-	"template-golang/modules/auth/entities"
 	"template-golang/modules/auth/models"
 	"template-golang/modules/auth/repositories"
+	"template-golang/modules/auth/utils"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -132,50 +132,23 @@ func (a *jwtUsecaseImpl) ValidateJWT(tokenString string) (*models.TokenValidatio
 	return result, nil
 }
 
-func (a *jwtUsecaseImpl) UpsertUser(user goth.User, role ...models.Role) error {
+func (a *jwtUsecaseImpl) UpsertUser(gothUser goth.User, role ...models.Role) error {
 	// Set default role if none provided
 	userRole := models.RoleUser
 	if len(role) > 0 {
 		userRole = role[0]
 	}
 
-	authID, err := a.repo.GetAuthIdByUserID(user.UserID)
+	newAuthEntity := utils.GothUserTo(gothUser)
+	newAuthEntity.Role = userRole
+
+	authKey, err := a.repo.GetAuthIDMethodIDByUserID(gothUser.UserID)
 	if err == nil {
-		// return fmt.Errorf("failed to get auth ID by user ID: %w", err)
+		newAuthEntity.ID = authKey.AuthID
+		newAuthEntity.AuthMethods[0].ID = authKey.MethodID
 	}
 
-	// CONTINUE: authId if error not add in &entities.Auth{ below
-
-	if err := a.repo.UpsertData(&entities.Auth{
-		ID:    authID,
-		Email: user.Email,
-		// Username: , // FIXME: gen by system if empty
-		Role: userRole,
-
-		AuthMethods: []entities.AuthMethod{
-			// TODO: when we have multiple auth methods, we need to handle it
-			{
-				Provider:   entities.Provider(user.Provider),
-				ProviderID: "goth_" + user.Provider,
-
-				Email:       user.Email,
-				UserID:      user.UserID,
-				Name:        user.Name,
-				FirstName:   user.FirstName,
-				LastName:    user.LastName,
-				NickName:    user.NickName,
-				Description: user.Description,
-				AvatarURL:   user.AvatarURL,
-				Location:    user.Location,
-
-				AccessToken:       user.AccessToken,
-				RefreshToken:      user.RefreshToken,
-				IDToken:           user.IDToken,
-				ExpiresAt:         user.ExpiresAt,
-				AccessTokenSecret: user.AccessTokenSecret,
-			},
-		}},
-	); err != nil {
+	if err := a.repo.UpsertData(newAuthEntity); err != nil {
 		return fmt.Errorf("failed to upsert user: %w", err)
 	}
 	// Return nil to indicate success

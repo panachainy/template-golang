@@ -76,15 +76,22 @@ func (r *authPostgresRepository) GetUserByUserID(userID string) (*entities.Auth,
 	return &auth, nil
 }
 
-func (r *authPostgresRepository) GetAuthIdByUserID(userID string) (string, error) {
+func (r *authPostgresRepository) GetAuthIDMethodIDByUserID(userID string) (*GetAuthIdMethodIdResponse, error) {
 	var authM entities.AuthMethod
 	result := r.db.GetDb().Where("user_id = ?", userID).First(&authM)
 
 	if result.Error != nil {
-		log.Errorf("GetAuthIdByUserID: %v", result.Error)
-		return "", result.Error
+		// can be in case first login
+		log.Errorf("GetAuthIDMethodIDByUserID: %v", result.Error)
+		return nil, result.Error
 	}
 
-	log.Debugf("GetAuthIdByUserID: found auth_id for user_id %s", userID)
-	return authM.AuthID, nil
+	response := &GetAuthIdMethodIdResponse{
+		AuthID:   authM.AuthID,
+		MethodID: authM.ID, // assuming AuthMethod has an ID field
+	}
+
+	log.Debugf("GetAuthIDMethodIDByUserID: found auth_id %s and method_id %s for user_id %s",
+		response.AuthID, response.MethodID, userID)
+	return response, nil
 }

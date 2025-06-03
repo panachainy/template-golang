@@ -19,7 +19,7 @@ const (
 // AuthMethod represents a single authentication method
 type AuthMethod struct {
 	gorm.Model
-	AuthID     string   `gorm:"index" json:"auth_id"` // Foreign key to Auth
+	AuthID     string   `gorm:"index;type:varchar(36)" json:"auth_id"` // Foreign key to Auth
 	Provider   Provider `json:"provider"`
 	ProviderID string   `json:"provider_id"` // ID from the SSO provider
 
@@ -46,7 +46,7 @@ type AuthMethod struct {
 
 // Auth represents user authentication data
 type Auth struct {
-	ID        string `gorm:"primarykey;type:varchar(36);default:gen_random_uuid()" json:"id"`
+	ID        string `gorm:"primaryKey;type:varchar(36);default:gen_random_uuid()" json:"id"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`

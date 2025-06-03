@@ -49,3 +49,42 @@ func (r *authPostgresRepository) Gets(limit int) ([]*entities.Auth, error) {
 	log.Debugf("Gets: %v rows retrieved", result.RowsAffected)
 	return auths, nil
 }
+
+func (r *authPostgresRepository) GetUserByUserID(userID string) (*entities.Auth, error) {
+	var authM entities.AuthMethod
+	result := r.db.GetDb().Where("user_id = ?", userID).First(&authM)
+
+	if result.Error != nil {
+		log.Errorf("GetUserByUserID: %v", result.Error)
+		return nil, result.Error
+	}
+
+	// query auth by authM
+	var auth entities.Auth
+	result = r.db.GetDb().Where("id = ?", authM.AuthID).First(&auth)
+	if result.Error != nil {
+		log.Errorf("GetUserByUserID: %v", result.Error)
+		return nil, result.Error
+	}
+
+	if auth.ID == 0 {
+		log.Errorf("GetUserByUserID: auth not found for user_id %s", userID)
+		return nil, nil // or return an error if preferred
+	}
+
+	log.Debugf("GetUserByUserID: found auth for user_id %s", userID)
+	return &auth, nil
+}
+
+func (r *authPostgresRepository) GetAuthIdByUserID(userID string) (string, error) {
+	var authM entities.AuthMethod
+	result := r.db.GetDb().Where("user_id = ?", userID).First(&authM)
+
+	if result.Error != nil {
+		log.Errorf("GetAuthIdByUserID: %v", result.Error)
+		return "", result.Error
+	}
+
+	log.Debugf("GetAuthIdByUserID: found auth_id for user_id %s", userID)
+	return authM.AuthID, nil
+}

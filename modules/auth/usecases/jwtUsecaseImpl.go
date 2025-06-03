@@ -139,26 +139,35 @@ func (a *jwtUsecaseImpl) UpsertUser(user goth.User, role ...models.Role) error {
 		userRole = role[0]
 	}
 
+	authID, err := a.repo.GetAuthIdByUserID(user.UserID)
+	if err == nil {
+		// return fmt.Errorf("failed to get auth ID by user ID: %w", err)
+	}
+
+	// CONTINUE: authId if error not add in &entities.Auth{ below
+
 	if err := a.repo.UpsertData(&entities.Auth{
-		UserID: user.UserID,
-		Name:   user.Name,
-		Email:  user.Email,
+		ID:    authID,
+		Email: user.Email,
 		// Username: , // FIXME: gen by system if empty
-		Role:      userRole,
-		AvatarURL: user.AvatarURL,
-		Location:  user.Location,
-
-		// RawData: user.RawData,
-
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
-		NickName:  user.NickName,
+		Role: userRole,
 
 		AuthMethods: []entities.AuthMethod{
 			// TODO: when we have multiple auth methods, we need to handle it
 			{
-				Provider:          entities.Provider(user.Provider),
-				ProviderID:        "goth_" + user.Provider,
+				Provider:   entities.Provider(user.Provider),
+				ProviderID: "goth_" + user.Provider,
+
+				Email:       user.Email,
+				UserID:      user.UserID,
+				Name:        user.Name,
+				FirstName:   user.FirstName,
+				LastName:    user.LastName,
+				NickName:    user.NickName,
+				Description: user.Description,
+				AvatarURL:   user.AvatarURL,
+				Location:    user.Location,
+
 				AccessToken:       user.AccessToken,
 				RefreshToken:      user.RefreshToken,
 				IDToken:           user.IDToken,

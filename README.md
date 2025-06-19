@@ -31,6 +31,7 @@
 - [ ] try [WTF](https://github.com/pallat/wtf)
   - [ ] Do corsHandler to support configurable.
 - [ ] try [failover](https://github.com/wongnai/lmwn_gomeetup_failover)
+- [ ] husky
 
 ## Design pattern
 

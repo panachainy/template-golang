@@ -4,7 +4,8 @@
 
 - [x] Clean Architecture
 - [x] PostgreSQL
-- [x] air
+- [x] ~~air~~
+  - [x] use `wgo` instead
 - [x] Viper config
 - [x] Docker
 - [x] Gorm

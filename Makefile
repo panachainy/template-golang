@@ -1,5 +1,5 @@
 dev:
-	air
+	wgo run ./cmd/main.go
 
 start:
 	go run ./cmd/main.go
@@ -7,6 +7,7 @@ start:
 setup:
 	go install go.uber.org/mock/mockgen@latest
 	go install github.com/axw/gocov/gocov@latest
+	go install github.com/bokwoon95/wgo@latest
 
 tidy:
 	go mod tidy -v

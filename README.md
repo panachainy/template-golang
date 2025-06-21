@@ -7,6 +7,7 @@
 - [x] ~~air~~
   - [x] use `wgo` instead
 - [x] Viper config
+  - [x] Fix issue about `.env` & `.env.test`
 - [x] Docker
 - [x] Gorm
 - [x] [Swagger-Gin](https://github.com/swaggo/gin-swagger)

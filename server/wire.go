@@ -19,7 +19,7 @@ var ProviderSet = wire.NewSet(
 
 	// cores
 	config.ProviderSet,
-	database.ProviderSet,
+	database.PostgresProviderSet,
 
 	// modules
 	cockroach.ProviderSet,

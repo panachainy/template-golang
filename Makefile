@@ -46,6 +46,10 @@ t: test
 test:
 	go test ./...
 
+it: integration.test
+integration.test:
+	go test -tags=integration ./...
+
 tr: test.html
 test.html:
 	go test -race -covermode=atomic -coverprofile=covprofile.out ./...

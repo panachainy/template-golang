@@ -13,6 +13,20 @@ setup:
 	go install github.com/bokwoon95/wgo@latest
 	go install golang.org/x/tools/gopls@latest
 	make auth.newkey
+	brew install golang-migrate
+
+migrate.create:
+	# migrate create -ext sql -dir db/migrations -seq <migration_name>
+	migrate create -ext sql -dir db/migrations -seq
+
+migrate.up:
+	# go run ./modules/cockroach/migrations/cockroachMigrate.go
+	# go run ./modules/auth/migrations/authMigrate.go
+	# migrate -database YOUR_DATABASE_URL -path db/migrations up
+
+migrate.down:
+	# TODO:
+	# migrate -database YOUR_DATABASE_URL -path db/migrations down
 
 tidy:
 	go mod tidy -v
@@ -57,9 +71,6 @@ b: build
 build:
 	go build -o apiserver ./cmd
 
-migrate:
-	go run ./modules/cockroach/migrations/cockroachMigrate.go
-	go run ./modules/auth/migrations/authMigrate.go
 
 # swagger
 

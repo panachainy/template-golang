@@ -53,3 +53,47 @@ func (mr *MockDatabaseMockRecorder) GetDb() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDb", reflect.TypeOf((*MockDatabase)(nil).GetDb))
 }
+
+// GetVersion mocks base method.
+func (m *MockDatabase) GetVersion() (uint, bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetVersion")
+	ret0, _ := ret[0].(uint)
+	ret1, _ := ret[1].(bool)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetVersion indicates an expected call of GetVersion.
+func (mr *MockDatabaseMockRecorder) GetVersion() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVersion", reflect.TypeOf((*MockDatabase)(nil).GetVersion))
+}
+
+// MigrateDown mocks base method.
+func (m *MockDatabase) MigrateDown(steps int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MigrateDown", steps)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// MigrateDown indicates an expected call of MigrateDown.
+func (mr *MockDatabaseMockRecorder) MigrateDown(steps any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MigrateDown", reflect.TypeOf((*MockDatabase)(nil).MigrateDown), steps)
+}
+
+// MigrateUp mocks base method.
+func (m *MockDatabase) MigrateUp() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MigrateUp")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// MigrateUp indicates an expected call of MigrateUp.
+func (mr *MockDatabaseMockRecorder) MigrateUp() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MigrateUp", reflect.TypeOf((*MockDatabase)(nil).MigrateUp))
+}

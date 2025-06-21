@@ -4,10 +4,14 @@ dev:
 start:
 	go run ./cmd/main.go
 
+infra.up:
+	docker-compose up -d
+
 setup:
 	go install go.uber.org/mock/mockgen@latest
 	go install github.com/axw/gocov/gocov@latest
 	go install github.com/bokwoon95/wgo@latest
+	make auth.newkey
 
 tidy:
 	go mod tidy -v

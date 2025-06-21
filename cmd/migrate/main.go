@@ -30,7 +30,7 @@ func main() {
 	case "down":
 		stepCount, err := strconv.Atoi(*steps)
 		if err != nil {
-			log.Errorf("Invalid steps value: %v", err)
+			log.Errorf("Invalid steps steps: %v err: %v", *steps, err)
 			os.Exit(1)
 		}
 		if err := migrationManager.RollbackMigrations(stepCount); err != nil {

@@ -59,7 +59,7 @@ func (p *postgresDatabase) MigrateUp() error {
 	}
 
 	// Create postgres driver instance
-	driver, err := postgres.WithInstance(sqlDB, &postgres.Config{})
+	driver, err := pgMigrate.WithInstance(sqlDB, &pgMigrate.Config{})
 	if err != nil {
 		return fmt.Errorf("failed to create postgres driver: %w", err)
 	}

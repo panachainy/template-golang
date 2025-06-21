@@ -9,4 +9,5 @@ type Database interface {
 	MigrateUp() error
 	MigrateDown(steps int) error
 	GetVersion() (uint, bool, error)
+	Close() error
 }

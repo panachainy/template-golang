@@ -146,3 +146,22 @@ func (p *postgresDatabase) GetVersion() (uint, bool, error) {
 
 	return version, dirty, nil
 }
+
+func (p *postgresDatabase) Close() error {
+	// Get the underlying SQL DB from GORM
+	sqlDB, err := p.Db.DB()
+	if err != nil {
+		return fmt.Errorf("failed to get underlying sql.DB: %w", err)
+	}
+
+	if err := sqlDB.Close(); err != nil {
+		return fmt.Errorf("failed to close database connection: %w", err)
+	}
+
+	// Reset the singleton instance and sync.Once
+	once = sync.Once{}
+	dbInstance = nil
+
+	log.Info("Database connection closed successfully")
+	return nil
+}

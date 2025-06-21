@@ -17,8 +17,8 @@ import (
 
 // Injectors from wire.go:
 
-func Wire(conf *config.Config) (Database, error) {
-	databasePostgresDatabase := Provide(conf)
+func WirePostgres(conf *config.Config) (Database, error) {
+	databasePostgresDatabase := NewPostgres(conf)
 	return databasePostgresDatabase, nil
 }
 
@@ -33,8 +33,8 @@ func WireSQLite(dsn string, logMode bool) (Database, error) {
 
 // wire.go:
 
-var ProviderSet = wire.NewSet(
-	Provide, wire.Bind(new(Database), new(*postgresDatabase)),
+var PostgresProviderSet = wire.NewSet(
+	NewPostgres, wire.Bind(new(Database), new(*postgresDatabase)),
 )
 
 // SQLiteProviderSet provides SQLite database implementation

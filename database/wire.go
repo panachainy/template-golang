@@ -11,7 +11,7 @@ import (
 )
 
 var PostgresProviderSet = wire.NewSet(
-	Provide,
+	NewPostgres,
 	wire.Bind(new(Database), new(*postgresDatabase)),
 )
 

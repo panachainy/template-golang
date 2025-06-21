@@ -16,7 +16,7 @@ func main() {
 	flag.Parse()
 
 	conf := config.Provide()
-	db := database.Provide(conf)
+	db := database.NewPostgres(conf)
 
 	switch *action {
 	case "up":

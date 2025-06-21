@@ -13,12 +13,19 @@ import (
 // Injectors from wire.go:
 
 func Wire() (*Config, error) {
-	config := Provide()
+	configOption := RootConfig()
+	config := Provide(configOption)
 	return config, nil
 }
 
 // wire.go:
 
 var ProviderSet = wire.NewSet(
+
+	RootConfig,
 	Provide,
 )
+
+func RootConfig() *ConfigOption {
+	return NewConfigOption(".")
+}

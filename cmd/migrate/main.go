@@ -15,7 +15,9 @@ func main() {
 	var steps = flag.String("steps", "1", "Number of steps for rollback (only used with down action)")
 	flag.Parse()
 
-	conf := config.Provide()
+	conf := config.Provide(&config.ConfigOption{
+		ConfigPath: ".",
+	})
 	db := database.NewPostgres(conf)
 
 	switch *action {

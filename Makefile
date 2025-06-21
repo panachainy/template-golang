@@ -44,11 +44,11 @@ tidy:
 
 t: test
 test:
-	go test ./...
+	@GIN_MODE=test go test ./...
 
 it: integration.test
 integration.test:
-	go test -tags=integration ./...
+	@GIN_MODE=test go test -tags=integration ./...
 
 tr: test.html
 test.html:

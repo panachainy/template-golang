@@ -51,6 +51,7 @@ func (p *postgresDatabase) GetDb() *gorm.DB {
 }
 
 func (p *postgresDatabase) MigrateUp() error {
+	defer p.Close()
 	log.Info("Running database migrations...")
 
 	// Get the underlying SQL DB from GORM
@@ -84,6 +85,7 @@ func (p *postgresDatabase) MigrateUp() error {
 }
 
 func (p *postgresDatabase) MigrateDown(steps int) error {
+	defer p.Close()
 	log.Infof("Rolling back %d migration(s)...", steps)
 
 	// Get the underlying SQL DB from GORM

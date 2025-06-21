@@ -25,7 +25,7 @@ migrate.create:
 migrate.up:
 	go run ./cmd/migrate/main.go -action=up
 
-# make migrate.down steps=2
+# make migrate.down steps=1
 migrate.down:
 	go run ./cmd/migrate/main.go -action=down -steps=$(steps)
 

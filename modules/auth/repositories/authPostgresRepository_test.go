@@ -1,3 +1,4 @@
+//go:build integration
 // +build integration
 
 package repositories
@@ -19,6 +20,8 @@ func setupTestDB(t *testing.T) database.Database {
 
 	err := db.MigrateUp()
 	assert.NoError(t, err)
+
+	db = database.NewPostgres(c)
 
 	return db
 }

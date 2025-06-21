@@ -25,7 +25,7 @@ func main() {
 
 	// Example 2: Create SQLite database with default migration path
 	fmt.Println("\n--- Creating SQLite database with default settings ---")
-	
+
 	config := &database.Config{
 		DSN:           dbPath,
 		LogMode:       true,
@@ -51,7 +51,7 @@ func main() {
 
 	// Example 4: Using provider functions
 	fmt.Println("\n--- Using provider functions ---")
-	
+
 	db2, err := database.ProvideSqliteDatabase(":memory:", false)
 	if err != nil {
 		log.Fatal("Failed to create SQLite database via provider:", err)
@@ -62,11 +62,11 @@ func main() {
 
 	// Example 5: Using provider with custom migration path
 	fmt.Println("\n--- Using provider with custom migration path ---")
-	
+
 	customMigrationPath := "file://" + filepath.Join(tempDir, "custom_migrations")
 	db3, err := database.ProvideSqliteDatabaseWithMigrationPath(
-		":memory:", 
-		true, 
+		":memory:",
+		true,
 		customMigrationPath,
 	)
 	if err != nil {
@@ -78,12 +78,12 @@ func main() {
 
 	// Example 6: Demonstrate GORM operations
 	fmt.Println("\n--- Testing GORM operations ---")
-	
+
 	gormDB := db2.GetDb()
-	
+
 	// Create a simple table using GORM AutoMigrate (not related to golang-migrate)
 	type User struct {
-		ID   uint   `gorm:"primaryKey"`
+		ID   uint `gorm:"primaryKey"`
 		Name string
 	}
 

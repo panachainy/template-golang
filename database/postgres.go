@@ -13,7 +13,8 @@ import (
 )
 
 type postgresDatabase struct {
-	Db *gorm.DB
+	Db   *gorm.DB
+	conf *config.Config
 }
 
 var (
@@ -39,7 +40,7 @@ func NewPostgres(conf *config.Config) *postgresDatabase {
 			panic("failed to connect database")
 		}
 
-		dbInstance = &postgresDatabase{Db: db}
+		dbInstance = &postgresDatabase{Db: db, conf: conf}
 	})
 
 	return dbInstance
@@ -66,7 +67,7 @@ func (p *postgresDatabase) MigrateUp() error {
 
 	// Create migrate instance
 	migration, err := migrate.NewWithDatabaseInstance(
-		"file://db/migrations",
+		p.conf.Db.MigrationPath,
 		"postgres", driver)
 	if err != nil {
 		return fmt.Errorf("failed to create migrate instance: %w", err)
@@ -99,7 +100,7 @@ func (p *postgresDatabase) MigrateDown(steps int) error {
 
 	// Create migrate instance
 	migration, err := migrate.NewWithDatabaseInstance(
-		"file://db/migrations",
+		p.conf.Db.MigrationPath,
 		"postgres", driver)
 	if err != nil {
 		return fmt.Errorf("failed to create migrate instance: %w", err)
@@ -130,7 +131,7 @@ func (p *postgresDatabase) GetVersion() (uint, bool, error) {
 
 	// Create migrate instance
 	migration, err := migrate.NewWithDatabaseInstance(
-		"file://db/migrations",
+		p.conf.Db.MigrationPath,
 		"postgres", driver)
 	if err != nil {
 		return 0, false, fmt.Errorf("failed to create migrate instance: %w", err)

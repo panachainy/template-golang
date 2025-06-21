@@ -48,10 +48,6 @@ f: fmt
 fmt:
 	go fmt ./...
 
-w: wire
-wire:
-	wire ./...
-
 g: generate
 generate:
 	go generate ./...

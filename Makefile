@@ -1,3 +1,6 @@
+include .env
+export $(shell sed 's/=.*//' .env)
+
 dev:
 	wgo run ./cmd/main.go
 
@@ -15,18 +18,15 @@ setup:
 	make auth.newkey
 	brew install golang-migrate
 
+# make migrate.create name=<migration_name>
 migrate.create:
-	# migrate create -ext sql -dir db/migrations -seq <migration_name>
-	migrate create -ext sql -dir db/migrations -seq
+	migrate create -ext sql -dir db/migrations -format 20060102150405 $(name)
 
 migrate.up:
-	# go run ./modules/cockroach/migrations/cockroachMigrate.go
-	# go run ./modules/auth/migrations/authMigrate.go
-	# migrate -database YOUR_DATABASE_URL -path db/migrations up
+	migrate -database "postgres://$(DB_USERNAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_DBNAME)?sslmode=$(DB_SSLMODE)" -path db/migrations up
 
 migrate.down:
-	# TODO:
-	# migrate -database YOUR_DATABASE_URL -path db/migrations down
+	migrate -database "postgres://$(DB_USERNAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_DBNAME)?sslmode=$(DB_SSLMODE)" -path db/migrations down
 
 tidy:
 	go mod tidy -v

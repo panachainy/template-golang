@@ -20,12 +20,22 @@ setup:
 
 # make migrate.create name=<migration_name>
 migrate.create:
-	migrate create -ext sql -dir db/migrations -format 20060102150405 $(name)
+	migrate create -ext sql -dir db/migrations -seq $(name)
 
 migrate.up:
-	migrate -database "postgres://$(DB_USERNAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_DBNAME)?sslmode=$(DB_SSLMODE)" -path db/migrations up
+	go run ./cmd/migrate/main.go -action=up
 
 migrate.down:
+	go run ./cmd/migrate/main.go -action=down -steps=$(steps)
+
+migrate.version:
+	go run ./cmd/migrate/main.go -action=version
+
+# Legacy migrate commands using migrate CLI directly
+migrate.cli.up:
+	migrate -database "postgres://$(DB_USERNAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_DBNAME)?sslmode=$(DB_SSLMODE)" -path db/migrations up
+
+migrate.cli.down:
 	migrate -database "postgres://$(DB_USERNAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_DBNAME)?sslmode=$(DB_SSLMODE)" -path db/migrations down
 
 tidy:

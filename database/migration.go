@@ -42,7 +42,7 @@ func (m *MigrationManager) RunMigrations() error {
 
 	// Create migrate instance
 	migration, err := migrate.NewWithDatabaseInstance(
-		"file://migrations",
+		"file://db/migrations",
 		"postgres", driver)
 	if err != nil {
 		return fmt.Errorf("failed to create migrate instance: %w", err)
@@ -76,7 +76,7 @@ func (m *MigrationManager) RollbackMigrations(steps int) error {
 
 	// Create migrate instance
 	migration, err := migrate.NewWithDatabaseInstance(
-		"file://migrations",
+		"file://db/migrations",
 		"postgres", driver)
 	if err != nil {
 		return fmt.Errorf("failed to create migrate instance: %w", err)
@@ -108,7 +108,7 @@ func (m *MigrationManager) GetVersion() (uint, bool, error) {
 
 	// Create migrate instance
 	migration, err := migrate.NewWithDatabaseInstance(
-		"file://migrations",
+		"file://db/migrations",
 		"postgres", driver)
 	if err != nil {
 		return 0, false, fmt.Errorf("failed to create migrate instance: %w", err)

@@ -12,7 +12,6 @@ import (
 
 var ProviderSet = wire.NewSet(
 	Provide,
-	ProvideMigrationManager,
 	wire.Bind(new(Database), new(*postgresDatabase)),
 )
 

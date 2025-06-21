@@ -5,6 +5,9 @@ import (
 	"sync"
 	"template-golang/config"
 
+	"github.com/golang-migrate/migrate/v4"
+	pgMigrate "github.com/golang-migrate/migrate/v4/database/postgres"
+	"github.com/labstack/gommon/log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -44,4 +47,101 @@ func Provide(conf *config.Config) *postgresDatabase {
 
 func (p *postgresDatabase) GetDb() *gorm.DB {
 	return dbInstance.Db
+}
+
+func (p *postgresDatabase) MigrateUp() error {
+	log.Info("Running database migrations...")
+
+	// Get the underlying SQL DB from GORM
+	sqlDB, err := p.Db.DB()
+	if err != nil {
+		return fmt.Errorf("failed to get underlying sql.DB: %w", err)
+	}
+
+	// Create postgres driver instance
+	driver, err := postgres.WithInstance(sqlDB, &postgres.Config{})
+	if err != nil {
+		return fmt.Errorf("failed to create postgres driver: %w", err)
+	}
+
+	// Create migrate instance
+	migration, err := migrate.NewWithDatabaseInstance(
+		"file://db/migrations",
+		"postgres", driver)
+	if err != nil {
+		return fmt.Errorf("failed to create migrate instance: %w", err)
+	}
+	defer migration.Close()
+
+	// Run migrations
+	if err := migration.Up(); err != nil && err != migrate.ErrNoChange {
+		return fmt.Errorf("failed to run migrations: %w", err)
+	}
+
+	log.Info("Database migrations completed successfully")
+	return nil
+}
+
+func (p *postgresDatabase) MigrateDown(steps int) error {
+	log.Infof("Rolling back %d migration(s)...", steps)
+
+	// Get the underlying SQL DB from GORM
+	sqlDB, err := p.Db.DB()
+	if err != nil {
+		return fmt.Errorf("failed to get underlying sql.DB: %w", err)
+	}
+
+	// Create postgres driver instance
+	driver, err := pgMigrate.WithInstance(sqlDB, &pgMigrate.Config{})
+	if err != nil {
+		return fmt.Errorf("failed to create postgres driver: %w", err)
+	}
+
+	// Create migrate instance
+	migration, err := migrate.NewWithDatabaseInstance(
+		"file://db/migrations",
+		"postgres", driver)
+	if err != nil {
+		return fmt.Errorf("failed to create migrate instance: %w", err)
+	}
+	defer migration.Close()
+
+	// Roll back migrations
+	if err := migration.Steps(-steps); err != nil && err != migrate.ErrNoChange {
+		return fmt.Errorf("failed to rollback migrations: %w", err)
+	}
+
+	log.Infof("Rollback of %d migration(s) completed successfully", steps)
+	return nil
+}
+
+func (p *postgresDatabase) GetVersion() (uint, bool, error) {
+	// Get the underlying SQL DB from GORM
+	sqlDB, err := p.Db.DB()
+	if err != nil {
+		return 0, false, fmt.Errorf("failed to get underlying sql.DB: %w", err)
+	}
+
+	// Create postgres driver instance
+	driver, err := pgMigrate.WithInstance(sqlDB, &pgMigrate.Config{})
+	if err != nil {
+		return 0, false, fmt.Errorf("failed to create postgres driver: %w", err)
+	}
+
+	// Create migrate instance
+	migration, err := migrate.NewWithDatabaseInstance(
+		"file://db/migrations",
+		"postgres", driver)
+	if err != nil {
+		return 0, false, fmt.Errorf("failed to create migrate instance: %w", err)
+	}
+	defer migration.Close()
+
+	// Get current version
+	version, dirty, err := migration.Version()
+	if err != nil && err != migrate.ErrNilVersion {
+		return 0, false, fmt.Errorf("failed to get migration version: %w", err)
+	}
+
+	return version, dirty, nil
 }

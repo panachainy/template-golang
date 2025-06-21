@@ -2,10 +2,10 @@ include .env
 export $(shell sed 's/=.*//' .env)
 
 dev:
-	wgo run ./cmd/main.go
+	wgo run ./cmd/api/main.go
 
 start:
-	go run ./cmd/main.go
+	go run ./cmd/api/main.go
 
 infra.up:
 	docker-compose up -d
@@ -86,7 +86,7 @@ build:
 # swagger
 
 swag.init:
-	swag init -g cmd/main.go
+	swag init -g cmd/api/main.go
 
 # auth
 

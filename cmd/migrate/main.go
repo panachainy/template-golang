@@ -17,11 +17,10 @@ func main() {
 
 	conf := config.Provide()
 	db := database.Provide(conf)
-	migrationManager := database.ProvideMigrationManager(db, conf)
 
 	switch *action {
 	case "up":
-		if err := migrationManager.RunMigrations(); err != nil {
+		if err := db.MigrateUp(); err != nil {
 			log.Errorf("Failed to run migrations: %v", err)
 			os.Exit(1)
 		}
@@ -33,14 +32,14 @@ func main() {
 			log.Errorf("Invalid steps steps: %v err: %v", *steps, err)
 			os.Exit(1)
 		}
-		if err := migrationManager.RollbackMigrations(stepCount); err != nil {
+		if err := db.MigrateDown(stepCount); err != nil {
 			log.Errorf("Failed to rollback migrations: %v", err)
 			os.Exit(1)
 		}
 		log.Infof("Rollback of %d steps completed successfully", stepCount)
 
 	case "version":
-		version, dirty, err := migrationManager.GetVersion()
+		version, dirty, err := db.GetVersion()
 		if err != nil {
 			log.Errorf("Failed to get migration version: %v", err)
 			os.Exit(1)

@@ -6,4 +6,7 @@ import "gorm.io/gorm"
 
 type Database interface {
 	GetDb() *gorm.DB
+	MigrateUp() error
+	MigrateDown(steps int) error
+	GetVersion() (uint, bool, error)
 }

@@ -14,6 +14,7 @@
 - [x] Unit Test
 - [x] Mock
 - [x] [Validator](https://github.com/go-playground/validator)
+- [x] [golang-migrate/migrate](https://github.com/golang-migrate/migrate/tree/master?tab=readme-ov-file)
 - [ ] Auth JWT
   - [ ] [goth](https://github.com/markbates/goth)
     - [x] [JWT goth](https://github.com/markbates/goth/issues/310)

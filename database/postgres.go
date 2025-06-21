@@ -21,7 +21,7 @@ var (
 	dbInstance *postgresDatabase
 )
 
-func Provide(conf *config.Config) *postgresDatabase {
+func NewPostgres(conf *config.Config) *postgresDatabase {
 	once.Do(func() {
 		dsn := fmt.Sprintf(
 			"host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=%s",

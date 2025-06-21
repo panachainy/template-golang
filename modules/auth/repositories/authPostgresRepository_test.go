@@ -1,9 +1,9 @@
-//go:build integration
 // +build integration
 
 package repositories
 
 import (
+	"template-golang/config"
 	"template-golang/database"
 	"template-golang/modules/auth/entities"
 	"template-golang/modules/auth/models"
@@ -12,20 +12,28 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// setupTestDB creates an in-memory SQLite database for testing
 func setupTestDB(t *testing.T) database.Database {
-	// Create SQLite database with in-memory DSN
-	sqliteDB, err := database.ProvideSqliteDatabaseWithMigrationPath(":memory:", false, "file:../../../db/migrations")
+	c := config.Provide(config.NewConfigOption("../../../"))
+	c.Db.MigrationPath = "file://../../../db/migrations"
+	db := database.NewPostgres(c)
+
+	err := db.MigrateUp()
 	assert.NoError(t, err)
 
-	err = sqliteDB.MigrateUp()
-	assert.NoError(t, err)
+	return db
+}
 
-	return sqliteDB
+func teardownTestDB(t *testing.T, db database.Database) {
+	err := db.MigrateDown(0)
+	assert.NoError(t, err)
+	err = db.Close()
+	assert.NoError(t, err)
 }
 
 func TestProvideAuthRepository(t *testing.T) {
 	testDB := setupTestDB(t)
+	defer teardownTestDB(t, testDB)
+
 	repo := ProvideAuthRepository(testDB)
 
 	assert.NotNil(t, repo)
@@ -34,6 +42,8 @@ func TestProvideAuthRepository(t *testing.T) {
 
 func TestAuthRepository_UpsertData_CreateNewAuthRecord(t *testing.T) {
 	testDB := setupTestDB(t)
+	defer teardownTestDB(t, testDB)
+
 	repo := ProvideAuthRepository(testDB)
 
 	auth := &entities.Auth{
@@ -82,6 +92,8 @@ func TestAuthRepository_UpsertData_CreateNewAuthRecord(t *testing.T) {
 
 func TestAuthRepository_UpsertData_UpdateExistingAuthRecord(t *testing.T) {
 	testDB := setupTestDB(t)
+	defer teardownTestDB(t, testDB)
+
 	repo := ProvideAuthRepository(testDB)
 
 	// Create existing record first
@@ -143,6 +155,8 @@ func TestAuthRepository_UpsertData_UpdateExistingAuthRecord(t *testing.T) {
 
 func TestAuthRepository_UpsertData_CreateAuthWithMultipleAuthMethods(t *testing.T) {
 	testDB := setupTestDB(t)
+	defer teardownTestDB(t, testDB)
+
 	repo := ProvideAuthRepository(testDB)
 
 	auth := &entities.Auth{
@@ -197,6 +211,8 @@ func TestAuthRepository_UpsertData_CreateAuthWithMultipleAuthMethods(t *testing.
 
 func TestAuthRepository_UpsertData_CreateAuthWithEmptyRequiredFieldsShouldFail(t *testing.T) {
 	testDB := setupTestDB(t)
+	defer teardownTestDB(t, testDB)
+
 	repo := ProvideAuthRepository(testDB)
 
 	auth := &entities.Auth{

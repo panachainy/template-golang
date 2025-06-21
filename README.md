@@ -16,6 +16,7 @@
 - [x] Mock
 - [x] [Validator](https://github.com/go-playground/validator)
 - [x] [golang-migrate/migrate](https://github.com/golang-migrate/migrate/tree/master?tab=readme-ov-file)
+- [ ] [sqlc](https://github.com/sqlc-dev/sqlc)
 - [ ] Auth JWT
   - [ ] [goth](https://github.com/markbates/goth)
     - [x] [JWT goth](https://github.com/markbates/goth/issues/310)
@@ -28,7 +29,7 @@
       - [ ] add refresh token func
     - [ ] Save db
 - [ ] Redis
-- [ ] Logger system
+- [ ] Logger system ([zap](https://github.com/uber-go/zap))
 - [ ] [Casbin](https://github.com/casbin/casbin)
 - [ ] try [WTF](https://github.com/pallat/wtf)
   - [ ] Do corsHandler to support configurable.

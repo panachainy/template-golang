@@ -21,7 +21,6 @@ func Wire() (*Config, error) {
 // wire.go:
 
 var ProviderSet = wire.NewSet(
-
 	RootConfig,
 	Provide,
 )

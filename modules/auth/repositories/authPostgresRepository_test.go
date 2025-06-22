@@ -27,6 +27,10 @@ func setupTestDB(t *testing.T) database.Database {
 }
 
 func teardownTestDB(t *testing.T, db database.Database) {
+	// Clean up any existing test data
+	db.GetDb().Exec("DELETE FROM auth_methods")
+	db.GetDb().Exec("DELETE FROM auths")
+
 	err := db.MigrateDown(0)
 	assert.NoError(t, err)
 	err = db.Close()
@@ -51,8 +55,8 @@ func TestAuthRepository_UpsertData_CreateNewAuthRecord(t *testing.T) {
 
 	auth := &entities.Auth{
 		ID:       "auth-123",
-		Username: "",
-		Password: "",
+		Username: "testuser",
+		Password: "hashedpassword",
 		Email:    "testuser@example.com",
 		Role:     models.RoleUser,
 		Active:   true,
@@ -77,6 +81,7 @@ func TestAuthRepository_UpsertData_CreateNewAuthRecord(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, "auth-123", auth.ID)
+	assert.Equal(t, "testuser", auth.Username)
 	assert.Equal(t, "testuser@example.com", auth.Email)
 	assert.Equal(t, models.RoleUser, auth.Role)
 	assert.True(t, auth.Active)
@@ -220,9 +225,9 @@ func TestAuthRepository_UpsertData_CreateAuthWithEmptyRequiredFieldsShouldFail(t
 
 	auth := &entities.Auth{
 		ID:       "auth-invalid",
-		Username: "", // Empty required field
+		Username: "invaliduser",
 		Email:    "invalid@example.com",
-		Role:     models.RoleUser,
+		Role:     "", // Empty required field
 		Active:   true,
 	}
 

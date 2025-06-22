@@ -8,7 +8,7 @@ start:
 	go run ./cmd/api/main.go
 
 infra.up:
-	docker-compose up -d
+	docker-compose -f ./docker-compose.yml up -d
 
 setup:
 	go install go.uber.org/mock/mockgen@latest

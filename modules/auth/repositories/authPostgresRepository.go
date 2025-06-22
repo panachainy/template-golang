@@ -25,14 +25,46 @@ func (r *authPostgresRepository) UpsertData(in *entities.Auth) error {
 		return err
 	}
 
-	result := r.db.GetDb().Save(in)
+	// Start a transaction to ensure data consistency
+	tx := r.db.GetDb().Begin()
+	if tx.Error != nil {
+		log.Errorf("UpsertData: failed to begin transaction: %v", tx.Error)
+		return tx.Error
+	}
 
+	// Store AuthMethods temporarily and clear them from the Auth struct
+	authMethods := in.AuthMethods
+	in.AuthMethods = nil
+
+	// First, save the Auth record without AuthMethods
+	result := tx.Save(in)
 	if result.Error != nil {
+		tx.Rollback()
 		log.Errorf("UpsertAuth: %v", result.Error)
 		return result.Error
 	}
 
-	log.Debugf("UpsertAuth: %v", result.RowsAffected)
+	// Now save the AuthMethods with the correct AuthID
+	for i := range authMethods {
+		authMethods[i].AuthID = in.ID
+		result = tx.Save(&authMethods[i])
+		if result.Error != nil {
+			tx.Rollback()
+			log.Errorf("UpsertAuthMethods: %v", result.Error)
+			return result.Error
+		}
+	}
+
+	// Commit the transaction
+	if err := tx.Commit().Error; err != nil {
+		log.Errorf("UpsertData: failed to commit transaction: %v", err)
+		return err
+	}
+
+	// Restore AuthMethods to the original struct
+	in.AuthMethods = authMethods
+
+	log.Debugf("UpsertAuth: successfully saved auth and %d auth methods", len(authMethods))
 	return nil
 }
 

@@ -107,7 +107,7 @@ generate:
 
 b: build
 build:
-	go build -o apiserver ./cmd
+	go build -o apiserver ./api/cmd
 
 
 # swagger

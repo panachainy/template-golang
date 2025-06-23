@@ -35,6 +35,7 @@
   - [ ] Do corsHandler to support configurable.
 - [ ] try [failover](https://github.com/wongnai/lmwn_gomeetup_failover)
 - [ ] husky
+- [ ] do pkg for common tools
 
 ## Design pattern
 

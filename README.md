@@ -4,8 +4,10 @@
 
 - [x] Clean Architecture
 - [x] PostgreSQL
-- [x] air
+- [x] ~~air~~
+  - [x] use `wgo` instead
 - [x] Viper config
+  - [x] Fix issue about `.env` & `.env.test`
 - [x] Docker
 - [x] Gorm
 - [x] [Swagger-Gin](https://github.com/swaggo/gin-swagger)
@@ -13,6 +15,8 @@
 - [x] Unit Test
 - [x] Mock
 - [x] [Validator](https://github.com/go-playground/validator)
+- [x] [golang-migrate/migrate](https://github.com/golang-migrate/migrate/tree/master?tab=readme-ov-file)
+- [ ] [sqlc](https://github.com/sqlc-dev/sqlc)
 - [ ] Auth JWT
   - [ ] [goth](https://github.com/markbates/goth)
     - [x] [JWT goth](https://github.com/markbates/goth/issues/310)
@@ -25,11 +29,13 @@
       - [ ] add refresh token func
     - [ ] Save db
 - [ ] Redis
-- [ ] Logger system
+- [ ] Logger system ([zap](https://github.com/uber-go/zap))
 - [ ] [Casbin](https://github.com/casbin/casbin)
 - [ ] try [WTF](https://github.com/pallat/wtf)
   - [ ] Do corsHandler to support configurable.
 - [ ] try [failover](https://github.com/wongnai/lmwn_gomeetup_failover)
+- [ ] husky
+- [ ] do pkg for common tools
 
 ## Design pattern
 

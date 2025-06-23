@@ -12,6 +12,7 @@ package mock
 import (
 	reflect "reflect"
 	entities "template-golang/modules/auth/entities"
+	repositories "template-golang/modules/auth/repositories"
 
 	gomock "go.uber.org/mock/gomock"
 )
@@ -38,6 +39,36 @@ func NewMockAuthRepository(ctrl *gomock.Controller) *MockAuthRepository {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockAuthRepository) EXPECT() *MockAuthRepositoryMockRecorder {
 	return m.recorder
+}
+
+// GetAuthIDMethodIDByUserID mocks base method.
+func (m *MockAuthRepository) GetAuthIDMethodIDByUserID(userID string) (*repositories.GetAuthIdMethodIdResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAuthIDMethodIDByUserID", userID)
+	ret0, _ := ret[0].(*repositories.GetAuthIdMethodIdResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAuthIDMethodIDByUserID indicates an expected call of GetAuthIDMethodIDByUserID.
+func (mr *MockAuthRepositoryMockRecorder) GetAuthIDMethodIDByUserID(userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAuthIDMethodIDByUserID", reflect.TypeOf((*MockAuthRepository)(nil).GetAuthIDMethodIDByUserID), userID)
+}
+
+// GetUserByUserID mocks base method.
+func (m *MockAuthRepository) GetUserByUserID(userID string) (*entities.Auth, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserByUserID", userID)
+	ret0, _ := ret[0].(*entities.Auth)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserByUserID indicates an expected call of GetUserByUserID.
+func (mr *MockAuthRepositoryMockRecorder) GetUserByUserID(userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByUserID", reflect.TypeOf((*MockAuthRepository)(nil).GetUserByUserID), userID)
 }
 
 // Gets mocks base method.

@@ -1,18 +1,21 @@
 {
-    "cSpell.words": [
-        "attributevalue",
-        "Debugf",
-        "dynamodbattribute",
-        "errorhandler",
-        "gomock",
-        "gorm",
-        "Infof",
-        "Infoln",
-        "logrus",
-        "logx",
-        "sirupsen",
-        "Usecase",
-        "usecases",
-        "Warnf"
-    ]
+  "cSpell.words": [
+    "attributevalue",
+    "Debugf",
+    "dynamodbattribute",
+    "errorhandler",
+    "gomock",
+    "gorm",
+    "Infof",
+    "Infoln",
+    "logrus",
+    "logx",
+    "sirupsen",
+    "Usecase",
+    "usecases",
+    "Warnf"
+  ],
+  "go.testEnvVars": {
+    "GIN_MODE": "test"
+  }
 }

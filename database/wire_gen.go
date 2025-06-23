@@ -11,15 +11,33 @@ import (
 	"template-golang/config"
 )
 
+import (
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+)
+
 // Injectors from wire.go:
 
-func Wire(conf *config.Config) (Database, error) {
-	databasePostgresDatabase := Provide(conf)
+func WirePostgres(conf *config.Config) (Database, error) {
+	databasePostgresDatabase := NewPostgres(conf)
 	return databasePostgresDatabase, nil
+}
+
+// WireSQLite creates a SQLite database instance using dependency injection
+func WireSQLite(dsn string, logMode bool) (Database, error) {
+	sqliteDatabase, err := ProvideSqliteDatabase(dsn, logMode)
+	if err != nil {
+		return nil, err
+	}
+	return sqliteDatabase, nil
 }
 
 // wire.go:
 
-var ProviderSet = wire.NewSet(
-	Provide, wire.Bind(new(Database), new(*postgresDatabase)),
+var PostgresProviderSet = wire.NewSet(
+	NewPostgres, wire.Bind(new(Database), new(*postgresDatabase)),
+)
+
+// SQLiteProviderSet provides SQLite database implementation
+var SQLiteProviderSet = wire.NewSet(
+	ProvideSqliteDatabase, wire.Bind(new(Database), new(*SqliteDatabase)),
 )

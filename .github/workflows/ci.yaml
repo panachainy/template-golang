@@ -1,6 +1,12 @@
-name: Test
+name: CI/CD Pipeline
 on:
-    push
+    push:
+        branches: [ main, develop ]
+    pull_request:
+        branches: [ main ]
+
+env:
+  GO_VERSION: '1.24.2'
 
 jobs:
     test:
@@ -9,6 +15,19 @@ jobs:
             contents: read
             id-token: write
         services:
+          postgres:
+            image: postgres:17.4-alpine
+            env:
+              POSTGRES_USER: postgres
+              POSTGRES_PASSWORD: postgres
+              POSTGRES_DB: test_db
+            options: >-
+              --health-cmd "pg_isready -U postgres"
+              --health-interval 10s
+              --health-timeout 5s
+              --health-retries 5
+            ports:
+              - '5432:5432'
           redis:
             image: redis:latest
             options: >-
@@ -24,10 +43,88 @@ jobs:
             - name: Set up Go
               uses: actions/setup-go@v4
               with:
-                  go-version: '1.24.2'
+                  go-version: ${{ env.GO_VERSION }}
 
             - name: Install dependencies
               run: go mod tidy
 
-            - name: Run tests
-              run: go test ./...
+            - name: Install golang-migrate
+              run: |
+                curl -L https://github.com/golang-migrate/migrate/releases/latest/download/migrate.linux-amd64.tar.gz | tar xvz
+                sudo mv migrate /usr/local/bin/
+
+            - name: Create .env file for tests
+              run: |
+                cat > .env << EOF
+                SERVER_PORT=8080
+                GIN_MODE=test
+                DB_HOST=localhost
+                DB_PORT=5432
+                DB_USERNAME=postgres
+                DB_PASSWORD=postgres
+                DB_DBNAME=test_db
+                DB_SSLMODE=disable
+                DB_TIMEZONE=Asia/Bangkok
+                DB_MIGRATION_PATH=file://db/migrations
+                PRIVATE_KEY_PATH=ecdsa_private_key.pem
+                EOF
+
+            - name: Generate test keys
+              run: |
+                openssl ecparam -name prime256v1 -genkey -noout -out ecdsa_private_key.pem
+                openssl ec -in ecdsa_private_key.pem -pubout -out ecdsa_public_key.pem
+
+            - name: Wait for PostgreSQL
+              run: |
+                until pg_isready -h localhost -p 5432 -U postgres; do
+                  echo "Waiting for PostgreSQL..."
+                  sleep 2
+                done
+
+            - name: Run database migrations
+              run: go run ./cmd/migrate/main.go -action=up
+
+            - name: Run unit tests
+              run: |
+                export GIN_MODE=test
+                go test ./... -v
+
+            - name: Run integration tests
+              run: |
+                export GIN_MODE=test
+                go test -tags=integration ./... -v
+
+            - name: Run tests with coverage
+              run: |
+                export GIN_MODE=test
+                go test -race -covermode=atomic -coverprofile=covprofile.out ./...
+                go test -race -covermode=atomic -coverprofile=covprofile-integration.out -tags=integration ./...
+
+            - name: Upload coverage reports to Codecov
+              uses: codecov/codecov-action@v5
+              with:
+                files: ./covprofile.out,./covprofile-integration.out
+                fail_ci_if_error: false
+                token: ${{ secrets.CODECOV_TOKEN }}
+
+    security-scan:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Set up Go
+              uses: actions/setup-go@v4
+              with:
+                  go-version: ${{ env.GO_VERSION }}
+
+
+            - name: Run Gosec Security Scanner
+              uses: securego/gosec@master
+              with:
+                args: '-no-fail -fmt sarif -out results.sarif ./...'
+
+            - name: Upload SARIF file
+              uses: github/codeql-action/upload-sarif@v2
+              with:
+                # Path to SARIF file relative to the root of the repository
+                sarif_file: results.sarif

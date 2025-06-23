@@ -15,6 +15,7 @@ This is a Go template project using Clean Architecture with modular design, Gin 
 - `/cmd` - Main application entry point
 - `/config` - Configuration management with Viper
 - `/database` - Database interfaces and PostgreSQL implementation
+- `/db/migrations` - Database migration scripts
 - `/modules` - Feature modules organized by domain (auth, cockroach)
 - `/server` - HTTP server implementation with Gin
 - `/docs` - Swagger documentation

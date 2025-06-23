@@ -24,8 +24,9 @@ import (
 // Injectors from wire.go:
 
 func Wire() (Server, error) {
-	configConfig := config.Provide()
-	postgresDatabase := database.Provide(configConfig)
+	configOption := config.RootConfig()
+	configConfig := config.Provide(configOption)
+	postgresDatabase := database.NewPostgres(configConfig)
 	cockroachPostgresRepository := repositories.ProvidePostgresRepository(postgresDatabase)
 	cockroachFCMMessaging := repositories.ProvideFCMMessaging()
 	cockroachUsecaseImpl := usecases.Provide(cockroachPostgresRepository, cockroachFCMMessaging)
@@ -51,5 +52,5 @@ func Wire() (Server, error) {
 // wire.go:
 
 var ProviderSet = wire.NewSet(
-	Provide, wire.Bind(new(Server), new(*ginServer)), config.ProviderSet, database.ProviderSet, cockroach.ProviderSet, auth.ProviderSet,
+	Provide, wire.Bind(new(Server), new(*ginServer)), config.ProviderSet, database.PostgresProviderSet, cockroach.ProviderSet, auth.ProviderSet,
 )

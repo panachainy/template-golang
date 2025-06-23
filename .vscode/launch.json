@@ -9,7 +9,7 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "./cmd/main.go",
+            "program": "./cmd/api/main.go",
             "env": {
                 "PRIVATE_KEY_PATH": "../ecdsa_private_key.pem"
             },

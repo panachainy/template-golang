@@ -208,7 +208,7 @@ func TestWithError(t *testing.T) {
 
 func TestWithError_NilError(t *testing.T) {
 	// Create a test logger with observer
-	core, recorded := observer.New(zap.InfoLevel)
+	core, _ := observer.New(zap.InfoLevel)
 	logger := &Logger{
 		Logger: zap.New(core),
 	}

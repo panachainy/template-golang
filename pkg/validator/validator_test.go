@@ -1,10 +1,12 @@
 package validator
 
 import (
+	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	pkgErrors "template-golang/pkg/errors"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type TestStruct struct {

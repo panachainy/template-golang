@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+	"sync"
 
 	pkgErrors "template-golang/pkg/errors"
 
@@ -175,7 +176,8 @@ func registerCustomValidators(validate *validator.Validate) error {
 	// Phone number validator (basic)
 	if err := validate.RegisterValidation("phone", func(fl validator.FieldLevel) bool {
 		phone := fl.Field().String()
-		phoneRegex := regexp.MustCompile(`^\+?[1-9]\d{1,14}$`)
+		// Require at least 7 digits, max 15 (international standard)
+		phoneRegex := regexp.MustCompile(`^\+?[1-9]\d{6,14}$`)
 		return phoneRegex.MatchString(phone)
 	}); err != nil {
 		return fmt.Errorf("failed to register phone validator: %w", err)
@@ -214,7 +216,10 @@ func registerCustomValidators(validate *validator.Validate) error {
 }
 
 // Global validator instance
-var globalValidator *Validator
+var (
+	globalValidator *Validator
+	globalOnce      sync.Once
+)
 
 // SetGlobalValidator sets the global validator instance
 func SetGlobalValidator(v *Validator) {
@@ -223,9 +228,15 @@ func SetGlobalValidator(v *Validator) {
 
 // GetGlobalValidator returns the global validator instance
 func GetGlobalValidator() *Validator {
-	if globalValidator == nil {
-		globalValidator = New()
-	}
+	globalOnce.Do(func() {
+		if globalValidator == nil {
+			var err error
+			globalValidator, err = New()
+			if err != nil {
+				panic(fmt.Sprintf("failed to create global validator: %v", err))
+			}
+		}
+	})
 	return globalValidator
 }
 

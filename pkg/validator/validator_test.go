@@ -2,6 +2,7 @@ package validator
 
 import (
 	"strings"
+	"sync"
 	"testing"
 
 	pkgErrors "template-golang/pkg/errors"
@@ -21,13 +22,15 @@ type TestStruct struct {
 }
 
 func TestNew(t *testing.T) {
-	v := New()
+	v, err := New()
+	assert.NoError(t, err)
 	assert.NotNil(t, v)
 	assert.NotNil(t, v.validate)
 }
 
 func TestValidator_Validate_Success(t *testing.T) {
-	v := New()
+	v, err := New()
+	assert.NoError(t, err)
 
 	testData := TestStruct{
 		Name:     "John Doe",
@@ -40,12 +43,13 @@ func TestValidator_Validate_Success(t *testing.T) {
 		NoSpace:  "nospaces",
 	}
 
-	err := v.Validate(testData)
+	err = v.Validate(testData)
 	assert.NoError(t, err)
 }
 
 func TestValidator_Validate_Required(t *testing.T) {
-	v := New()
+	v, err := New()
+	assert.NoError(t, err)
 
 	testData := TestStruct{
 		// Name is missing (required)
@@ -53,7 +57,7 @@ func TestValidator_Validate_Required(t *testing.T) {
 		Age:   25,
 	}
 
-	err := v.Validate(testData)
+	err = v.Validate(testData)
 	assert.Error(t, err)
 
 	errorList, ok := err.(*pkgErrors.ErrorList)
@@ -72,7 +76,8 @@ func TestValidator_Validate_Required(t *testing.T) {
 }
 
 func TestValidator_Validate_Email(t *testing.T) {
-	v := New()
+	v, err := New()
+	assert.NoError(t, err)
 
 	tests := []struct {
 		name  string
@@ -118,7 +123,8 @@ func TestValidator_Validate_Email(t *testing.T) {
 }
 
 func TestValidator_Validate_MinMax(t *testing.T) {
-	v := New()
+	v, err := New()
+	assert.NoError(t, err)
 
 	tests := []struct {
 		name  string
@@ -155,10 +161,11 @@ func TestValidator_Validate_MinMax(t *testing.T) {
 }
 
 func TestValidator_ValidateVar(t *testing.T) {
-	v := New()
+	v, err := New()
+	assert.NoError(t, err)
 
 	// Test valid email
-	err := v.ValidateVar("test@example.com", "email")
+	err = v.ValidateVar("test@example.com", "email")
 	assert.NoError(t, err)
 
 	// Test invalid email
@@ -167,7 +174,8 @@ func TestValidator_ValidateVar(t *testing.T) {
 }
 
 func TestCustomValidators(t *testing.T) {
-	v := New()
+	v, err := New()
+	assert.NoError(t, err)
 
 	tests := []struct {
 		name      string
@@ -221,16 +229,32 @@ func TestCustomValidators(t *testing.T) {
 }
 
 func TestGlobalValidator(t *testing.T) {
+	// Save original global validator
+	originalValidator := globalValidator
+
+	// Reset to ensure clean state
+	globalValidator = nil
+	globalOnce = sync.Once{}
+
 	// Test getting global validator
 	v1 := GetGlobalValidator()
 	v2 := GetGlobalValidator()
 	assert.Equal(t, v1, v2) // Should be the same instance
 
 	// Test setting global validator
-	newValidator := New()
+	newValidator, err := New()
+	assert.NoError(t, err)
+
+	// Reset once to allow setting new validator
+	globalValidator = nil
+	globalOnce = sync.Once{}
 	SetGlobalValidator(newValidator)
 	v3 := GetGlobalValidator()
 	assert.Equal(t, newValidator, v3)
+
+	// Restore original state
+	globalValidator = originalValidator
+	globalOnce = sync.Once{}
 }
 
 func TestValidate_Global(t *testing.T) {
@@ -240,7 +264,7 @@ func TestValidate_Global(t *testing.T) {
 		Age:   25,
 	}
 
-	err := Validate(testData)
+	_ = Validate(testData)
 	// May have errors due to other required fields, but should not panic
 	assert.NotPanics(t, func() {
 		Validate(testData)
@@ -325,7 +349,8 @@ func TestConvenienceFunctions(t *testing.T) {
 }
 
 func TestGetErrorMessage(t *testing.T) {
-	v := New()
+	v, err := New()
+	assert.NoError(t, err)
 
 	testData := struct {
 		Email string `validate:"email"`
@@ -337,7 +362,7 @@ func TestGetErrorMessage(t *testing.T) {
 		Max:   "this is too long",
 	}
 
-	err := v.Validate(testData)
+	err = v.Validate(testData)
 	assert.Error(t, err)
 
 	errorList := err.(*pkgErrors.ErrorList)

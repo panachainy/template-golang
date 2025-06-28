@@ -6,8 +6,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/go-playground/validator/v10"
 	pkgErrors "template-golang/pkg/errors"
+
+	"github.com/go-playground/validator/v10"
 )
 
 // Validator wraps the go-playground/validator with additional functionality
@@ -25,7 +26,7 @@ type ValidationError struct {
 }
 
 // New creates a new validator instance
-func New() *Validator {
+func New() (*Validator, error) {
 	validate := validator.New()
 
 	// Register custom tag name function to use JSON tags
@@ -38,11 +39,13 @@ func New() *Validator {
 	})
 
 	// Register custom validators
-	registerCustomValidators(validate)
+	if err := registerCustomValidators(validate); err != nil {
+		return nil, fmt.Errorf("failed to register custom validators: %w", err)
+	}
 
 	return &Validator{
 		validate: validate,
-	}
+	}, nil
 }
 
 // Validate validates a struct and returns detailed error information
@@ -151,9 +154,9 @@ func getErrorMessage(fe validator.FieldError) string {
 }
 
 // registerCustomValidators registers custom validation functions
-func registerCustomValidators(validate *validator.Validate) {
+func registerCustomValidators(validate *validator.Validate) error {
 	// Password strength validator
-	validate.RegisterValidation("password_strength", func(fl validator.FieldLevel) bool {
+	if err := validate.RegisterValidation("password_strength", func(fl validator.FieldLevel) bool {
 		password := fl.Field().String()
 		if len(password) < 8 {
 			return false
@@ -165,37 +168,49 @@ func registerCustomValidators(validate *validator.Validate) {
 		hasSpecial := regexp.MustCompile(`[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]`).MatchString(password)
 
 		return hasUpper && hasLower && hasNumber && hasSpecial
-	})
+	}); err != nil {
+		return fmt.Errorf("failed to register password_strength validator: %w", err)
+	}
 
 	// Phone number validator (basic)
-	validate.RegisterValidation("phone", func(fl validator.FieldLevel) bool {
+	if err := validate.RegisterValidation("phone", func(fl validator.FieldLevel) bool {
 		phone := fl.Field().String()
 		phoneRegex := regexp.MustCompile(`^\+?[1-9]\d{1,14}$`)
 		return phoneRegex.MatchString(phone)
-	})
+	}); err != nil {
+		return fmt.Errorf("failed to register phone validator: %w", err)
+	}
 
 	// Slug validator
-	validate.RegisterValidation("slug", func(fl validator.FieldLevel) bool {
+	if err := validate.RegisterValidation("slug", func(fl validator.FieldLevel) bool {
 		slug := fl.Field().String()
 		slugRegex := regexp.MustCompile(`^[a-z0-9]+(?:-[a-z0-9]+)*$`)
 		return slugRegex.MatchString(slug)
-	})
+	}); err != nil {
+		return fmt.Errorf("failed to register slug validator: %w", err)
+	}
 
 	// No spaces validator
-	validate.RegisterValidation("no_spaces", func(fl validator.FieldLevel) bool {
+	if err := validate.RegisterValidation("no_spaces", func(fl validator.FieldLevel) bool {
 		value := fl.Field().String()
 		return !strings.Contains(value, " ")
-	})
+	}); err != nil {
+		return fmt.Errorf("failed to register no_spaces validator: %w", err)
+	}
 
 	// Username validator
-	validate.RegisterValidation("username", func(fl validator.FieldLevel) bool {
+	if err := validate.RegisterValidation("username", func(fl validator.FieldLevel) bool {
 		username := fl.Field().String()
 		if len(username) < 3 || len(username) > 30 {
 			return false
 		}
 		usernameRegex := regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 		return usernameRegex.MatchString(username)
-	})
+	}); err != nil {
+		return fmt.Errorf("failed to register username validator: %w", err)
+	}
+
+	return nil
 }
 
 // Global validator instance
@@ -284,27 +299,27 @@ func IsStrongPassword(password string) bool {
 
 // Common validation tags as constants
 const (
-	Required        = "required"
-	Email           = "email"
-	Min             = "min"
-	Max             = "max"
-	Len             = "len"
-	Alpha           = "alpha"
-	Alphanum        = "alphanum"
-	Numeric         = "numeric"
-	URL             = "url"
-	UUID            = "uuid"
-	UUID4           = "uuid4"
-	OneOf           = "oneof"
-	GreaterThan     = "gt"
-	GreaterThanEq   = "gte"
-	LessThan        = "lt"
-	LessThanEq      = "lte"
-	EqualField      = "eqfield"
-	NotEqualField   = "nefield"
+	Required         = "required"
+	Email            = "email"
+	Min              = "min"
+	Max              = "max"
+	Len              = "len"
+	Alpha            = "alpha"
+	Alphanum         = "alphanum"
+	Numeric          = "numeric"
+	URL              = "url"
+	UUID             = "uuid"
+	UUID4            = "uuid4"
+	OneOf            = "oneof"
+	GreaterThan      = "gt"
+	GreaterThanEq    = "gte"
+	LessThan         = "lt"
+	LessThanEq       = "lte"
+	EqualField       = "eqfield"
+	NotEqualField    = "nefield"
 	PasswordStrength = "password_strength"
-	Phone           = "phone"
-	Slug            = "slug"
-	NoSpaces        = "no_spaces"
-	Username        = "username"
+	Phone            = "phone"
+	Slug             = "slug"
+	NoSpaces         = "no_spaces"
+	Username         = "username"
 )

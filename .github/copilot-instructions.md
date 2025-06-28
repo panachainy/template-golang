@@ -57,6 +57,7 @@ Each module follows Clean Architecture with this structure:
 
 ## Dependency Injection with Wire
 - Use `Provide` functions for constructors
+- Use sync.Once for singleton services when needed with Wire
 - Create `ProviderSet` in each package's `wire.go`
 - Use `wire.Bind` to bind interfaces to implementations
 - Generate code with `//go:generate wire`

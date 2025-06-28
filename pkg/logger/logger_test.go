@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	pkgContext "template-golang/pkg/context"
+
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest/observer"
@@ -85,9 +87,9 @@ func TestWithContext(t *testing.T) {
 
 	// Create context with values
 	ctx := context.Background()
-	ctx = context.WithValue(ctx, "request_id", "test-request-123")
-	ctx = context.WithValue(ctx, "user_id", "user-456")
-	ctx = context.WithValue(ctx, "trace_id", "trace-789")
+	ctx = context.WithValue(ctx, pkgContext.RequestIDKey, "test-request-123")
+	ctx = context.WithValue(ctx, pkgContext.UserIDKey, "user-456")
+	ctx = context.WithValue(ctx, pkgContext.TraceIDKey, "trace-789")
 
 	// Create logger with context
 	contextLogger := logger.WithContext(ctx)
@@ -106,9 +108,9 @@ func TestWithContext(t *testing.T) {
 		fieldMap[field.Key] = field.Interface
 	}
 
-	assert.Equal(t, "test-request-123", fieldMap["request_id"])
-	assert.Equal(t, "user-456", fieldMap["user_id"])
-	assert.Equal(t, "trace-789", fieldMap["trace_id"])
+	assert.Equal(t, "test-request-123", fieldMap[string(pkgContext.RequestIDKey)])
+	assert.Equal(t, "user-456", fieldMap[string(pkgContext.UserIDKey)])
+	assert.Equal(t, "trace-789", fieldMap[string(pkgContext.TraceIDKey)])
 }
 
 func TestWithFields(t *testing.T) {

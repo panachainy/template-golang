@@ -70,12 +70,12 @@ func TestViperLoader_Load(t *testing.T) {
 func TestViperLoader_Methods(t *testing.T) {
 	config := &Config{
 		Defaults: map[string]interface{}{
-			"STRING_KEY":   "string_value",
-			"INT_KEY":      42,
-			"BOOL_KEY":     true,
-			"FLOAT_KEY":    3.14,
-			"DURATION_KEY": "5s",
-			"SLICE_KEY":    []string{"a", "b", "c"},
+			"string_key":   "string_value",
+			"int_key":      42,
+			"bool_key":     true,
+			"float_key":    3.14,
+			"duration_key": "5s",
+			"slice_key":    []string{"a", "b", "c"},
 		},
 		AutomaticEnv: true,
 	}
@@ -85,41 +85,41 @@ func TestViperLoader_Methods(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Test Get methods
-	assert.Equal(t, "string_value", loader.Get("STRING_KEY"))
-	assert.Equal(t, "string_value", loader.GetString("STRING_KEY"))
-	assert.Equal(t, 42, loader.GetInt("INT_KEY"))
-	assert.True(t, loader.GetBool("BOOL_KEY"))
-	assert.Equal(t, 3.14, loader.GetFloat64("FLOAT_KEY"))
-	assert.Equal(t, 5*time.Second, loader.GetDuration("DURATION_KEY"))
-	assert.Equal(t, []string{"a", "b", "c"}, loader.GetStringSlice("SLICE_KEY"))
+	assert.Equal(t, "string_value", loader.Get("string_key"))
+	assert.Equal(t, "string_value", loader.GetString("string_key"))
+	assert.Equal(t, 42, loader.GetInt("int_key"))
+	assert.True(t, loader.GetBool("bool_key"))
+	assert.Equal(t, 3.14, loader.GetFloat64("float_key"))
+	assert.Equal(t, 5*time.Second, loader.GetDuration("duration_key"))
+	assert.Equal(t, []string{"a", "b", "c"}, loader.GetStringSlice("slice_key"))
 
 	// Test IsSet
-	assert.True(t, loader.IsSet("STRING_KEY"))
+	assert.True(t, loader.IsSet("string_key"))
 	assert.False(t, loader.IsSet("NON_EXISTENT_KEY"))
 
 	// Test AllKeys
 	keys := loader.AllKeys()
-	assert.Contains(t, keys, "STRING_KEY")
-	assert.Contains(t, keys, "INT_KEY")
+	assert.Contains(t, keys, "string_key")
+	assert.Contains(t, keys, "int_key")
 
 	// Test AllSettings
 	settings := loader.AllSettings()
-	assert.Equal(t, "string_value", settings["STRING_KEY"])
-	assert.Equal(t, 42, settings["INT_KEY"])
+	assert.Equal(t, "string_value", settings["string_key"])
+	assert.Equal(t, 42, settings["int_key"])
 }
 
 func TestViperLoader_Unmarshal(t *testing.T) {
 	type TestConfig struct {
-		StringKey string `mapstructure:"STRING_KEY"`
-		IntKey    int    `mapstructure:"INT_KEY"`
-		BoolKey   bool   `mapstructure:"BOOL_KEY"`
+		StringKey string `mapstructure:"string_key"`
+		IntKey    int    `mapstructure:"int_key"`
+		BoolKey   bool   `mapstructure:"bool_key"`
 	}
 
 	config := &Config{
 		Defaults: map[string]interface{}{
-			"STRING_KEY": "test_string",
-			"INT_KEY":    100,
-			"BOOL_KEY":   true,
+			"string_key": "test_string",
+			"int_key":    100,
+			"bool_key":   true,
 		},
 		AutomaticEnv: true,
 	}

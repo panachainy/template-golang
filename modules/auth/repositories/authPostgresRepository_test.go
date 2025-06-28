@@ -1,6 +1,3 @@
-//go:build integration
-// +build integration
-
 package repositories
 
 import (
@@ -14,6 +11,10 @@ import (
 )
 
 func setupTestDB(t *testing.T) database.Database {
+	if testing.Short() {
+		t.Skip("skip integration tests in short mode")
+	}
+
 	c := config.Provide(config.NewConfigOption("../../../"))
 	c.Db.MigrationPath = "file://../../../db/migrations"
 	db := database.NewPostgres(c)

@@ -5,6 +5,8 @@ import (
 	"os"
 	"sync"
 
+	pkgContext "template-golang/pkg/context"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -17,9 +19,9 @@ type Logger struct {
 
 // Config holds logger configuration
 type Config struct {
-	Level       string `mapstructure:"LOG_LEVEL"`       // debug, info, warn, error
-	Format      string `mapstructure:"LOG_FORMAT"`      // json, console
-	Development bool   `mapstructure:"LOG_DEVELOPMENT"` // development mode
+	Level       string   `mapstructure:"LOG_LEVEL"`        // debug, info, warn, error
+	Format      string   `mapstructure:"LOG_FORMAT"`       // json, console
+	Development bool     `mapstructure:"LOG_DEVELOPMENT"`  // development mode
 	OutputPaths []string `mapstructure:"LOG_OUTPUT_PATHS"` // output file paths
 }
 
@@ -132,17 +134,17 @@ func (l *Logger) WithContext(ctx context.Context) *Logger {
 	logger := l.Logger
 
 	// Add request ID if available
-	if requestID := ctx.Value("request_id"); requestID != nil {
+	if requestID := ctx.Value(pkgContext.RequestIDKey); requestID != nil {
 		logger = logger.With(zap.Any("request_id", requestID))
 	}
 
 	// Add user ID if available
-	if userID := ctx.Value("user_id"); userID != nil {
+	if userID := ctx.Value(pkgContext.UserIDKey); userID != nil {
 		logger = logger.With(zap.Any("user_id", userID))
 	}
 
 	// Add trace ID if available
-	if traceID := ctx.Value("trace_id"); traceID != nil {
+	if traceID := ctx.Value(pkgContext.TraceIDKey); traceID != nil {
 		logger = logger.With(zap.Any("trace_id", traceID))
 	}
 

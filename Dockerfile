@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/golang:1.24.2-alpine3.21 AS builder
+FROM public.ecr.aws/docker/library/golang:1.24.4-alpine3.21 AS builder
 
 RUN apk add --update --no-cache ca-certificates git
 

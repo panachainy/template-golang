@@ -44,6 +44,7 @@ tidy:
 
 t: test
 test:
+	# for clear cache `-count=1`
 	@GIN_MODE=test go test -short ./...
 
 it: integration.test

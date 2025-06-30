@@ -8,8 +8,27 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zaptest/observer"
 )
+
+// extractFieldValue extracts the actual value from a zap field based on its type
+func extractFieldValue(field zapcore.Field) interface{} {
+	switch field.Type {
+	case zapcore.StringType:
+		return field.String
+	case zapcore.Int64Type, zapcore.Int32Type, zapcore.Int16Type, zapcore.Int8Type:
+		return field.Integer
+	case zapcore.Uint64Type, zapcore.Uint32Type, zapcore.Uint16Type, zapcore.Uint8Type:
+		return field.Integer
+	case zapcore.BoolType:
+		return field.Integer == 1
+	case zapcore.Float32Type, zapcore.Float64Type:
+		return field.Interface
+	default:
+		return field.Interface
+	}
+}
 
 func TestNewLogger(t *testing.T) {
 	tests := []struct {
@@ -105,12 +124,12 @@ func TestWithContext(t *testing.T) {
 	// Check that context fields were added
 	fieldMap := make(map[string]interface{})
 	for _, field := range entry.Context {
-		fieldMap[field.Key] = field.Interface
+		fieldMap[field.Key] = extractFieldValue(field)
 	}
 
-	assert.Equal(t, "test-request-123", fieldMap[string(pkgContext.RequestIDKey)])
-	assert.Equal(t, "user-456", fieldMap[string(pkgContext.UserIDKey)])
-	assert.Equal(t, "trace-789", fieldMap[string(pkgContext.TraceIDKey)])
+	assert.Equal(t, "test-request-123", fieldMap["request_id"])
+	assert.Equal(t, "user-456", fieldMap["user_id"])
+	assert.Equal(t, "trace-789", fieldMap["trace_id"])
 }
 
 func TestWithFields(t *testing.T) {
@@ -141,11 +160,11 @@ func TestWithFields(t *testing.T) {
 	// Check that fields were added
 	fieldMap := make(map[string]interface{})
 	for _, field := range entry.Context {
-		fieldMap[field.Key] = field.Interface
+		fieldMap[field.Key] = extractFieldValue(field)
 	}
 
 	assert.Equal(t, "value1", fieldMap["key1"])
-	assert.Equal(t, 123, fieldMap["key2"])
+	assert.Equal(t, int64(123), fieldMap["key2"]) // zap converts int to int64
 	assert.Equal(t, true, fieldMap["key3"])
 }
 
@@ -171,7 +190,7 @@ func TestWithField(t *testing.T) {
 	// Check that field was added
 	fieldMap := make(map[string]interface{})
 	for _, field := range entry.Context {
-		fieldMap[field.Key] = field.Interface
+		fieldMap[field.Key] = extractFieldValue(field)
 	}
 
 	assert.Equal(t, "test_value", fieldMap["test_key"])
@@ -203,7 +222,7 @@ func TestWithError(t *testing.T) {
 		fieldMap[field.Key] = field.Interface
 	}
 
-	assert.Equal(t, err.Error(), fieldMap["error"])
+	assert.Equal(t, err.Error(), fieldMap["error"].(error).Error())
 }
 
 func TestWithError_NilError(t *testing.T) {

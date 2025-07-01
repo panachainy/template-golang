@@ -19,7 +19,7 @@ require (
 	github.com/swaggo/swag v1.16.4
 	go.uber.org/mock v0.5.2
 	go.uber.org/zap v1.27.0
-	gorm.io/driver/postgres v1.5.11
+	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.25.12
 )
 

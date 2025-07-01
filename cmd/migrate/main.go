@@ -6,8 +6,7 @@ import (
 	"strconv"
 	"template-golang/config"
 	"template-golang/database"
-
-	"github.com/labstack/gommon/log"
+	"template-golang/pkg/logger"
 )
 
 func main() {
@@ -23,33 +22,33 @@ func main() {
 	switch *action {
 	case "up":
 		if err := db.MigrateUp(); err != nil {
-			log.Errorf("Failed to run migrations: %v", err)
+			logger.Errorf("Failed to run migrations: %v", err)
 			os.Exit(1)
 		}
-		log.Info("Migrations completed successfully")
+		logger.Info("Migrations completed successfully")
 
 	case "down":
 		stepCount, err := strconv.Atoi(*steps)
 		if err != nil {
-			log.Errorf("Invalid steps steps: %v err: %v", *steps, err)
+			logger.Errorf("Invalid steps steps: %v err: %v", *steps, err)
 			os.Exit(1)
 		}
 		if err := db.MigrateDown(stepCount); err != nil {
-			log.Errorf("Failed to rollback migrations: %v", err)
+			logger.Errorf("Failed to rollback migrations: %v", err)
 			os.Exit(1)
 		}
-		log.Infof("Rollback of %d steps completed successfully", stepCount)
+		logger.Infof("Rollback of %d steps completed successfully", stepCount)
 
 	case "version":
 		version, dirty, err := db.GetVersion()
 		if err != nil {
-			log.Errorf("Failed to get migration version: %v", err)
+			logger.Errorf("Failed to get migration version: %v", err)
 			os.Exit(1)
 		}
-		log.Infof("Current migration version: %d (dirty: %t)", version, dirty)
+		logger.Infof("Current migration version: %d (dirty: %t)", version, dirty)
 
 	default:
-		log.Errorf("Unknown action: %s. Available actions: up, down, version", *action)
+		logger.Errorf("Unknown action: %s. Available actions: up, down, version", *action)
 		os.Exit(1)
 	}
 }

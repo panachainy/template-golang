@@ -3,9 +3,9 @@ package repositories
 import (
 	"template-golang/database"
 	"template-golang/modules/auth/entities"
+	"template-golang/pkg/logger"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/labstack/gommon/log"
 )
 
 type authPostgresRepository struct {
@@ -21,14 +21,14 @@ func ProvideAuthRepository(db database.Database) *authPostgresRepository {
 
 func (r *authPostgresRepository) UpsertData(in *entities.Auth) error {
 	if err := r.validator.Struct(in); err != nil {
-		log.Errorf("UpsertData validation failed: %v", err)
+		logger.Errorf("UpsertData validation failed: %v", err)
 		return err
 	}
 
 	// Start a transaction to ensure data consistency
 	tx := r.db.GetDb().Begin()
 	if tx.Error != nil {
-		log.Errorf("UpsertData: failed to begin transaction: %v", tx.Error)
+		logger.Errorf("UpsertData: failed to begin transaction: %v", tx.Error)
 		return tx.Error
 	}
 
@@ -40,7 +40,7 @@ func (r *authPostgresRepository) UpsertData(in *entities.Auth) error {
 	result := tx.Save(in)
 	if result.Error != nil {
 		tx.Rollback()
-		log.Errorf("UpsertAuth: %v", result.Error)
+		logger.Errorf("UpsertAuth: %v", result.Error)
 		return result.Error
 	}
 
@@ -50,21 +50,21 @@ func (r *authPostgresRepository) UpsertData(in *entities.Auth) error {
 		result = tx.Save(&authMethods[i])
 		if result.Error != nil {
 			tx.Rollback()
-			log.Errorf("UpsertAuthMethods: %v", result.Error)
+			logger.Errorf("UpsertAuthMethods: %v", result.Error)
 			return result.Error
 		}
 	}
 
 	// Commit the transaction
 	if err := tx.Commit().Error; err != nil {
-		log.Errorf("UpsertData: failed to commit transaction: %v", err)
+		logger.Errorf("UpsertData: failed to commit transaction: %v", err)
 		return err
 	}
 
 	// Restore AuthMethods to the original struct
 	in.AuthMethods = authMethods
 
-	log.Debugf("UpsertAuth: successfully saved auth and %d auth methods", len(authMethods))
+	logger.Debugf("UpsertAuth: successfully saved auth and %d auth methods", len(authMethods))
 	return nil
 }
 
@@ -74,11 +74,11 @@ func (r *authPostgresRepository) Gets(limit int) ([]*entities.Auth, error) {
 	result := r.db.GetDb().Limit(limit).Find(&auths)
 
 	if result.Error != nil {
-		log.Errorf("Gets: %v", result.Error)
+		logger.Errorf("Gets: %v", result.Error)
 		return nil, result.Error
 	}
 
-	log.Debugf("Gets: %v rows retrieved", result.RowsAffected)
+	logger.Debugf("Gets: %v rows retrieved", result.RowsAffected)
 	return auths, nil
 }
 
@@ -87,7 +87,7 @@ func (r *authPostgresRepository) GetUserByUserID(userID string) (*entities.Auth,
 	result := r.db.GetDb().Where("user_id = ?", userID).First(&authM)
 
 	if result.Error != nil {
-		log.Errorf("GetUserByUserID: %v", result.Error)
+		logger.Errorf("GetUserByUserID: %v", result.Error)
 		return nil, result.Error
 	}
 
@@ -95,16 +95,16 @@ func (r *authPostgresRepository) GetUserByUserID(userID string) (*entities.Auth,
 	var auth entities.Auth
 	result = r.db.GetDb().Where("id = ?", authM.AuthID).First(&auth)
 	if result.Error != nil {
-		log.Errorf("GetUserByUserID: %v", result.Error)
+		logger.Errorf("GetUserByUserID: %v", result.Error)
 		return nil, result.Error
 	}
 
 	if auth.ID == "" {
-		log.Errorf("GetUserByUserID: auth not found for user_id %s", userID)
+		logger.Errorf("GetUserByUserID: auth not found for user_id %s", userID)
 		return nil, nil // or return an error if preferred
 	}
 
-	log.Debugf("GetUserByUserID: found auth for user_id %s", userID)
+	logger.Debugf("GetUserByUserID: found auth for user_id %s", userID)
 	return &auth, nil
 }
 
@@ -114,7 +114,7 @@ func (r *authPostgresRepository) GetAuthIDMethodIDByUserID(userID string) (*GetA
 
 	if result.Error != nil {
 		// can be in case first login
-		log.Errorf("GetAuthIDMethodIDByUserID: %v", result.Error)
+		logger.Errorf("GetAuthIDMethodIDByUserID: %v", result.Error)
 		return nil, result.Error
 	}
 
@@ -123,7 +123,7 @@ func (r *authPostgresRepository) GetAuthIDMethodIDByUserID(userID string) (*GetA
 		MethodID: authM.ID, // assuming AuthMethod has an ID field
 	}
 
-	log.Debugf("GetAuthIDMethodIDByUserID: found auth_id %s and method_id %s for user_id %s",
+	logger.Debugf("GetAuthIDMethodIDByUserID: found auth_id %s and method_id %s for user_id %s",
 		response.AuthID, response.MethodID, userID)
 	return response, nil
 }

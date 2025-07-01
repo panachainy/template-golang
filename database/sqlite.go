@@ -2,14 +2,14 @@ package database
 
 import (
 	"fmt"
+	"template-golang/pkg/logger"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/sqlite3"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/labstack/gommon/log"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+	gormLogger "gorm.io/gorm/logger"
 )
 
 // Config holds the SQLite database configuration
@@ -33,18 +33,18 @@ func NewSqliteDatabase(config *Config) (*SqliteDatabase, error) {
 
 	gormConfig := &gorm.Config{}
 	if config.LogMode {
-		gormConfig.Logger = logger.Default.LogMode(logger.Info)
+		gormConfig.Logger = gormLogger.Default.LogMode(gormLogger.Info)
 	} else {
-		gormConfig.Logger = logger.Default.LogMode(logger.Silent)
+		gormConfig.Logger = gormLogger.Default.LogMode(gormLogger.Silent)
 	}
 
 	db, err := gorm.Open(sqlite.Open(config.DSN), gormConfig)
 	if err != nil {
-		log.Errorf("failed to connect to SQLite database: %v", err)
+		logger.Errorf("failed to connect to SQLite database: %v", err)
 		return nil, fmt.Errorf("failed to connect to SQLite database: %w", err)
 	}
 
-	log.Info("successfully connected to SQLite database")
+	logger.Info("successfully connected to SQLite database")
 
 	return &SqliteDatabase{
 		db:     db,
@@ -88,7 +88,7 @@ func (s *SqliteDatabase) getMigrationPath() string {
 
 // MigrateUp applies all pending migrations
 func (s *SqliteDatabase) MigrateUp() error {
-	log.Info("running database migrations up")
+	logger.Info("running database migrations up")
 
 	// Get the underlying SQL DB from GORM
 	sqlDB, err := s.db.DB()
@@ -116,13 +116,13 @@ func (s *SqliteDatabase) MigrateUp() error {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
-	log.Info("SQLite migration up completed")
+	logger.Info("SQLite migration up completed")
 	return nil
 }
 
 // MigrateDown rolls back the specified number of migration steps
 func (s *SqliteDatabase) MigrateDown(steps int) error {
-	log.Infof("rolling back %d migration steps", steps)
+	logger.Infof("rolling back %d migration steps", steps)
 
 	// Get the underlying SQL DB from GORM
 	sqlDB, err := s.db.DB()
@@ -150,13 +150,13 @@ func (s *SqliteDatabase) MigrateDown(steps int) error {
 		return fmt.Errorf("failed to rollback migrations: %w", err)
 	}
 
-	log.Infof("SQLite migration down completed for %d steps", steps)
+	logger.Infof("SQLite migration down completed for %d steps", steps)
 	return nil
 }
 
 // GetVersion returns the current migration version
 func (s *SqliteDatabase) GetVersion() (uint, bool, error) {
-	log.Info("getting current migration version")
+	logger.Info("getting current migration version")
 
 	// Get the underlying SQL DB from GORM
 	sqlDB, err := s.db.DB()
@@ -196,10 +196,10 @@ func (s *SqliteDatabase) Close() error {
 	}
 
 	if err := sqlDB.Close(); err != nil {
-		log.Errorf("failed to close SQLite database connection: %v", err)
+		logger.Errorf("failed to close SQLite database connection: %v", err)
 		return fmt.Errorf("failed to close database connection: %w", err)
 	}
 
-	log.Info("SQLite database connection closed")
+	logger.Info("SQLite database connection closed")
 	return nil
 }

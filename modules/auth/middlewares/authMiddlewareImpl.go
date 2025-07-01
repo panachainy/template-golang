@@ -5,9 +5,9 @@ import (
 	"strings"
 	"template-golang/modules/auth/models"
 	"template-golang/modules/auth/usecases"
+	"template-golang/pkg/logger"
 
 	"github.com/gin-gonic/gin"
-	"github.com/labstack/gommon/log"
 )
 
 type userAuthMiddleware struct {
@@ -25,7 +25,7 @@ func (m *userAuthMiddleware) Handle() gin.HandlerFunc {
 		// Extract token from Authorization header
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			log.Warn("Missing Authorization header")
+			logger.Warn("Missing Authorization header")
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error":   "Unauthorized",
 				"message": "Missing authorization header",
@@ -37,7 +37,7 @@ func (m *userAuthMiddleware) Handle() gin.HandlerFunc {
 		// Check for Bearer token format
 		tokenParts := strings.Split(authHeader, " ")
 		if len(tokenParts) != 2 || tokenParts[0] != "Bearer" || strings.TrimSpace(tokenParts[1]) == "" {
-			log.Warn("Invalid Authorization header format")
+			logger.Warn("Invalid Authorization header format")
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error":   "Unauthorized",
 				"message": "Invalid authorization header format",
@@ -51,7 +51,7 @@ func (m *userAuthMiddleware) Handle() gin.HandlerFunc {
 		// Verify the token
 		result, err := m.jwtUsecase.ValidateJWT(tokenString)
 		if err != nil {
-			log.Errorf("Token verification error: %v", err)
+			logger.Errorf("Token verification error: %v", err)
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error":   "Unauthorized",
 				"message": "Token verification failed",
@@ -62,7 +62,7 @@ func (m *userAuthMiddleware) Handle() gin.HandlerFunc {
 
 		// Handle different validation states
 		if result.NotExist {
-			log.Warn("Token not provided")
+			logger.Warn("Token not provided")
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error":   "Unauthorized",
 				"message": "Token not provided",
@@ -72,7 +72,7 @@ func (m *userAuthMiddleware) Handle() gin.HandlerFunc {
 		}
 
 		if result.Expired {
-			log.Warn("Token has expired")
+			logger.Warn("Token has expired")
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error":   "Unauthorized",
 				"message": "Token has expired",
@@ -82,7 +82,7 @@ func (m *userAuthMiddleware) Handle() gin.HandlerFunc {
 		}
 
 		if !result.Valid {
-			log.Warn("Invalid token")
+			logger.Warn("Invalid token")
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error":   "Unauthorized",
 				"message": "Invalid token",
@@ -97,7 +97,7 @@ func (m *userAuthMiddleware) Handle() gin.HandlerFunc {
 		c.Set("userID", result.UserID)
 		c.Set("claims", result.Claims)
 
-		log.Infof("Successfully authenticated user: %s", result.UserID)
+		logger.Infof("Successfully authenticated user: %s", result.UserID)
 
 		c.Next()
 	}
@@ -108,7 +108,7 @@ func (m *userAuthMiddleware) Allows(roles []models.Role) gin.HandlerFunc {
 		// Get user claims from context (set by Handle middleware)
 		claims, exists := c.Get("claims")
 		if !exists {
-			log.Warn("No user claims found in context")
+			logger.Warn("No user claims found in context")
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error":   "Unauthorized",
 				"message": "No user claims found",
@@ -119,7 +119,7 @@ func (m *userAuthMiddleware) Allows(roles []models.Role) gin.HandlerFunc {
 
 		userClaims, ok := claims.(map[string]interface{})
 		if !ok {
-			log.Warn("Invalid claims format")
+			logger.Warn("Invalid claims format")
 			c.JSON(http.StatusForbidden, gin.H{
 				"error":   "Forbidden",
 				"message": "Invalid user claims",
@@ -131,7 +131,7 @@ func (m *userAuthMiddleware) Allows(roles []models.Role) gin.HandlerFunc {
 		// Extract user role from claims
 		userRole, exists := userClaims["role"]
 		if !exists {
-			log.Warn("No role found in user claims")
+			logger.Warn("No role found in user claims")
 			c.JSON(http.StatusForbidden, gin.H{
 				"error":   "Forbidden",
 				"message": "No role found in user claims",
@@ -142,7 +142,7 @@ func (m *userAuthMiddleware) Allows(roles []models.Role) gin.HandlerFunc {
 
 		userRoleStr, ok := userRole.(string)
 		if !ok {
-			log.Warn("Invalid role format in claims")
+			logger.Warn("Invalid role format in claims")
 			c.JSON(http.StatusForbidden, gin.H{
 				"error":   "Forbidden",
 				"message": "Invalid role format",
@@ -154,13 +154,13 @@ func (m *userAuthMiddleware) Allows(roles []models.Role) gin.HandlerFunc {
 		// Check if user role is in allowed roles
 		for _, allowedRole := range roles {
 			if userRoleStr == allowedRole.ToString() {
-				log.Infof("User role %s is authorized", userRoleStr)
+				logger.Infof("User role %s is authorized", userRoleStr)
 				c.Next()
 				return
 			}
 		}
 
-		log.Warnf("User role %s is not authorized for this resource", userRoleStr)
+		logger.Warnf("User role %s is not authorized for this resource", userRoleStr)
 		c.JSON(http.StatusForbidden, gin.H{
 			"error":   "Forbidden",
 			"message": "Insufficient permissions",

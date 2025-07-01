@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"sync"
 	"template-golang/config"
+	"template-golang/pkg/logger"
 
 	"github.com/golang-migrate/migrate/v4"
 	pgMigrate "github.com/golang-migrate/migrate/v4/database/postgres"
-	"github.com/labstack/gommon/log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -52,7 +52,7 @@ func (p *postgresDatabase) GetDb() *gorm.DB {
 
 func (p *postgresDatabase) MigrateUp() error {
 	defer p.Close()
-	log.Info("Running database migrations...")
+	logger.Info("Running database migrations...")
 
 	// Get the underlying SQL DB from GORM
 	sqlDB, err := p.Db.DB()
@@ -80,13 +80,13 @@ func (p *postgresDatabase) MigrateUp() error {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
-	log.Info("Database migrations completed successfully")
+	logger.Info("Database migrations completed successfully")
 	return nil
 }
 
 func (p *postgresDatabase) MigrateDown(steps int) error {
 	defer p.Close()
-	log.Infof("Rolling back %d migration(s)...", steps)
+	logger.Infof("Rolling back %d migration(s)...", steps)
 
 	// Get the underlying SQL DB from GORM
 	sqlDB, err := p.Db.DB()
@@ -114,7 +114,7 @@ func (p *postgresDatabase) MigrateDown(steps int) error {
 		return fmt.Errorf("failed to rollback migrations: %w", err)
 	}
 
-	log.Infof("Rollback of %d migration(s) completed successfully", steps)
+	logger.Infof("Rollback of %d migration(s) completed successfully", steps)
 	return nil
 }
 
@@ -164,6 +164,6 @@ func (p *postgresDatabase) Close() error {
 	once = sync.Once{}
 	dbInstance = nil
 
-	log.Info("Database connection closed successfully")
+	logger.Info("Database connection closed successfully")
 	return nil
 }

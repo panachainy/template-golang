@@ -3,8 +3,7 @@ package repositories
 import (
 	"template-golang/database"
 	"template-golang/modules/cockroach/entities"
-
-	"github.com/labstack/gommon/log"
+	"template-golang/pkg/logger"
 )
 
 type cockroachPostgresRepository struct {
@@ -23,10 +22,10 @@ func (r *cockroachPostgresRepository) InsertCockroachData(in *entities.InsertCoc
 	result := r.db.GetDb().Create(data)
 
 	if result.Error != nil {
-		log.Errorf("InsertCockroachData: %v", result.Error)
+		logger.Errorf("InsertCockroachData: %v", result.Error)
 		return result.Error
 	}
 
-	log.Debugf("InsertCockroachData: %v", result.RowsAffected)
+	logger.Debugf("InsertCockroachData: %v", result.RowsAffected)
 	return nil
 }

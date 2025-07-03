@@ -115,10 +115,10 @@ sg: sqlc-generate
 sqlc-generate:
 	@echo 'Generating sqlc code...'
 	go tool sqlc generate
+
 b: build
 build:
 	go build -o apiserver ./api/cmd
-
 
 # swagger
 

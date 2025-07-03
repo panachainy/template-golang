@@ -5,47 +5,47 @@
 package db
 
 import (
-	"database/sql"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Auth struct {
-	ID        string         `json:"id"`
-	CreatedAt sql.NullTime   `json:"created_at"`
-	UpdatedAt sql.NullTime   `json:"updated_at"`
-	DeletedAt sql.NullTime   `json:"deleted_at"`
-	Username  sql.NullString `json:"username"`
-	Password  sql.NullString `json:"password"`
-	Email     sql.NullString `json:"email"`
-	Role      string         `json:"role"`
-	Active    bool           `json:"active"`
+	ID        string             `json:"id"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
+	Username  *string            `json:"username"`
+	Password  *string            `json:"password"`
+	Email     *string            `json:"email"`
+	Role      string             `json:"role"`
+	Active    bool               `json:"active"`
 }
 
 type AuthMethod struct {
-	ID                string         `json:"id"`
-	CreatedAt         sql.NullTime   `json:"created_at"`
-	UpdatedAt         sql.NullTime   `json:"updated_at"`
-	DeletedAt         sql.NullTime   `json:"deleted_at"`
-	AuthID            sql.NullString `json:"auth_id"`
-	Provider          string         `json:"provider"`
-	ProviderID        string         `json:"provider_id"`
-	Email             sql.NullString `json:"email"`
-	UserID            sql.NullString `json:"user_id"`
-	Name              sql.NullString `json:"name"`
-	FirstName         sql.NullString `json:"first_name"`
-	LastName          sql.NullString `json:"last_name"`
-	NickName          sql.NullString `json:"nick_name"`
-	Description       sql.NullString `json:"description"`
-	AvatarUrl         sql.NullString `json:"avatar_url"`
-	Location          sql.NullString `json:"location"`
-	AccessToken       sql.NullString `json:"access_token"`
-	RefreshToken      sql.NullString `json:"refresh_token"`
-	IDToken           sql.NullString `json:"id_token"`
-	ExpiresAt         sql.NullTime   `json:"expires_at"`
-	AccessTokenSecret sql.NullString `json:"access_token_secret"`
+	ID                string             `json:"id"`
+	CreatedAt         pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt         pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt         pgtype.Timestamptz `json:"deleted_at"`
+	AuthID            *string            `json:"auth_id"`
+	Provider          string             `json:"provider"`
+	ProviderID        string             `json:"provider_id"`
+	Email             *string            `json:"email"`
+	UserID            *string            `json:"user_id"`
+	Name              *string            `json:"name"`
+	FirstName         *string            `json:"first_name"`
+	LastName          *string            `json:"last_name"`
+	NickName          *string            `json:"nick_name"`
+	Description       *string            `json:"description"`
+	AvatarUrl         *string            `json:"avatar_url"`
+	Location          *string            `json:"location"`
+	AccessToken       *string            `json:"access_token"`
+	RefreshToken      *string            `json:"refresh_token"`
+	IDToken           *string            `json:"id_token"`
+	ExpiresAt         pgtype.Timestamptz `json:"expires_at"`
+	AccessTokenSecret *string            `json:"access_token_secret"`
 }
 
 type Cockroach struct {
-	ID        int32        `json:"id"`
-	Amount    int32        `json:"amount"`
-	CreatedAt sql.NullTime `json:"created_at"`
+	ID        int32              `json:"id"`
+	Amount    int32              `json:"amount"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }

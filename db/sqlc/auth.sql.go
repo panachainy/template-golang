@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const getAuthByID = `-- name: GetAuthByID :one
@@ -16,7 +15,7 @@ WHERE id = $1
 `
 
 func (q *Queries) GetAuthByID(ctx context.Context, id string) (Auth, error) {
-	row := q.db.QueryRowContext(ctx, getAuthByID, id)
+	row := q.db.QueryRow(ctx, getAuthByID, id)
 	var i Auth
 	err := row.Scan(
 		&i.ID,
@@ -37,8 +36,8 @@ SELECT id, created_at, updated_at, deleted_at, username, password, email, role, 
 WHERE username = $1
 `
 
-func (q *Queries) GetAuthorByUsername(ctx context.Context, username sql.NullString) (Auth, error) {
-	row := q.db.QueryRowContext(ctx, getAuthorByUsername, username)
+func (q *Queries) GetAuthorByUsername(ctx context.Context, username *string) (Auth, error) {
+	row := q.db.QueryRow(ctx, getAuthorByUsername, username)
 	var i Auth
 	err := row.Scan(
 		&i.ID,
@@ -60,7 +59,7 @@ ORDER BY id
 `
 
 func (q *Queries) ListAllAuths(ctx context.Context) ([]Auth, error) {
-	rows, err := q.db.QueryContext(ctx, listAllAuths)
+	rows, err := q.db.Query(ctx, listAllAuths)
 	if err != nil {
 		return nil, err
 	}
@@ -82,9 +81,6 @@ func (q *Queries) ListAllAuths(ctx context.Context) ([]Auth, error) {
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

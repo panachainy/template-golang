@@ -10,6 +10,11 @@ start:
 infra.up:
 	docker-compose -f ./docker-compose.yml up -d
 
+i: install
+install:
+	@echo "Installing dependencies..."
+	go mod download
+
 setup:
 	go install go.uber.org/mock/mockgen@latest
 	go install github.com/axw/gocov/gocov@latest
@@ -106,6 +111,10 @@ g: generate
 generate:
 	go generate ./...
 
+sg: sqlc-generate
+sqlc-generate:
+	@echo 'Generating sqlc code...'
+	go tool sqlc generate
 b: build
 build:
 	go build -o apiserver ./api/cmd

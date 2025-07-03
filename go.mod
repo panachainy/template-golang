@@ -94,3 +94,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/sqlite v1.5.7
 )
+
+tool (
+	github.com/sqlc-dev/sqlc/cmd/sqlc
+)

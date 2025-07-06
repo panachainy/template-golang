@@ -16,6 +16,7 @@ install:
 	go mod download
 
 setup:
+	# TODO: move all this tools to `go tool` instead.
 	# go install go.uber.org/mock/mockgen@latest
 	# go install github.com/axw/gocov/gocov@latest
 	# go install github.com/bokwoon95/wgo@latest

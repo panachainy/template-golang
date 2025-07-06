@@ -16,6 +16,7 @@
 - [x] Mock
 - [x] [Validator](https://github.com/go-playground/validator)
 - [x] [golang-migrate/migrate](https://github.com/golang-migrate/migrate/tree/master?tab=readme-ov-file)
+- [x] do pkg for common tools
 - [ ] [sqlc](https://github.com/sqlc-dev/sqlc)
   - [ ] implement mock
 - [ ] Auth JWT
@@ -36,7 +37,13 @@
   - [ ] Do corsHandler to support configurable.
 - [ ] try [failover](https://github.com/wongnai/lmwn_gomeetup_failover)
 - [ ] husky
-- [ ] do pkg for common tools
+- [ ] verify pkg when u use
+  - [ ] config
+  - [ ] context
+  - [ ] errors
+  - [ ] logger
+  - [ ] response
+  - [ ] validator
 
 ## Design pattern
 

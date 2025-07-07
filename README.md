@@ -11,6 +11,7 @@
 - [x] Docker
 - [x] Gorm
 - [x] [Swagger-Gin](https://github.com/swaggo/gin-swagger)
+  - [ ] try to use generic swagger instead of gin-swagger
 - [x] Wire [need to refactor all code to wire]
 - [x] Unit Test
 - [x] Mock

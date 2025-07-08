@@ -11,12 +11,16 @@
 - [x] Docker
 - [x] Gorm
 - [x] [Swagger-Gin](https://github.com/swaggo/gin-swagger)
+  - [ ] try to use generic swagger instead of gin-swagger
 - [x] Wire [need to refactor all code to wire]
 - [x] Unit Test
 - [x] Mock
 - [x] [Validator](https://github.com/go-playground/validator)
 - [x] [golang-migrate/migrate](https://github.com/golang-migrate/migrate/tree/master?tab=readme-ov-file)
+- [x] do pkg for common tools
 - [ ] [sqlc](https://github.com/sqlc-dev/sqlc)
+  - [ ] implement mock
+  - [ ] change migration from code to cli (go tool)
 - [ ] Auth JWT
   - [ ] [goth](https://github.com/markbates/goth)
     - [x] [JWT goth](https://github.com/markbates/goth/issues/310)
@@ -35,8 +39,10 @@
   - [ ] Do corsHandler to support configurable.
 - [ ] try [failover](https://github.com/wongnai/lmwn_gomeetup_failover)
 - [ ] husky
-- [ ] do pkg for common tools
-
-## Design pattern
-
-[clean arch](https://medium.com/@rayato159/how-to-implement-clean-architecture-in-golang-87e9f2c8c5e4)
+- [ ] verify pkg when u use
+  - [ ] config
+  - [ ] context
+  - [ ] errors
+  - [ ] logger
+  - [ ] response
+  - [ ] validator

@@ -10,11 +10,17 @@ start:
 infra.up:
 	docker-compose -f ./docker-compose.yml up -d
 
+i: install
+install:
+	@echo "Installing dependencies..."
+	go mod download
+
 setup:
-	go install go.uber.org/mock/mockgen@latest
-	go install github.com/axw/gocov/gocov@latest
-	go install github.com/bokwoon95/wgo@latest
-	go install golang.org/x/tools/gopls@latest
+	# TODO: move all this tools to `go tool` instead.
+	# go install go.uber.org/mock/mockgen@latest
+	# go install github.com/axw/gocov/gocov@latest
+	# go install github.com/bokwoon95/wgo@latest
+	# go install golang.org/x/tools/gopls@latest
 	make auth.newkey
 	brew install golang-migrate
 
@@ -106,10 +112,14 @@ g: generate
 generate:
 	go generate ./...
 
+sg: sqlc-generate
+sqlc-generate:
+	@echo 'Generating sqlc code...'
+	go tool sqlc generate
+
 b: build
 build:
 	go build -o apiserver ./api/cmd
-
 
 # swagger
 

@@ -20,6 +20,7 @@
 - [x] do pkg for common tools
 - [ ] [sqlc](https://github.com/sqlc-dev/sqlc)
   - [ ] implement mock
+  - [ ] change migration from code to cli (go tool)
 - [ ] Auth JWT
   - [ ] [goth](https://github.com/markbates/goth)
     - [x] [JWT goth](https://github.com/markbates/goth/issues/310)

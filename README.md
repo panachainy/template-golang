@@ -36,6 +36,7 @@
 - [ ] try [failover](https://github.com/wongnai/lmwn_gomeetup_failover)
 - [ ] husky
 - [ ] do pkg for common tools
+- [ ] try option function https://github.com/kazhuravlev/options-gen?tab=readme-ov-file
 
 ## Design pattern
 

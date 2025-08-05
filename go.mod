@@ -16,7 +16,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
-	github.com/swaggo/swag v1.16.4
+	github.com/swaggo/swag v1.16.6
 	go.uber.org/mock v0.5.2
 	go.uber.org/zap v1.27.0
 	gorm.io/driver/postgres v1.6.0
@@ -28,6 +28,7 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/lib/pq v1.10.9 // indirect
+	golang.org/x/mod v0.24.0 // indirect
 )
 
 require (

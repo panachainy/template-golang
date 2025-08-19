@@ -43,15 +43,8 @@ jobs:
             - name: Set up Go
               uses: actions/setup-go@v5
               with:
-                  go-version: ${{ env.GO_VERSION }}
-            - uses: actions/cache@v4
-              with:
-                path: |
-                  ~/.cache/go-build
-                  ~/go/pkg/mod
-                key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-                restore-keys: |
-                  ${{ runner.os }}-go-
+                go-version: ${{ env.GO_VERSION }}
+                cache-dependency-path: "**/*.sum"
 
             - name: Install dependencies
               run: go mod tidy
@@ -123,15 +116,8 @@ jobs:
             - name: Set up Go
               uses: actions/setup-go@v5
               with:
-                  go-version: ${{ env.GO_VERSION }}
-            - uses: actions/cache@v4
-              with:
-                path: |
-                  ~/.cache/go-build
-                  ~/go/pkg/mod
-                key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-                restore-keys: |
-                  ${{ runner.os }}-go-
+                go-version: ${{ env.GO_VERSION }}
+                cache-dependency-path: "**/*.sum"
 
             - name: Run Gosec Security Scanner
               uses: securego/gosec@master

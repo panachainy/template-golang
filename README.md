@@ -37,6 +37,10 @@
 - [ ] husky
 - [ ] do pkg for common tools
 - [ ] try option function https://github.com/kazhuravlev/options-gen?tab=readme-ov-file
+- [ ] unit & integration test
+  - [ ] update makefile
+  - [ ] clean makefile
+  - [ ] split CI & integration test
 
 ## Design pattern
 

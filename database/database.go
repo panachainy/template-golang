@@ -1,4 +1,4 @@
-//go:generate mockgen -source=database.go -destination=../mock/mock_database.go -package=mock
+//go:generate mockgen -source=database.go -destination=./mocks/mock_database.go -package=mock
 
 package database
 

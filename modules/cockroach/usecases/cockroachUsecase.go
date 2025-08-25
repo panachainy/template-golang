@@ -1,4 +1,4 @@
-//go:generate mockgen -source=cockroachUsecase.go -destination=../../../mock/mock_cockroach_usecase.go -package=mock
+//go:generate mockgen -source=cockroachUsecase.go -destination=./mock/mock_cockroach_usecase.go -package=mock
 
 package usecases
 

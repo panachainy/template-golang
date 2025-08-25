@@ -1,4 +1,4 @@
-//go:generate mockgen -source=jwtUsecase.go -destination=../../../mock/mock_jwt_usecase.go -package=mock
+//go:generate mockgen -source=jwtUsecase.go -destination=./mock/mock_jwt_usecase.go -package=mock
 
 package usecases
 

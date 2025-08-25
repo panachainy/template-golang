@@ -87,12 +87,13 @@ jobs:
             - name: Run unit tests
               run: |
                 export GIN_MODE=test
-                go test ./... -v
+                go test -short ./...
 
+            # fix to use new way
             - name: Run integration tests
               run: |
                 export GIN_MODE=test
-                go test -tags=integration ./... -v
+                go test ./tests/integration/...
 
             - name: Run tests with coverage
               run: |

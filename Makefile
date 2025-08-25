@@ -16,13 +16,13 @@ install:
 	go mod download
 
 setup:
-	# TODO: move all this tools to `go tool` instead.
-	# go install go.uber.org/mock/mockgen@latest
-	# go install github.com/axw/gocov/gocov@latest
-	# go install github.com/bokwoon95/wgo@latest
-	# go install golang.org/x/tools/gopls@latest
 	make auth.newkey
 	brew install golang-migrate
+
+tidy:
+	go mod tidy -v
+
+## ============ Start DB ============
 
 # make migrate.create name=<migration_name>
 migrate.create:
@@ -45,59 +45,31 @@ migrate.cli.up:
 migrate.cli.down:
 	migrate -database "postgres://$(DB_USERNAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_DBNAME)?sslmode=$(DB_SSLMODE)" -path db/migrations down
 
-tidy:
-	go mod tidy -v
+## ============ End DB ============
 
 t: test
 test:
 	# for clear cache `-count=1`
-	@GIN_MODE=test go test -short ./...
+	@GIN_MODE=test go test -short $$(go list ./... | grep -v '/mock' | grep -v '/tests/integration')
 
 it: integration.test
 integration.test:
-	@GIN_MODE=test go test ./...
+	@GIN_MODE=test go test ./tests/integration/...
 
 # Run both unit and integration tests
 test.all:
-	@GIN_MODE=test go test -short ./...
-	@GIN_MODE=test go test ./...
+	@GIN_MODE=test make test
+	@GIN_MODE=test make integration.test
 
-# Run tests with verbose output
-test.verbose:
-	@GIN_MODE=test go test -v ./...
-
-# Run integration tests with verbose output
-integration.test.verbose:
-	@GIN_MODE=test go test -tags=integration -v ./...
-
-# Run all tests with verbose output
-test.all.verbose:
-	@GIN_MODE=test go test -v ./...
-	@GIN_MODE=test go test -tags=integration -v ./...
-
-# Test with race detection
-test.race:
-	@GIN_MODE=test go test -race ./...
-	@GIN_MODE=test go test -race -tags=integration ./...
-
-tr: test.html
-test.html:
-	go test -race -covermode=atomic -coverprofile=covprofile.out ./...
+tr: test.report
+test.report:
+	go test -race -covermode=atomic -coverprofile=covprofile.out $$(go list ./... | grep -v '/mock')
 	make tc.html
 
 tc: test.cov
 test.cov:
-	go test -race -covermode=atomic -coverprofile=covprofile.out ./...
+	go test -race -covermode=atomic -coverprofile=covprofile.out $$(go list ./... | grep -v '/mock')
 	make test.cov.xml
-
-tc.xml: test.cov.xml
-test.cov.xml:
-	gocov convert covprofile.out > covprofile.xml
-
-tc.html: test.cov.html
-test.cov.html:
-	go tool cover -html=covprofile.out -o covprofile.html
-	open covprofile.html
 
 c: clean
 clean:
@@ -122,12 +94,10 @@ build:
 	go build -o apiserver ./api/cmd
 
 # swagger
-
 swag.init:
 	swag init -g cmd/api/main.go
 
 # auth
-
 auth.newkey:
 	# openssl genpkey -algorithm RSA -out private.pem -pkeyopt rsa_keygen_bits:2048
 	# openssl rsa -in private.pem -pubout -out public.pem

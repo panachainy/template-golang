@@ -20,7 +20,7 @@ func main() {
 	cfg := config.NewConfig(config.NewConfigOption(".env"))
 
 	// Setup database
-	db, err := database.NewPostgresDatabase(&cfg)
+	db, err := database.NewPostgresDatabase(cfg)
 	if err != nil {
 		panic(err)
 	}
@@ -29,9 +29,9 @@ func main() {
 
 	// Auth module wiring
 	authRepository := authRepo.NewAuthRepository(queries)
-	jwtUsecase := authUsecase.NewJWTUsecase(&cfg, authRepository)
+	jwtUsecase := authUsecase.NewJWTUsecase(cfg, authRepository)
 	middleware := authMiddleware.NewAuthMiddleware(jwtUsecase)
-	handler := authHandler.NewAuthHttpHandler(jwtUsecase, &cfg, middleware, authRepository)
+	handler := authHandler.NewAuthHttpHandler(jwtUsecase, cfg, middleware, authRepository)
 	authModule := &auth.Auth{
 		Handler:    handler,
 		Middleware: middleware,
@@ -50,6 +50,6 @@ func main() {
 	}
 
 	// Create server
-	s := server.NewGin(&cfg, cockroachModule, authModule)
+	s := server.NewGin(cfg, cockroachModule, authModule)
 	s.Start()
 }

@@ -75,7 +75,7 @@ func NewConfigOption(configPath string) *ConfigOption {
 	}
 }
 
-func NewConfig(configOption *ConfigOption) Config {
+func NewConfig(configOption *ConfigOption) *Config {
 	_once.Do(func() {
 		viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 

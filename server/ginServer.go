@@ -32,11 +32,11 @@ type ginServer struct {
 	modules Modules
 }
 
-func Provide(
+func NewGin(
 	conf *config.Config,
 	cockroach *cockroach.Cockroach,
 	auth *auth.Auth,
-) *ginServer {
+) Server {
 	// TODO: make it configurable
 	corsHandler := cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},

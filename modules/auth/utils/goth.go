@@ -1,9 +1,9 @@
 package utils
 
 import (
-	db "template-golang/db/sqlc"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/markbates/goth"
+	db "template-golang/db/sqlc"
 )
 
 // GothUserToAuthMethod transforms goth.User to AuthMethod

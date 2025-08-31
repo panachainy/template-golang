@@ -17,35 +17,66 @@ install:
 
 setup:
 	make auth.newkey
-	brew install golang-migrate
+	@echo "Installing go tools..."
+	go install github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
 tidy:
 	go mod tidy -v
 
-## ============ Start DB ============
+## ============ Database Migrations ============
 
-# make migrate.create name=<migration_name>
+# Database connection string for migrate CLI
+DB_URL := postgres://$(DB_USERNAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_DBNAME)?sslmode=$(DB_SSLMODE)
+
+# Create a new migration file
+# Usage: make migrate.create name=create_users_table
 migrate.create:
-	migrate create -ext sql -dir db/migrations -seq $(name)
+	@if [ -z "$(name)" ]; then \
+		echo "Error: name parameter is required"; \
+		echo "Usage: make migrate.create name=create_users_table"; \
+		exit 1; \
+	fi
+	@echo "Creating migration: $(name)"
+	go run github.com/golang-migrate/migrate/v4/cmd/migrate create -ext sql -dir db/migrations -seq $(name)
 
+# Run all pending migrations
 migrate.up:
-	go run ./cmd/migrate/main.go -action=up
+	@echo "Running all pending migrations..."
+	go run github.com/golang-migrate/migrate/v4/cmd/migrate -database "$(DB_URL)" -path db/migrations up
 
-# make migrate.down steps=1
+# Rollback migrations
+# Usage: make migrate.down [steps=1]
 migrate.down:
-	go run ./cmd/migrate/main.go -action=down -steps=$(steps)
+	@if [ -z "$(steps)" ]; then \
+		echo "Rolling back 1 migration..."; \
+		go run github.com/golang-migrate/migrate/v4/cmd/migrate -database "$(DB_URL)" -path db/migrations down 1; \
+	else \
+		echo "Rolling back $(steps) migrations..."; \
+		go run github.com/golang-migrate/migrate/v4/cmd/migrate -database "$(DB_URL)" -path db/migrations down $(steps); \
+	fi
 
+# Show current migration version
 migrate.version:
-	go run ./cmd/migrate/main.go -action=version
+	@echo "Current migration version:"
+	go run github.com/golang-migrate/migrate/v4/cmd/migrate -database "$(DB_URL)" -path db/migrations version
 
-# Legacy migrate commands using migrate CLI directly
-migrate.cli.up:
-	migrate -database "postgres://$(DB_USERNAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_DBNAME)?sslmode=$(DB_SSLMODE)" -path db/migrations up
+# Force migration to specific version (use with caution)
+# Usage: make migrate.force version=20231201000001
+migrate.force:
+	@if [ -z "$(version)" ]; then \
+		echo "Error: version parameter is required"; \
+		echo "Usage: make migrate.force version=20231201000001"; \
+		exit 1; \
+	fi
+	@echo "Forcing migration to version $(version)..."
+	go run github.com/golang-migrate/migrate/v4/cmd/migrate -database "$(DB_URL)" -path db/migrations force $(version)
 
-migrate.cli.down:
-	migrate -database "postgres://$(DB_USERNAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_DBNAME)?sslmode=$(DB_SSLMODE)" -path db/migrations down
+# Validate migration files
+migrate.validate:
+	@echo "Validating migration files..."
+	go run github.com/golang-migrate/migrate/v4/cmd/migrate -path db/migrations validate
 
-## ============ End DB ============
+## ============ End Database Migrations ============
 
 t: test
 test:
@@ -68,7 +99,7 @@ test.report:
 
 tc: test.cov
 test.cov:
-	go test -race -covermode=atomic -coverprofile=covprofile.out $$(go list ./... | grep -v '/mock')
+	go test -covermode=atomic -coverprofile=covprofile.out $$(go list ./... | grep -v '/mock')
 	make test.cov.xml
 
 c: clean
@@ -87,7 +118,7 @@ generate:
 sg: sqlc-generate
 sqlc-generate:
 	@echo 'Generating sqlc code...'
-	go tool sqlc generate
+	go run github.com/sqlc-dev/sqlc/cmd/sqlc generate
 
 b: build
 build:
@@ -99,7 +130,5 @@ swag.init:
 
 # auth
 auth.newkey:
-	# openssl genpkey -algorithm RSA -out private.pem -pkeyopt rsa_keygen_bits:2048
-	# openssl rsa -in private.pem -pubout -out public.pem
 	openssl ecparam -name prime256v1 -genkey -noout -out ecdsa_private_key.pem
 	openssl ec -in ecdsa_private_key.pem -pubout -out ecdsa_public_key.pem

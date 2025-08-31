@@ -1,37 +1,48 @@
 package utils
 
 import (
-	"template-golang/modules/auth/entities"
-
+	db "template-golang/db/sqlc"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/markbates/goth"
 )
 
-// TransformGothUser transforms goth.User to auth entities
-func GothUserTo(gothUser goth.User) *entities.Auth {
-	auth := &entities.Auth{}
-
-	authMethod := &entities.AuthMethod{
-		Provider:   entities.Provider(gothUser.Provider),
-		ProviderID: "goth_" + gothUser.Provider,
-
-		Email:       gothUser.Email,
-		UserID:      gothUser.UserID,
-		Name:        gothUser.Name,
-		FirstName:   gothUser.FirstName,
-		LastName:    gothUser.LastName,
-		NickName:    gothUser.NickName,
-		Description: gothUser.Description,
-		AvatarURL:   gothUser.AvatarURL,
-		Location:    gothUser.Location,
-
-		AccessToken:       gothUser.AccessToken,
-		RefreshToken:      gothUser.RefreshToken,
-		IDToken:           gothUser.IDToken,
-		ExpiresAt:         gothUser.ExpiresAt,
-		AccessTokenSecret: gothUser.AccessTokenSecret,
+// GothUserToAuthMethod transforms goth.User to AuthMethod
+func GothUserToAuthMethod(gothUser goth.User, authID string) *db.AuthMethod {
+	var expiresAt pgtype.Timestamptz
+	if !gothUser.ExpiresAt.IsZero() {
+		expiresAt = pgtype.Timestamptz{
+			Time:  gothUser.ExpiresAt,
+			Valid: true,
+		}
 	}
 
-	auth.AuthMethods = []entities.AuthMethod{*authMethod}
+	return &db.AuthMethod{
+		AuthID:     &authID,
+		Provider:   gothUser.Provider,
+		ProviderID: gothUser.UserID,
 
-	return auth
+		Email:       StringToPtr(gothUser.Email),
+		UserID:      StringToPtr(gothUser.UserID),
+		Name:        StringToPtr(gothUser.Name),
+		FirstName:   StringToPtr(gothUser.FirstName),
+		LastName:    StringToPtr(gothUser.LastName),
+		NickName:    StringToPtr(gothUser.NickName),
+		Description: StringToPtr(gothUser.Description),
+		AvatarUrl:   StringToPtr(gothUser.AvatarURL),
+		Location:    StringToPtr(gothUser.Location),
+
+		AccessToken:       StringToPtr(gothUser.AccessToken),
+		RefreshToken:      StringToPtr(gothUser.RefreshToken),
+		IDToken:           StringToPtr(gothUser.IDToken),
+		ExpiresAt:         expiresAt,
+		AccessTokenSecret: StringToPtr(gothUser.AccessTokenSecret),
+	}
+}
+
+// StringToPtr converts string to *string, returns nil for empty strings
+func StringToPtr(s string) *string {
+	if s == "" {
+		return nil
+	}
+	return &s
 }

@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"strconv"
 	"template-golang/config"
 	"template-golang/modules/auth/middlewares"
 	"template-golang/modules/auth/models"
@@ -138,13 +137,9 @@ func (h *authHttpHandler) Example(c *gin.Context) {
 
 // GetUsers retrieves multiple users with pagination
 func (h *authHttpHandler) GetUsers(c *gin.Context) {
-	limitStr := c.DefaultQuery("limit", "10")
-	limit := 10
-	if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
-		limit = l
-	}
+	ctx := c.Request.Context()
 
-	users, err := h.authRepo.Gets(limit)
+	users, err := h.authRepo.ListAllAuths(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve users"})
 		return

@@ -1,31 +1,68 @@
 package repositories
 
 import (
-	"template-golang/database"
+	"context"
+	db "template-golang/db/sqlc"
 	"template-golang/modules/cockroach/entities"
 	"template-golang/pkg/logger"
 )
 
 type cockroachPostgresRepository struct {
-	db database.Database
+	queries *db.Queries
 }
 
-func ProvidePostgresRepository(db database.Database) *cockroachPostgresRepository {
-	return &cockroachPostgresRepository{db: db}
+func NewPostgresRepository(queries *db.Queries) CockroachRepository {
+	return &cockroachPostgresRepository{queries: queries}
 }
 
-func (r *cockroachPostgresRepository) InsertCockroachData(in *entities.InsertCockroachDto) error {
-	data := &entities.Cockroach{
-		Amount: in.Amount,
+func (r *cockroachPostgresRepository) InsertCockroachData(ctx context.Context, in *entities.InsertCockroachDto) (*entities.Cockroach, error) {
+	cockroach, err := r.queries.CreateCockroach(ctx, int32(in.Amount))
+	if err != nil {
+		logger.Errorf("InsertCockroachData: %v", err)
+		return nil, err
 	}
 
-	result := r.db.GetDb().Create(data)
-
-	if result.Error != nil {
-		logger.Errorf("InsertCockroachData: %v", result.Error)
-		return result.Error
+	result := &entities.Cockroach{
+		Id:        uint32(cockroach.ID),
+		Amount:    uint32(cockroach.Amount),
+		CreatedAt: cockroach.CreatedAt.Time,
 	}
 
-	logger.Debugf("InsertCockroachData: %v", result.RowsAffected)
-	return nil
+	logger.Debugf("InsertCockroachData: created cockroach with ID %d", cockroach.ID)
+	return result, nil
+}
+
+func (r *cockroachPostgresRepository) GetCockroachByID(ctx context.Context, id uint32) (*entities.Cockroach, error) {
+	cockroach, err := r.queries.GetCockroachByID(ctx, int32(id))
+	if err != nil {
+		logger.Errorf("GetCockroachByID: %v", err)
+		return nil, err
+	}
+
+	result := &entities.Cockroach{
+		Id:        uint32(cockroach.ID),
+		Amount:    uint32(cockroach.Amount),
+		CreatedAt: cockroach.CreatedAt.Time,
+	}
+
+	return result, nil
+}
+
+func (r *cockroachPostgresRepository) ListCockroaches(ctx context.Context) ([]*entities.Cockroach, error) {
+	cockroaches, err := r.queries.ListCockroaches(ctx)
+	if err != nil {
+		logger.Errorf("ListCockroaches: %v", err)
+		return nil, err
+	}
+
+	var result []*entities.Cockroach
+	for _, c := range cockroaches {
+		result = append(result, &entities.Cockroach{
+			Id:        uint32(c.ID),
+			Amount:    uint32(c.Amount),
+			CreatedAt: c.CreatedAt.Time,
+		})
+	}
+
+	return result, nil
 }

@@ -14,7 +14,7 @@ type userAuthMiddleware struct {
 	jwtUsecase usecases.JWTUsecase
 }
 
-func Provide(jwtUsecase usecases.JWTUsecase) *userAuthMiddleware {
+func Provide(jwtUsecase usecases.JWTUsecase) AuthMiddleware {
 	return &userAuthMiddleware{
 		jwtUsecase: jwtUsecase,
 	}

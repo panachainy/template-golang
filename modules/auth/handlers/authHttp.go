@@ -25,8 +25,8 @@ type authHttpHandler struct {
 	authRepo       repositories.AuthRepository
 }
 
-func Provide(jwtUsecase usecases.JWTUsecase, conf *config.Config,
-	authMiddleware middlewares.AuthMiddleware, authRepo repositories.AuthRepository) *authHttpHandler {
+func NewAuthHttpHandler(jwtUsecase usecases.JWTUsecase, conf *config.Config,
+	authMiddleware middlewares.AuthMiddleware, authRepo repositories.AuthRepository) AuthHandler {
 	goth.UseProviders(
 		line.New(conf.Auth.LineClientID, conf.Auth.LineClientSecret, conf.Auth.LineCallbackURL, "profile", "openid", "email"),
 	)

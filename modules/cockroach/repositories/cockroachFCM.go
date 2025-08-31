@@ -7,7 +7,7 @@ import (
 
 type cockroachFCMMessaging struct{}
 
-func ProvideFCMMessaging() *cockroachFCMMessaging {
+func ProvideFCMMessaging() CockroachMessaging {
 	return &cockroachFCMMessaging{}
 }
 

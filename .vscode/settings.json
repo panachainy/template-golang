@@ -5,11 +5,11 @@
     "dynamodbattribute",
     "errorhandler",
     "gomock",
-    "gorm",
     "Infof",
     "Infoln",
     "logrus",
     "logx",
+    "markbates",
     "sirupsen",
     "Usecase",
     "usecases",
@@ -17,5 +17,6 @@
   ],
   "go.testEnvVars": {
     "GIN_MODE": "test"
-  }
+  },
+  "kiroAgent.configureMCP": "Disabled"
 }

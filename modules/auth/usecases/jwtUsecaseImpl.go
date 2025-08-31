@@ -1,34 +1,38 @@
 package usecases
 
 import (
+	"context"
 	"crypto/ecdsa"
 	"errors"
 	"fmt"
 	"os"
 	"template-golang/config"
+	db "template-golang/db/sqlc"
 	"template-golang/modules/auth/models"
 	"template-golang/modules/auth/repositories"
 	"template-golang/modules/auth/utils"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/markbates/goth"
 )
 
 type jwtUsecaseImpl struct {
 	privateKey *ecdsa.PrivateKey
 	publicKey  *ecdsa.PublicKey
-	repo       repositories.AuthRepository
+	authRepo   repositories.AuthRepository
 }
 
-func Provide(conf *config.Config, repo repositories.AuthRepository) *jwtUsecaseImpl {
+func Provide(conf *config.Config, authRepo repositories.AuthRepository) JWTUsecase {
 	privateKey := loadPrivateKey(conf.Auth.PrivateKeyPath)
 	publicKey := &privateKey.PublicKey
 
 	return &jwtUsecaseImpl{
 		privateKey: privateKey,
 		publicKey:  publicKey,
-		repo:       repo,
+		authRepo:   authRepo,
 	}
 }
 
@@ -133,24 +137,95 @@ func (a *jwtUsecaseImpl) ValidateJWT(tokenString string) (*models.TokenValidatio
 }
 
 func (a *jwtUsecaseImpl) UpsertUser(gothUser goth.User, role ...models.Role) error {
+	ctx := context.Background()
+
 	// Set default role if none provided
 	userRole := models.RoleUser
 	if len(role) > 0 {
 		userRole = role[0]
 	}
 
-	newAuthEntity := utils.GothUserTo(gothUser)
-	newAuthEntity.Role = userRole
+	// Check if auth method already exists
+	existingAuthMethod, err := a.authRepo.GetAuthMethodByProviderAndID(ctx, gothUser.Provider, gothUser.UserID)
 
-	authKey, err := a.repo.GetAuthIDMethodIDByUserID(gothUser.UserID)
-	if err == nil {
-		newAuthEntity.ID = authKey.AuthID
-		newAuthEntity.AuthMethods[0].ID = authKey.MethodID
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return fmt.Errorf("failed to check existing auth method: %w", err)
 	}
 
-	if err := a.repo.UpsertData(newAuthEntity); err != nil {
-		return fmt.Errorf("failed to upsert user: %w", err)
+	var auth *db.Auth
+
+	if existingAuthMethod != nil {
+		// User exists, get the auth record
+		if existingAuthMethod.AuthID != nil {
+			auth, err = a.authRepo.GetAuthByID(ctx, *existingAuthMethod.AuthID)
+			if err != nil {
+				return fmt.Errorf("failed to get existing auth: %w", err)
+			}
+		}
+
+		// Update the auth method with new tokens
+		var expiresAt pgtype.Timestamptz
+		if !gothUser.ExpiresAt.IsZero() {
+			expiresAt = pgtype.Timestamptz{
+				Time:  gothUser.ExpiresAt,
+				Valid: true,
+			}
+		}
+
+		updateParams := db.UpdateAuthMethodParams{
+			AuthID:       existingAuthMethod.AuthID,
+			Provider:     gothUser.Provider,
+			AccessToken:  utils.StringToPtr(gothUser.AccessToken),
+			RefreshToken: utils.StringToPtr(gothUser.RefreshToken),
+			IDToken:      utils.StringToPtr(gothUser.IDToken),
+			ExpiresAt:    expiresAt,
+		}
+
+		_, err = a.authRepo.UpdateAuthMethod(ctx, updateParams)
+		if err != nil {
+			return fmt.Errorf("failed to update auth method: %w", err)
+		}
+	} else {
+		// Create new auth record
+		auth, err = a.authRepo.CreateAuth(ctx,
+			utils.StringToPtr(gothUser.Email), // username
+			nil,                               // password (nil for OAuth users)
+			utils.StringToPtr(gothUser.Email), // email
+			string(userRole),                  // role
+			true,                              // active
+		)
+		if err != nil {
+			return fmt.Errorf("failed to create auth: %w", err)
+		}
+
+		// Create auth method
+		authMethod := utils.GothUserToAuthMethod(gothUser, auth.ID)
+
+		createParams := db.CreateAuthMethodParams{
+			AuthID:            authMethod.AuthID,
+			Provider:          authMethod.Provider,
+			ProviderID:        authMethod.ProviderID,
+			Email:             authMethod.Email,
+			UserID:            authMethod.UserID,
+			Name:              authMethod.Name,
+			FirstName:         authMethod.FirstName,
+			LastName:          authMethod.LastName,
+			NickName:          authMethod.NickName,
+			Description:       authMethod.Description,
+			AvatarUrl:         authMethod.AvatarUrl,
+			Location:          authMethod.Location,
+			AccessToken:       authMethod.AccessToken,
+			RefreshToken:      authMethod.RefreshToken,
+			IDToken:           authMethod.IDToken,
+			ExpiresAt:         authMethod.ExpiresAt,
+			AccessTokenSecret: authMethod.AccessTokenSecret,
+		}
+
+		_, err = a.authRepo.CreateAuthMethod(ctx, createParams)
+		if err != nil {
+			return fmt.Errorf("failed to create auth method: %w", err)
+		}
 	}
-	// Return nil to indicate success
+
 	return nil
 }

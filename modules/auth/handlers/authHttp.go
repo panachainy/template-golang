@@ -16,7 +16,6 @@ import (
 )
 
 // TODO: fix goth/gothic: no SESSION_SECRET environment variable is set. The default cookie store is not available and any calls will fail. Ignore this warning if you are using a different store.
-
 type authHttpHandler struct {
 	jwtUsecase     usecases.JWTUsecase
 	conf           *config.Config

@@ -25,7 +25,7 @@ type jwtUsecaseImpl struct {
 	authRepo   repositories.AuthRepository
 }
 
-func Provide(conf *config.Config, authRepo repositories.AuthRepository) JWTUsecase {
+func NewJWTUsecase(conf *config.Config, authRepo repositories.AuthRepository) JWTUsecase {
 	privateKey := loadPrivateKey(conf.Auth.PrivateKeyPath)
 	publicKey := &privateKey.PublicKey
 

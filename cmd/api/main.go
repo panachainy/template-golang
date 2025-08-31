@@ -17,11 +17,6 @@ import (
 )
 
 func main() {
-	// Load config
-	// conf := config.DefaultConfig()
-	// var appConfig config.Config
-	// config.MustLoadAndUnmarshal(conf, &appConfig)
-
 	cfg := config.NewConfig(config.NewConfigOption(".env"))
 
 	// Setup database
@@ -34,8 +29,8 @@ func main() {
 
 	// Auth module wiring
 	authRepository := authRepo.NewAuthRepository(queries)
-	jwtUsecase := authUsecase.Provide(&cfg, authRepository)
-	middleware := authMiddleware.Provide(jwtUsecase)
+	jwtUsecase := authUsecase.NewJWTUsecase(&cfg, authRepository)
+	middleware := authMiddleware.NewAuthMiddleware(jwtUsecase)
 	handler := authHandler.NewAuthHttpHandler(jwtUsecase, &cfg, middleware, authRepository)
 	authModule := &auth.Auth{
 		Handler:    handler,
@@ -44,7 +39,7 @@ func main() {
 
 	// Cockroach module wiring
 	cockroachRepository := cockroachRepo.NewPostgresRepository(queries)
-	cockroachMessaging := cockroachRepo.ProvideFCMMessaging()
+	cockroachMessaging := cockroachRepo.NewFCMMessaging()
 	cockroachUsecase := cockroachUsecase.NewCockroachUsecaseImpl(cockroachRepository, cockroachMessaging)
 	cockroachHandler := cockroachHandler.NewCockroachHttpHandler(cockroachUsecase)
 	cockroachModule := &cockroach.Cockroach{

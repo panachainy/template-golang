@@ -19,7 +19,7 @@ func setupTestMiddleware(jwtUsecase usecases.JWTUsecase) (*gin.Engine, gin.Handl
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 
-	middleware := Provide(jwtUsecase)
+	middleware := NewAuthMiddleware(jwtUsecase)
 	authMiddleware := middleware.Handle()
 
 	// Create a test route that uses the middleware

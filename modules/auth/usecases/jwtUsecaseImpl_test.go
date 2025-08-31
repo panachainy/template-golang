@@ -21,7 +21,7 @@ func setupJWTUsecase(t *testing.T, ctrl *gomock.Controller) *jwtUsecaseImpl {
 	// Create a mock auth repository for testing
 	mockRepo := mock.NewMockAuthRepository(ctrl)
 
-	return Provide(conf, mockRepo)
+	return NewJWTUsecase(conf, mockRepo)
 }
 
 func TestGenerateJWT(t *testing.T) {

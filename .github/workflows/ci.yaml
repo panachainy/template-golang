@@ -83,24 +83,23 @@ jobs:
                 done
 
             - name: Run database migrations
-              run: go run ./cmd/migrate/main.go -action=up
+              run: make migrate.up
 
             - name: Run unit tests
               run: |
                 export GIN_MODE=test
-                go test -short ./...
+                make test
 
             # fix to use new way
             - name: Run integration tests
               run: |
                 export GIN_MODE=test
-                go test ./tests/integration/...
+                make it
 
             - name: Run tests with coverage
               run: |
                 export GIN_MODE=test
-                go test -race -covermode=atomic -coverprofile=covprofile.out ./...
-                go test -race -covermode=atomic -coverprofile=covprofile-integration.out -tags=integration ./...
+                make tc
 
             - name: Upload coverage reports to Codecov
               uses: codecov/codecov-action@v5

@@ -38,7 +38,7 @@
 - [ ] try [WTF](https://github.com/pallat/wtf)
   - [ ] Do corsHandler to support configurable.
 - [ ] try [failover](https://github.com/wongnai/lmwn_gomeetup_failover)
-- [ ] husky
+- [x] husky
 - [ ] verify pkg when u use
   - [ ] config
   - [ ] context
@@ -46,3 +46,9 @@
   - [ ] logger
   - [ ] response
   - [ ] validator
+- [ ] do pkg for common tools
+- [ ] try option function https://github.com/kazhuravlev/options-gen?tab=readme-ov-file
+- [ ] unit & integration test
+  - [ ] update makefile
+  - [ ] clean makefile
+  - [ ] split CI & integration test

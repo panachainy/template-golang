@@ -1,5 +1,6 @@
 package main
 
+// Main entry point for the API server
 import (
 	"template-golang/config"
 	"template-golang/database"

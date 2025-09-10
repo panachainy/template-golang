@@ -1,6 +1,9 @@
 include .env
 export $(shell sed 's/=.*//' .env)
 
+init:
+	uvx pre-commit install
+
 dev:
 	env
 	wgo run ./cmd/api/main.go
@@ -98,7 +101,14 @@ c clean:
 	rm -f covprofile.out covprofile.xml covprofile.html
 	rm -rf tmp
 
-f fmt:
+l: lint
+lint:
+	go vet ./...
+	go mod tidy
+	go fmt ./...
+
+f: fmt
+fmt:
 	go fmt ./...
 
 g generate:

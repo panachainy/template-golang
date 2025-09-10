@@ -48,14 +48,15 @@
 
 ## Pre-commit Hooks
 
-This project uses [Husky](https://typicode.github.io/husky/) to run pre-commit hooks that ensure code quality before commits.
+This project uses [pre-commit](https://pre-commit.com/) to run pre-commit hooks that ensure code quality before commits.
 
 ### Setup
 
-Pre-commit hooks are automatically set up when you run:
+Pre-commit hooks are set up using uvx (part of the uv package manager). Install pre-commit and set up the hooks:
 
 ```bash
-npm install
+# Install pre-commit and set up hooks
+uvx pre-commit install
 ```
 
 ### What runs on each commit
@@ -79,11 +80,14 @@ You can manually run the same checks that the pre-commit hook performs:
 
 ```bash
 # Run all pre-commit checks
-make lint
-make fmt  
-make test
+uvx pre-commit run --all-files
 
-# Or individual commands
+# Run specific hooks
+uvx pre-commit run go-lint
+uvx pre-commit run go-fmt
+uvx pre-commit run go-test
+
+# Or use make commands directly
 make lint    # Run linter and tidy modules
 make fmt     # Format code
 make test    # Run unit tests

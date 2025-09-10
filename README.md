@@ -52,3 +52,4 @@
   - [ ] update makefile
   - [ ] clean makefile
   - [ ] split CI & integration test
+- [ ] refactor to use `mockery`

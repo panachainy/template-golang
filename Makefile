@@ -98,6 +98,12 @@ clean:
 	rm -f covprofile.out covprofile.xml covprofile.html
 	rm -rf tmp
 
+l: lint
+lint:
+	go vet ./...
+	go mod tidy
+	go fmt ./...
+
 f: fmt
 fmt:
 	go fmt ./...

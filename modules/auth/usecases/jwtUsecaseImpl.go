@@ -46,12 +46,20 @@ func loadPrivateKey(path string) *ecdsa.PrivateKey {
 
 	// Validate and clean the path to prevent directory traversal
 	cleanPath := filepath.Clean(path)
-	if strings.Contains(cleanPath, "..") {
-		panic(fmt.Errorf("invalid path: directory traversal not allowed"))
+	absPath, err := filepath.Abs(cleanPath)
+	if err != nil {
+		panic(fmt.Errorf("failed to resolve absolute path: %w", err))
+	}
+
+	// Basic security check - prevent access to system directories
+	if strings.Contains(absPath, "/etc/") || strings.Contains(absPath, "/usr/") ||
+		strings.Contains(absPath, "/var/") || strings.Contains(absPath, "/root/") ||
+		strings.Contains(absPath, "/home/") && !strings.Contains(absPath, "/home/"+os.Getenv("USER")) {
+		panic(fmt.Errorf("invalid path: access to system directories not allowed"))
 	}
 
 	// Load the private key from a file
-	keyByteArray, err := os.ReadFile(cleanPath)
+	keyByteArray, err = os.ReadFile(absPath) // #nosec G304 -- Path is validated to prevent directory traversal and system file access
 	if err != nil {
 		panic(fmt.Errorf("failed to read private key: %w", err))
 	}

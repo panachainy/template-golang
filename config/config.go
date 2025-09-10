@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"strings"
+	"reflect"
 	"sync"
 
 	"github.com/spf13/viper"
@@ -70,17 +70,17 @@ var (
 
 func NewConfig(configOption *ConfigOption) *Config {
 	_once.Do(func() {
-		viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-
 		// Automatically override default values with environment variables
 		viper.AutomaticEnv()
 
-		// Read the configuration file
-		if err := viper.ReadInConfig(); err != nil {
-			fmt.Printf("Fatal error loading config file: %s\n", err)
-		}
-
 		fmt.Println("======================================================")
+
+		// Bind every leaf key in Config to env
+		BindEnvsFromStruct("", _config)
+
+		if err := viper.ReadInConfig(); err != nil {
+			fmt.Printf("Warning: unable to read config file: %v\n", err)
+		}
 
 		// Unmarshal the configuration into the Config struct
 		if err := viper.Unmarshal(&_config); err != nil {
@@ -97,4 +97,31 @@ func NewConfig(configOption *ConfigOption) *Config {
 	})
 
 	return _config
+}
+
+// BindEnvsFromStruct binds environment variables for all fields in the given struct using viper.
+// It recursively traverses nested structs and binds each field's mapstructure tag as the env key.
+func BindEnvsFromStruct(prefix string, s any) {
+	// Use reflection to traverse struct fields
+	val := reflect.ValueOf(s)
+	if val.Kind() == reflect.Ptr {
+		val = val.Elem()
+	}
+	typ := val.Type()
+
+	for i := 0; i < typ.NumField(); i++ {
+		field := typ.Field(i)
+		tag := field.Tag.Get("mapstructure")
+		if tag == "" || tag == ",squash" {
+			// If squash, recurse into nested struct
+			BindEnvsFromStruct(prefix, val.Field(i).Interface())
+			continue
+		}
+		// Compose env key
+		envKey := tag
+		if prefix != "" {
+			envKey = prefix + "_" + envKey
+		}
+		viper.BindEnv(envKey)
+	}
 }

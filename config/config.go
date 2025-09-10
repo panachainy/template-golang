@@ -122,6 +122,8 @@ func BindEnvsFromStruct(prefix string, s any) {
 		if prefix != "" {
 			envKey = prefix + "_" + envKey
 		}
-		viper.BindEnv(envKey)
+		if err := viper.BindEnv(envKey); err != nil {
+			panic(fmt.Sprintf("Failed to bind environment variable %s: %v", envKey, err))
+		}
 	}
 }

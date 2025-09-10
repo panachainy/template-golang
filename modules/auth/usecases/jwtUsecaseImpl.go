@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 	"template-golang/config"
 	db "template-golang/db/sqlc"
 	"template-golang/modules/auth/models"
@@ -42,8 +44,14 @@ func loadPrivateKey(path string) *ecdsa.PrivateKey {
 	var keyByteArray []byte
 	var key *ecdsa.PrivateKey
 
+	// Validate and clean the path to prevent directory traversal
+	cleanPath := filepath.Clean(path)
+	if strings.Contains(cleanPath, "..") {
+		panic(fmt.Errorf("invalid path: directory traversal not allowed"))
+	}
+
 	// Load the private key from a file
-	keyByteArray, err := os.ReadFile(path)
+	keyByteArray, err := os.ReadFile(cleanPath)
 	if err != nil {
 		panic(fmt.Errorf("failed to read private key: %w", err))
 	}

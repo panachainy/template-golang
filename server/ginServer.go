@@ -80,7 +80,9 @@ func (s *ginServer) Start() {
 
 	serverUrl := fmt.Sprintf(":%d", s.conf.Server.Port)
 
-	s.router.Run(serverUrl)
+	if err := s.router.Run(serverUrl); err != nil {
+		panic(fmt.Sprintf("Failed to start server: %v", err))
+	}
 }
 
 func (s *ginServer) initSwagger() {

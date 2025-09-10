@@ -5,7 +5,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )
 
@@ -44,7 +43,7 @@ type (
 )
 
 type ConfigOption struct {
-	ConfigPath string
+	// TODO: impl config here
 }
 
 var (
@@ -69,35 +68,12 @@ var (
 	}
 )
 
-func NewConfigOption(configPath string) *ConfigOption {
-	return &ConfigOption{
-		ConfigPath: configPath,
-	}
-}
-
 func NewConfig(configOption *ConfigOption) *Config {
 	_once.Do(func() {
-		viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
+		viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 		// Automatically override default values with environment variables
 		viper.AutomaticEnv()
-
-		fmt.Println("===================== Load .env =============================")
-
-		// Determine which .env file to use
-		var targetEnvFile string
-		if gin.Mode() == gin.TestMode {
-			fmt.Println("Test mode detected, loading .env.test file")
-			targetEnvFile = ".env.test"
-		} else {
-			fmt.Println("loading .env file")
-			targetEnvFile = ".env"
-		}
-
-		// Load .env file
-		viper.SetConfigName(targetEnvFile)
-		viper.SetConfigType("env")
-		viper.AddConfigPath(configOption.ConfigPath)
 
 		// Read the configuration file
 		if err := viper.ReadInConfig(); err != nil {

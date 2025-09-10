@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	cfg := config.NewConfig(config.NewConfigOption(".env"))
+	cfg := config.NewConfig(&config.ConfigOption{})
 
 	// Setup database
 	db, err := database.NewPostgresDatabase(cfg)

@@ -2,6 +2,7 @@ include .env
 export $(shell sed 's/=.*//' .env)
 
 dev:
+	env
 	wgo run ./cmd/api/main.go
 
 start:

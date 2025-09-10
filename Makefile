@@ -11,8 +11,7 @@ start:
 infra.up:
 	docker-compose -f ./docker-compose.yml up -d
 
-i: install
-install:
+i install:
 	@echo "Installing dependencies..."
 	go mod download
 
@@ -79,13 +78,11 @@ migrate.validate:
 
 ## ============ End Database Migrations ============
 
-t: test
-test:
+t test:
 	# for clear cache `-count=1`
 	@GIN_MODE=test go test -short $$(go list ./... | grep -v '/mock' | grep -v '/tests/integration')
 
-it: integration.test
-integration.test:
+it integration.test:
 	@GIN_MODE=test go test ./tests/integration/...
 
 # Run both unit and integration tests
@@ -97,23 +94,19 @@ tc test.cov:
 	@go test -covermode=atomic -coverprofile=covprofile.out -v $$(go list ./... | grep -v '/mocks')
 	@go tool cover -html=covprofile.out
 
-c: clean
-clean:
+c clean:
 	rm -f covprofile.out covprofile.xml covprofile.html
 	rm -rf tmp
 
-f: fmt
-fmt:
+f fmt:
 	go fmt ./...
 
-g: generate
-generate:
+g generate:
 	@go generate ./...
 	@echo 'Generating sqlc code...'
 	@go run github.com/sqlc-dev/sqlc/cmd/sqlc generate
 
-b: build
-build:
+b build:
 	go build -o apiserver ./api/cmd
 
 # swagger

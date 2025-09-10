@@ -93,15 +93,9 @@ test.all:
 	@GIN_MODE=test make test
 	@GIN_MODE=test make integration.test
 
-tr: test.report
-test.report:
-	go test -race -covermode=atomic -coverprofile=covprofile.out $$(go list ./... | grep -v '/mock')
-	make tc.html
-
-tc: test.cov
-test.cov:
-	go test -covermode=atomic -coverprofile=covprofile.out $$(go list ./... | grep -v '/mock')
-	make test.cov.xml
+tc test.cov:
+	@go test -covermode=atomic -coverprofile=covprofile.out -v $$(go list ./... | grep -v '/mocks')
+	@go tool cover -html=covprofile.out
 
 c: clean
 clean:
@@ -114,12 +108,9 @@ fmt:
 
 g: generate
 generate:
-	go generate ./...
-
-sg: sqlc-generate
-sqlc-generate:
+	@go generate ./...
 	@echo 'Generating sqlc code...'
-	go run github.com/sqlc-dev/sqlc/cmd/sqlc generate
+	@go run github.com/sqlc-dev/sqlc/cmd/sqlc generate
 
 b: build
 build:

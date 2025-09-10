@@ -29,15 +29,15 @@ type Loader interface {
 
 // Config holds configuration loading options
 type Config struct {
-	ConfigName      string            // config file name (without extension)
-	ConfigType      string            // config file type (yaml, json, toml, etc.)
-	ConfigPaths     []string          // paths to search for config file
-	EnvPrefix       string            // prefix for environment variables
-	EnvKeyReplacer  *strings.Replacer // replacer for environment keys
-	Defaults        map[string]interface{} // default values
-	AutomaticEnv    bool              // automatically bind environment variables
-	AllowEmptyEnv   bool              // allow empty environment variables
-	TestConfigName  string            // config file name for test environment
+	ConfigName     string                 // config file name (without extension)
+	ConfigType     string                 // config file type (yaml, json, toml, etc.)
+	ConfigPaths    []string               // paths to search for config file
+	EnvPrefix      string                 // prefix for environment variables
+	EnvKeyReplacer *strings.Replacer      // replacer for environment keys
+	Defaults       map[string]interface{} // default values
+	AutomaticEnv   bool                   // automatically bind environment variables
+	AllowEmptyEnv  bool                   // allow empty environment variables
+	TestConfigName string                 // config file name for test environment
 }
 
 // DefaultConfig returns default configuration
@@ -192,8 +192,8 @@ func (l *ViperLoader) AllSettings() map[string]interface{} {
 // isTestEnvironment checks if we're in a test environment
 func isTestEnvironment() bool {
 	return strings.Contains(strings.ToLower(os.Args[0]), "test") ||
-		   os.Getenv("GO_ENV") == "test" ||
-		   os.Getenv("GIN_MODE") == "test"
+		os.Getenv("GO_ENV") == "test" ||
+		os.Getenv("GIN_MODE") == "test"
 }
 
 // LoadWithDefaults loads configuration with default settings

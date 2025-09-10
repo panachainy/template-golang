@@ -1,0 +1,23 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+  - repo: local
+    hooks:
+      - id: go-lint
+        name: Go Lint
+        entry: make lint
+        language: system
+        files: \.go$
+        pass_filenames: false
+      - id: go-fmt
+        name: Go Format
+        entry: make fmt
+        language: system
+        files: \.go$
+        pass_filenames: false
+      - id: go-test
+        name: Go Test
+        entry: make test
+        language: system
+        files: \.go$
+        pass_filenames: false

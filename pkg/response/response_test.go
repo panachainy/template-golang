@@ -422,7 +422,7 @@ func TestGetPaginationFromContext(t *testing.T) {
 
 	data, ok := response.Data.(map[string]interface{})
 	assert.True(t, ok)
-	assert.Equal(t, float64(2), data["page"])  // JSON numbers are float64
+	assert.Equal(t, float64(2), data["page"]) // JSON numbers are float64
 	assert.Equal(t, float64(20), data["limit"])
 }
 
@@ -467,7 +467,7 @@ func TestBindAndValidate_InvalidJSON(t *testing.T) {
 		Success(c, req)
 	})
 
-	body := `{"name":}`  // Invalid JSON
+	body := `{"name":}` // Invalid JSON
 	req := httptest.NewRequest("POST", "/test", bytes.NewBufferString(body))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)

@@ -45,7 +45,8 @@ migrate.create:
 # Run all pending migrations
 migrate.up:
 	@echo "Running all pending migrations..."
-	go run github.com/golang-migrate/migrate/v4/cmd/migrate -database "$(DB_URL)" -path db/migrations up
+	podman run --rm -v $$(pwd)/db/migrations:/migrations migrate/migrate \
+		-path=/migrations -database "$(DB_URL)" up
 
 # Rollback migrations
 # Usage: make migrate.down [steps=1]

@@ -45,7 +45,7 @@ migrate.create:
 # Run all pending migrations
 migrate.up:
 	@echo "Running all pending migrations..."
-	podman run --rm -v $$(pwd)/db/migrations:/migrations migrate/migrate \
+	podman run --rm --network host -v $$(pwd)/db/migrations:/migrations migrate/migrate \
 		-path=/migrations -database "$(DB_URL)" up
 
 # Rollback migrations

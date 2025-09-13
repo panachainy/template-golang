@@ -109,8 +109,7 @@ lint:
 	go fmt ./...
 	go tool gosec ./...
 
-f: fmt
-fmt:
+f: fmt:
 	go fmt ./...
 
 g generate:

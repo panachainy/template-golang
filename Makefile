@@ -102,12 +102,12 @@ c clean:
 	rm -f covprofile.out covprofile.xml covprofile.html
 	rm -rf tmp
 
-l: lint
 lint:
 	go vet ./...
 	go mod tidy
 	go fmt ./...
 	go tool gosec ./...
+	go tool golangci-lint run
 
 f: fmt:
 	go fmt ./...

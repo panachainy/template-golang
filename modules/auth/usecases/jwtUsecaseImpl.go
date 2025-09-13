@@ -173,7 +173,7 @@ func (a *jwtUsecaseImpl) UpsertUser(gothUser goth.User, role ...models.Role) err
 	if existingAuthMethod != nil {
 		// User exists, get the auth record
 		if existingAuthMethod.AuthID != nil {
-			auth, err = a.authRepo.GetAuthByID(ctx, *existingAuthMethod.AuthID)
+			_, err = a.authRepo.GetAuthByID(ctx, *existingAuthMethod.AuthID)
 			if err != nil {
 				return fmt.Errorf("failed to get existing auth: %w", err)
 			}

@@ -61,7 +61,7 @@ func TestAuthMiddleware_ValidToken(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var response map[string]interface{}
-	json.Unmarshal(w.Body.Bytes(), &response)
+	_ = json.Unmarshal(w.Body.Bytes(), &response)
 	assert.Equal(t, "Success", response["message"])
 	assert.Equal(t, "test-user-123", response["userID"])
 }
@@ -82,7 +82,7 @@ func TestAuthMiddleware_MissingAuthorizationHeader(t *testing.T) {
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
 	var response map[string]interface{}
-	json.Unmarshal(w.Body.Bytes(), &response)
+	_ = json.Unmarshal(w.Body.Bytes(), &response)
 	assert.Equal(t, "Unauthorized", response["error"])
 	assert.Equal(t, "Missing authorization header", response["message"])
 }
@@ -127,7 +127,7 @@ func TestAuthMiddleware_InvalidAuthorizationFormat(t *testing.T) {
 			assert.Equal(t, http.StatusUnauthorized, w.Code)
 
 			var response map[string]interface{}
-			json.Unmarshal(w.Body.Bytes(), &response)
+			_ = json.Unmarshal(w.Body.Bytes(), &response)
 			assert.Equal(t, "Unauthorized", response["error"])
 			assert.Equal(t, tt.expectedMsg, response["message"])
 		})
@@ -160,7 +160,7 @@ func TestAuthMiddleware_ExpiredToken(t *testing.T) {
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
 	var response map[string]interface{}
-	json.Unmarshal(w.Body.Bytes(), &response)
+	_ = json.Unmarshal(w.Body.Bytes(), &response)
 	assert.Equal(t, "Unauthorized", response["error"])
 	assert.Equal(t, "Token has expired", response["message"])
 }
@@ -191,7 +191,7 @@ func TestAuthMiddleware_InvalidToken(t *testing.T) {
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
 	var response map[string]interface{}
-	json.Unmarshal(w.Body.Bytes(), &response)
+	_ = json.Unmarshal(w.Body.Bytes(), &response)
 	assert.Equal(t, "Unauthorized", response["error"])
 	assert.Equal(t, "Invalid token", response["message"])
 }

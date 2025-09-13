@@ -175,31 +175,31 @@ func (rc *RequestContext) GetElapsedTime() time.Duration {
 // SetRequestID sets the request ID in both contexts
 func (rc *RequestContext) SetRequestID(requestID string) {
 	rc.ctx = context.WithValue(rc.ctx, RequestIDKey, requestID)
-	rc.Context.Set("request_id", requestID)
+	rc.Set("request_id", requestID)
 }
 
 // SetUserID sets the user ID in both contexts
 func (rc *RequestContext) SetUserID(userID string) {
 	rc.ctx = context.WithValue(rc.ctx, UserIDKey, userID)
-	rc.Context.Set("userID", userID)
+	rc.Set("userID", userID)
 }
 
 // SetTraceID sets the trace ID in both contexts
 func (rc *RequestContext) SetTraceID(traceID string) {
 	rc.ctx = context.WithValue(rc.ctx, TraceIDKey, traceID)
-	rc.Context.Set("trace_id", traceID)
+	rc.Set("trace_id", traceID)
 }
 
 // SetUserRole sets the user role in both contexts
 func (rc *RequestContext) SetUserRole(role string) {
 	rc.ctx = context.WithValue(rc.ctx, UserRoleKey, role)
-	rc.Context.Set("user_role", role)
+	rc.Set("user_role", role)
 }
 
 // SetUserClaims sets the user claims in both contexts
 func (rc *RequestContext) SetUserClaims(claims interface{}) {
 	rc.ctx = context.WithValue(rc.ctx, UserClaimsKey, claims)
-	rc.Context.Set("claims", claims)
+	rc.Set("claims", claims)
 }
 
 // Middleware functions

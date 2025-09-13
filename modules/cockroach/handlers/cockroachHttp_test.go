@@ -139,7 +139,7 @@ func TestDetectCockroach(t *testing.T) {
 			assert.Equal(t, tt.expectedStatus, w.Code)
 
 			var responseBody map[string]interface{}
-			json.Unmarshal(w.Body.Bytes(), &responseBody)
+			_ = json.Unmarshal(w.Body.Bytes(), &responseBody)
 			assert.Equal(t, tt.expectedBody, responseBody)
 		})
 	}

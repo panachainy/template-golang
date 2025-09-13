@@ -140,7 +140,7 @@ func Wrap(err error, errorType ErrorType, message string) *AppError {
 func WrapWithStack(err error, errorType ErrorType, message string) *AppError {
 	appErr := Wrap(err, errorType, message)
 	if appErr != nil {
-		appErr.WithStack()
+		_ = appErr.WithStack()
 	}
 	return appErr
 }

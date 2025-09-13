@@ -39,7 +39,7 @@ func (h *cockroachHttpHandler) DetectCockroach(c *gin.Context) {
 			http.StatusBadRequest,
 			gin.H{"message": err.Error()},
 		)
-		c.Error(err)
+		_ = c.Error(err)
 		return
 	}
 
@@ -51,16 +51,15 @@ func (h *cockroachHttpHandler) DetectCockroach(c *gin.Context) {
 			http.StatusBadRequest,
 			gin.H{"message": err.Error()},
 		)
-		c.Error(err)
+		_ = c.Error(err)
 		return
 	}
 
 	if err := h.cockroachUsecase.ProcessData(reqBody); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Processing data failed"})
-		c.Error(err)
+		_ = c.Error(err)
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Success 🪳🪳🪳"})
-	return
 }

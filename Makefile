@@ -1,3 +1,4 @@
+.PHONY: all clean test
 include .env
 export $(shell sed 's/=.*//' .env)
 
@@ -109,7 +110,7 @@ lint:
 	go tool gosec ./...
 	go tool golangci-lint run
 
-f: fmt:
+f fmt:
 	go fmt ./...
 
 g generate:

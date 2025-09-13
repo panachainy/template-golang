@@ -1,10 +1,10 @@
 package usecases
 
 import (
+	"context"
 	"template-golang/modules/cockroach/entities"
 	"template-golang/modules/cockroach/models"
 	"template-golang/modules/cockroach/repositories"
-	"time"
 )
 
 type cockroachUsecaseImpl struct {
@@ -12,10 +12,10 @@ type cockroachUsecaseImpl struct {
 	cockroachMessaging  repositories.CockroachMessaging
 }
 
-func Provide(
+func NewCockroachUsecaseImpl(
 	cockroachRepository repositories.CockroachRepository,
 	cockroachMessaging repositories.CockroachMessaging,
-) *cockroachUsecaseImpl {
+) CockroachUsecase {
 	return &cockroachUsecaseImpl{
 		cockroachRepository: cockroachRepository,
 		cockroachMessaging:  cockroachMessaging,
@@ -23,18 +23,21 @@ func Provide(
 }
 
 func (u *cockroachUsecaseImpl) ProcessData(in *models.AddCockroachData) error {
+	ctx := context.Background()
+
 	insertCockroachData := &entities.InsertCockroachDto{
 		Amount: in.Amount,
 	}
 
-	if err := u.cockroachRepository.InsertCockroachData(insertCockroachData); err != nil {
+	cockroach, err := u.cockroachRepository.InsertCockroachData(ctx, insertCockroachData)
+	if err != nil {
 		return err
 	}
 
 	pushCockroachData := &entities.CockroachPushNotificationDto{
 		Title:        "Cockroach Detected 🪳 !!!",
-		Amount:       in.Amount,
-		ReportedTime: time.Now().Local().Format("2006-01-02 15:04:05"),
+		Amount:       cockroach.Amount,
+		ReportedTime: cockroach.CreatedAt.Format("2006-01-02 15:04:05"),
 	}
 
 	if err := u.cockroachMessaging.PushNotification(pushCockroachData); err != nil {

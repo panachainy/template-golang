@@ -9,14 +9,18 @@
 - [x] Viper config
   - [x] Fix issue about `.env` & `.env.test`
 - [x] Docker
-- [x] Gorm
+- [x] ~~Gorm~~ ✅ **REPLACED WITH SQLC**
 - [x] [Swagger-Gin](https://github.com/swaggo/gin-swagger)
+  - [ ] try to use generic swagger instead of gin-swagger
 - [x] Wire [need to refactor all code to wire]
 - [x] Unit Test
 - [x] Mock
 - [x] [Validator](https://github.com/go-playground/validator)
-- [x] [golang-migrate/migrate](https://github.com/golang-migrate/migrate/tree/master?tab=readme-ov-file)
-- [ ] [sqlc](https://github.com/sqlc-dev/sqlc)
+- [x] [golang-migrate/migrate](https://github.com/golang-migrate/migrate/tree/master?tab=readme-ov-file) ✅ **GO TOOL MIGRATIONS**
+- [x] do pkg for common tools
+- [x] [sqlc](https://github.com/sqlc-dev/sqlc) ✅ **IMPLEMENTED**
+  - [x] implement mock
+  - [x] change migration from code to cli (go tool)
 - [ ] Auth JWT
   - [ ] [goth](https://github.com/markbates/goth)
     - [x] [JWT goth](https://github.com/markbates/goth/issues/310)
@@ -35,62 +39,17 @@
   - [ ] Do corsHandler to support configurable.
 - [ ] try [failover](https://github.com/wongnai/lmwn_gomeetup_failover)
 - [x] husky
+- [ ] verify pkg when u use
+  - [ ] config
+  - [ ] context
+  - [ ] errors
+  - [ ] logger
+  - [ ] response
+  - [ ] validator
 - [ ] do pkg for common tools
 - [ ] try option function https://github.com/kazhuravlev/options-gen?tab=readme-ov-file
 - [ ] unit & integration test
   - [ ] update makefile
   - [ ] clean makefile
   - [ ] split CI & integration test
-
-## Design pattern
-
-[clean arch](https://medium.com/@rayato159/how-to-implement-clean-architecture-in-golang-87e9f2c8c5e4)
-
-## Pre-commit Hooks
-
-This project uses [pre-commit](https://pre-commit.com/) to run pre-commit hooks that ensure code quality before commits.
-
-### Setup
-
-Pre-commit hooks are set up using uvx (part of the uv package manager). Install pre-commit and set up the hooks:
-
-```bash
-# Install pre-commit and set up hooks
-uvx pre-commit install
-```
-
-### What runs on each commit
-
-The pre-commit hook runs the following commands:
-
-1. **Go Linter** (`make lint`):
-   - `go vet ./...` - Examines Go source code and reports suspicious constructs
-   - `go mod tidy` - Ensures go.mod matches the source code
-   - `go fmt ./...` - Formats Go source code
-
-2. **Go Format** (`make fmt`):
-   - `go fmt ./...` - Formats Go source code according to gofmt style
-
-3. **Go Unit Tests** (`make test`):
-   - `go test -short ./...` - Runs all unit tests
-
-### Manual execution
-
-You can manually run the same checks that the pre-commit hook performs:
-
-```bash
-# Run all pre-commit checks
-uvx pre-commit run --all-files
-
-# Run specific hooks
-uvx pre-commit run go-lint
-uvx pre-commit run go-fmt
-uvx pre-commit run go-test
-
-# Or use make commands directly
-make lint    # Run linter and tidy modules
-make fmt     # Format code
-make test    # Run unit tests
-```
-
-If any of these commands fail, the commit will be rejected and you'll need to fix the issues before committing.
+- [ ] refactor to use `mockery`

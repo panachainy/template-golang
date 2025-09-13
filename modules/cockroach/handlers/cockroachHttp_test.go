@@ -6,8 +6,8 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
-	"template-golang/mock"
 	"template-golang/modules/cockroach/models"
+	"template-golang/modules/cockroach/usecases/mock"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -122,7 +122,7 @@ func TestDetectCockroach(t *testing.T) {
 
 			// Setup router
 			r := gin.New()
-			handler := Provide(mockUsecase)
+			handler := NewCockroachHttpHandler(mockUsecase)
 			r.POST("/detect-cockroach", handler.DetectCockroach)
 
 			if !tt.skipSetupMock {

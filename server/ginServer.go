@@ -32,11 +32,11 @@ type ginServer struct {
 	modules Modules
 }
 
-func Provide(
+func NewGin(
 	conf *config.Config,
 	cockroach *cockroach.Cockroach,
 	auth *auth.Auth,
-) *ginServer {
+) Server {
 	// TODO: make it configurable
 	corsHandler := cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},
@@ -80,7 +80,9 @@ func (s *ginServer) Start() {
 
 	serverUrl := fmt.Sprintf(":%d", s.conf.Server.Port)
 
-	s.router.Run(serverUrl)
+	if err := s.router.Run(serverUrl); err != nil {
+		panic(fmt.Sprintf("Failed to start server: %v", err))
+	}
 }
 
 func (s *ginServer) initSwagger() {

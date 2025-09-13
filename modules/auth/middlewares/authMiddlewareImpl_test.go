@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"template-golang/mock"
 	"template-golang/modules/auth/models"
 	"template-golang/modules/auth/usecases"
+	"template-golang/modules/auth/usecases/mock"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -19,7 +19,7 @@ func setupTestMiddleware(jwtUsecase usecases.JWTUsecase) (*gin.Engine, gin.Handl
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 
-	middleware := Provide(jwtUsecase)
+	middleware := NewAuthMiddleware(jwtUsecase)
 	authMiddleware := middleware.Handle()
 
 	// Create a test route that uses the middleware

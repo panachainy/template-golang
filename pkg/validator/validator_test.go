@@ -267,7 +267,7 @@ func TestValidate_Global(t *testing.T) {
 	_ = Validate(testData)
 	// May have errors due to other required fields, but should not panic
 	assert.NotPanics(t, func() {
-		Validate(testData)
+		_ = Validate(testData)
 	})
 }
 

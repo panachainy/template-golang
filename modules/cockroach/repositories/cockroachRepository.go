@@ -1,7 +1,12 @@
 package repositories
 
-import "template-golang/modules/cockroach/entities"
+import (
+	"context"
+	"template-golang/modules/cockroach/entities"
+)
 
 type CockroachRepository interface {
-	InsertCockroachData(in *entities.InsertCockroachDto) error
+	InsertCockroachData(ctx context.Context, in *entities.InsertCockroachDto) (*entities.Cockroach, error)
+	GetCockroachByID(ctx context.Context, id uint32) (*entities.Cockroach, error)
+	ListCockroaches(ctx context.Context) ([]*entities.Cockroach, error)
 }

@@ -169,22 +169,22 @@ func TestIsTestEnvironment(t *testing.T) {
 	originalGoEnv := os.Getenv("GO_ENV")
 
 	defer func() {
-		os.Setenv("GIN_MODE", originalGinMode)
-		os.Setenv("GO_ENV", originalGoEnv)
+		_ = os.Setenv("GIN_MODE", originalGinMode)
+		_ = os.Setenv("GO_ENV", originalGoEnv)
 	}()
 
 	// Test with GIN_MODE=test
-	os.Setenv("GIN_MODE", "test")
+	_ = os.Setenv("GIN_MODE", "test")
 	assert.True(t, isTestEnvironment())
 
 	// Test with GO_ENV=test
-	os.Setenv("GIN_MODE", "")
-	os.Setenv("GO_ENV", "test")
+	_ = os.Setenv("GIN_MODE", "")
+	_ = os.Setenv("GO_ENV", "test")
 	assert.True(t, isTestEnvironment())
 
 	// Test without test environment
-	os.Setenv("GIN_MODE", "release")
-	os.Setenv("GO_ENV", "production")
+	_ = os.Setenv("GIN_MODE", "release")
+	_ = os.Setenv("GO_ENV", "production")
 	// Note: This might still be true because os.Args[0] contains "test"
 	// when running tests
 }

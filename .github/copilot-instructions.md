@@ -1,7 +1,7 @@
 # Copilot Instructions for Go Template Project
 
 ## Project Overview
-This is a Go template project using Clean Architecture with modular design, Gin framework, GORM ORM, Wire dependency injection, and comprehensive testing. It serves as a foundation for building scalable Go web applications.
+This is a Go template project using Clean Architecture with modular design, Gin framework, SQLC ORM, Wire dependency injection, and comprehensive testing. It serves as a foundation for building scalable Go web applications.
 
 ## Code Style Guidelines
 - Follow standard Go conventions (gofmt, golint)
@@ -35,7 +35,7 @@ Each module follows Clean Architecture with this structure:
 
 ## Dependencies
 - **Gin** - HTTP web framework
-- **GORM** - ORM for database operations
+- **SQLC** - ORM for database operations
 - **Wire** - Compile-time dependency injection
 - **Viper** - Configuration management
 - **Swagger** - API documentation
@@ -66,9 +66,9 @@ Each module follows Clean Architecture with this structure:
 ## Database Patterns
 - Use `Database` interface for testability
 - Implement repository pattern with interfaces
-- Use GORM for ORM operations
+- Use SQLC for ORM operations
 - Handle foreign key relationships properly
-- Use soft deletes with GORM's DeletedAt
+- Use soft deletes with SQLC's DeletedAt
 - Log database operations with structured logs
 
 ## HTTP Handler Patterns

@@ -158,7 +158,7 @@ func (l *Logger) WithFields(fields map[string]interface{}) *Logger {
 		zapFields = append(zapFields, zap.Any(key, value))
 	}
 
-	logger := l.Logger.With(zapFields...)
+	logger := l.With(zapFields...)
 	return &Logger{
 		Logger: logger,
 		sugar:  logger.Sugar(),
@@ -167,7 +167,7 @@ func (l *Logger) WithFields(fields map[string]interface{}) *Logger {
 
 // WithField adds a single field to the logger
 func (l *Logger) WithField(key string, value interface{}) *Logger {
-	logger := l.Logger.With(zap.Any(key, value))
+	logger := l.With(zap.Any(key, value))
 	return &Logger{
 		Logger: logger,
 		sugar:  logger.Sugar(),
@@ -179,7 +179,7 @@ func (l *Logger) WithError(err error) *Logger {
 	if err == nil {
 		return l
 	}
-	logger := l.Logger.With(zap.Error(err))
+	logger := l.With(zap.Error(err))
 	return &Logger{
 		Logger: logger,
 		sugar:  logger.Sugar(),

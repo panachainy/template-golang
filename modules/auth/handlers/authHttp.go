@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"strconv"
 	"template-golang/config"
 	"template-golang/modules/auth/middlewares"
 	"template-golang/modules/auth/models"
@@ -17,7 +16,6 @@ import (
 )
 
 // TODO: fix goth/gothic: no SESSION_SECRET environment variable is set. The default cookie store is not available and any calls will fail. Ignore this warning if you are using a different store.
-
 type authHttpHandler struct {
 	jwtUsecase     usecases.JWTUsecase
 	conf           *config.Config
@@ -25,8 +23,8 @@ type authHttpHandler struct {
 	authRepo       repositories.AuthRepository
 }
 
-func Provide(jwtUsecase usecases.JWTUsecase, conf *config.Config,
-	authMiddleware middlewares.AuthMiddleware, authRepo repositories.AuthRepository) *authHttpHandler {
+func NewAuthHttpHandler(jwtUsecase usecases.JWTUsecase, conf *config.Config,
+	authMiddleware middlewares.AuthMiddleware, authRepo repositories.AuthRepository) AuthHandler {
 	goth.UseProviders(
 		line.New(conf.Auth.LineClientID, conf.Auth.LineClientSecret, conf.Auth.LineCallbackURL, "profile", "openid", "email"),
 	)
@@ -105,7 +103,6 @@ func (h *authHttpHandler) AuthCallback(c *gin.Context) {
 	// Redirect with the token as a query parameter
 	redirectURL := h.conf.Auth.LineFECallbackURL + "?token=" + token
 	c.Redirect(http.StatusFound, redirectURL)
-	return
 }
 
 func (h *authHttpHandler) Logout(c *gin.Context) {
@@ -138,13 +135,9 @@ func (h *authHttpHandler) Example(c *gin.Context) {
 
 // GetUsers retrieves multiple users with pagination
 func (h *authHttpHandler) GetUsers(c *gin.Context) {
-	limitStr := c.DefaultQuery("limit", "10")
-	limit := 10
-	if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
-		limit = l
-	}
+	ctx := c.Request.Context()
 
-	users, err := h.authRepo.Gets(limit)
+	users, err := h.authRepo.ListAllAuths(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve users"})
 		return

@@ -2,10 +2,9 @@ package config
 
 import (
 	"fmt"
-	"strings"
+	"reflect"
 	"sync"
 
-	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )
 
@@ -44,7 +43,7 @@ type (
 )
 
 type ConfigOption struct {
-	ConfigPath string
+	// TODO: impl config here
 }
 
 var (
@@ -69,42 +68,19 @@ var (
 	}
 )
 
-func NewConfigOption(configPath string) *ConfigOption {
-	return &ConfigOption{
-		ConfigPath: configPath,
-	}
-}
-
-func Provide(configOption *ConfigOption) *Config {
+func NewConfig(configOption *ConfigOption) *Config {
 	_once.Do(func() {
-		viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
-
 		// Automatically override default values with environment variables
 		viper.AutomaticEnv()
 
-		fmt.Println("===================== Load .env =============================")
-
-		// Determine which .env file to use
-		var targetEnvFile string
-		if gin.Mode() == gin.TestMode {
-			fmt.Println("Test mode detected, loading .env.test file")
-			targetEnvFile = ".env.test"
-		} else {
-			fmt.Println("loading .env file")
-			targetEnvFile = ".env"
-		}
-
-		// Load .env file
-		viper.SetConfigName(targetEnvFile)
-		viper.SetConfigType("env")
-		viper.AddConfigPath(configOption.ConfigPath)
-
-		// Read the configuration file
-		if err := viper.ReadInConfig(); err != nil {
-			fmt.Printf("Fatal error loading config file: %s\n", err)
-		}
-
 		fmt.Println("======================================================")
+
+		// Bind every leaf key in Config to env
+		BindEnvsFromStruct("", _config)
+
+		if err := viper.ReadInConfig(); err != nil {
+			fmt.Printf("Warning: unable to read config file: %v\n", err)
+		}
 
 		// Unmarshal the configuration into the Config struct
 		if err := viper.Unmarshal(&_config); err != nil {
@@ -121,4 +97,33 @@ func Provide(configOption *ConfigOption) *Config {
 	})
 
 	return _config
+}
+
+// BindEnvsFromStruct binds environment variables for all fields in the given struct using viper.
+// It recursively traverses nested structs and binds each field's mapstructure tag as the env key.
+func BindEnvsFromStruct(prefix string, s any) {
+	// Use reflection to traverse struct fields
+	val := reflect.ValueOf(s)
+	if val.Kind() == reflect.Ptr {
+		val = val.Elem()
+	}
+	typ := val.Type()
+
+	for i := 0; i < typ.NumField(); i++ {
+		field := typ.Field(i)
+		tag := field.Tag.Get("mapstructure")
+		if tag == "" || tag == ",squash" {
+			// If squash, recurse into nested struct
+			BindEnvsFromStruct(prefix, val.Field(i).Interface())
+			continue
+		}
+		// Compose env key
+		envKey := tag
+		if prefix != "" {
+			envKey = prefix + "_" + envKey
+		}
+		if err := viper.BindEnv(envKey); err != nil {
+			panic(fmt.Sprintf("Failed to bind environment variable %s: %v", envKey, err))
+		}
+	}
 }

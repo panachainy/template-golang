@@ -1,13 +1,13 @@
-//go:generate mockgen -source=database.go -destination=../mock/mock_database.go -package=mock
-
 package database
 
-import "gorm.io/gorm"
+import (
+	"context"
+
+	"github.com/jackc/pgx/v5/pgxpool"
+)
 
 type Database interface {
-	GetDb() *gorm.DB
-	MigrateUp() error
-	MigrateDown(steps int) error
-	GetVersion() (uint, bool, error)
-	Close() error
+	GetPool() *pgxpool.Pool
+	Close()
+	Ping(ctx context.Context) error
 }

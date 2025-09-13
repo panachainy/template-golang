@@ -6,13 +6,13 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
-	"template-golang/mock"
 	"template-golang/modules/cockroach/models"
+	"template-golang/modules/cockroach/usecases/mocks"
 	"testing"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
-	"go.uber.org/mock/gomock"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestDetectCockroach(t *testing.T) {
@@ -108,10 +108,7 @@ func TestDetectCockroach(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
-
-			mockUsecase := mock.NewMockCockroachUsecase(ctrl)
+			mockUsecase := mocks.NewMockCockroachUsecase(t)
 			// Convert request body to JSON
 			jsonBody, _ := json.Marshal(tt.requestBody)
 
@@ -122,14 +119,12 @@ func TestDetectCockroach(t *testing.T) {
 
 			// Setup router
 			r := gin.New()
-			handler := Provide(mockUsecase)
+			handler := NewCockroachHttpHandler(mockUsecase)
 			r.POST("/detect-cockroach", handler.DetectCockroach)
 
 			if !tt.skipSetupMock {
-				// Set mock expectations
-				mockUsecase.EXPECT().
-					ProcessData(gomock.Any()).
-					Return(tt.mockError)
+				// Set mock expectations - use testify mock.Anything for any argument
+				mockUsecase.On("ProcessData", mock.Anything).Return(tt.mockError)
 			}
 
 			// Perform request
@@ -139,7 +134,7 @@ func TestDetectCockroach(t *testing.T) {
 			assert.Equal(t, tt.expectedStatus, w.Code)
 
 			var responseBody map[string]interface{}
-			json.Unmarshal(w.Body.Bytes(), &responseBody)
+			_ = json.Unmarshal(w.Body.Bytes(), &responseBody)
 			assert.Equal(t, tt.expectedBody, responseBody)
 		})
 	}

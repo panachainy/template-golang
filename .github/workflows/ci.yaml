@@ -1,131 +1,130 @@
 name: CI/CD Pipeline
 on:
-    push:
-        branches: [ main, develop ]
-    pull_request:
-        branches: [ main ]
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
 
 env:
-  GO_VERSION: '1.25.1'
+  GO_VERSION: "1.25.1"
 
 jobs:
-    test:
-        runs-on: ubuntu-latest
-        permissions:
-            contents: read
-            id-token: write
-        services:
-          postgres:
-            image: postgres:17.4-alpine
-            env:
-              POSTGRES_USER: postgres
-              POSTGRES_PASSWORD: postgres
-              POSTGRES_DB: test_db
-            options: >-
-              --health-cmd "pg_isready -U postgres"
-              --health-interval 10s
-              --health-timeout 5s
-              --health-retries 5
-            ports:
-              - '5432:5432'
-          redis:
-            image: redis:latest
-            options: >-
-              --health-cmd "redis-cli ping"
-              --health-interval 10s
-              --health-timeout 5s
-              --health-retries 5
-            ports:
-              - '6379:6379'
-        steps:
-            - uses: actions/checkout@v5
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    services:
+      postgres:
+        image: postgres:17.4-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - "5432:5432"
+      redis:
+        image: redis:latest
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - "6379:6379"
+    steps:
+      - uses: actions/checkout@v5
 
-            - name: Set up Go
-              uses: actions/setup-go@v5
-              with:
-                go-version: ${{ env.GO_VERSION }}
-                cache-dependency-path: "**/*.sum"
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: "**/*.sum"
 
-            - name: Install dependencies
-              run: go mod tidy
+      - name: Install dependencies
+        run: go mod tidy
 
-            - name: Install golang-migrate
-              run: |
-                curl -L https://github.com/golang-migrate/migrate/releases/latest/download/migrate.linux-amd64.tar.gz | tar xvz
-                sudo mv migrate /usr/local/bin/
+      - name: Install golang-migrate
+        run: |
+          curl -L https://github.com/golang-migrate/migrate/releases/latest/download/migrate.linux-amd64.tar.gz | tar xvz
+          sudo mv migrate /usr/local/bin/
 
-            - name: Create .env file for tests
-              run: |
-                cat > .env << EOF
-                SERVER_PORT=8080
-                GIN_MODE=test
-                DB_HOST=localhost
-                DB_PORT=5432
-                DB_USERNAME=postgres
-                DB_PASSWORD=postgres
-                DB_DBNAME=test_db
-                DB_SSLMODE=disable
-                DB_TIMEZONE=Asia/Bangkok
-                DB_MIGRATION_PATH=file://db/migrations
-                PRIVATE_KEY_PATH=ecdsa_private_key.pem
-                EOF
+      - name: Create .env file for tests
+        run: |
+          cat > .env << EOF
+          SERVER_PORT=8080
+          GIN_MODE=test
+          DB_HOST=localhost
+          DB_PORT=5432
+          DB_USERNAME=postgres
+          DB_PASSWORD=postgres
+          DB_DBNAME=test_db
+          DB_SSLMODE=disable
+          DB_TIMEZONE=Asia/Bangkok
+          DB_MIGRATION_PATH=file://db/migrations
+          PRIVATE_KEY_PATH=ecdsa_private_key.pem
+          EOF
 
-            - name: Generate test keys
-              run: |
-                openssl ecparam -name prime256v1 -genkey -noout -out ecdsa_private_key.pem
-                openssl ec -in ecdsa_private_key.pem -pubout -out ecdsa_public_key.pem
+      - name: Generate test keys
+        run: |
+          openssl ecparam -name prime256v1 -genkey -noout -out ecdsa_private_key.pem
+          openssl ec -in ecdsa_private_key.pem -pubout -out ecdsa_public_key.pem
 
-            - name: Wait for PostgreSQL
-              run: |
-                until pg_isready -h localhost -p 5432 -U postgres; do
-                  echo "Waiting for PostgreSQL..."
-                  sleep 2
-                done
+      - name: Wait for PostgreSQL
+        run: |
+          until pg_isready -h localhost -p 5432 -U postgres; do
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
 
-            - name: Run database migrations
-              run: make migrate.up
+      - name: Run database migrations
+        run: make migrate.up
 
-            - name: Run unit tests
-              run: |
-                export GIN_MODE=test
-                make test
+      - name: Run unit tests
+        run: |
+          export GIN_MODE=test
+          make test
 
-            # fix to use new way
-            - name: Run integration tests
-              run: |
-                export GIN_MODE=test
-                make it
+      # fix to use new way
+      - name: Run integration tests
+        run: |
+          export GIN_MODE=test
+          make it
 
-            - name: Run tests with coverage
-              run: |
-                export GIN_MODE=test
-                make tc
+      - name: Run tests with coverage
+        run: |
+          export GIN_MODE=test
+          make tc
 
-            - name: Upload coverage reports to Codecov
-              uses: codecov/codecov-action@v5
-              with:
-                files: ./covprofile.out,./covprofile-integration.out
-                fail_ci_if_error: false
-                token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./covprofile.out,./covprofile-integration.out
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: "**/*.sum"
 
-    security-scan:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v5
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.4.0
+          only-new-issues: true
 
-            - name: Set up Go
-              uses: actions/setup-go@v5
-              with:
-                go-version: ${{ env.GO_VERSION }}
-                cache-dependency-path: "**/*.sum"
-
-            - name: Run Gosec Security Scanner
-              uses: securego/gosec@master
-              with:
-                args: '-no-fail -fmt sarif -out results.sarif ./...'
-
-            - name: Upload SARIF file
-              uses: github/codeql-action/upload-sarif@v3
-              with:
-                # Path to SARIF file relative to the root of the repository
-                sarif_file: results.sarif
+      - name: Upload report result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report
+          path: bin/lint

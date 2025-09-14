@@ -1,0 +1,2671 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>handlers: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">template-golang/modules/auth/handlers/authHttp.go (70.0%)</option>
+				
+				<option value="file1">template-golang/modules/auth/middlewares/authMiddlewareImpl.go (43.8%)</option>
+				
+				<option value="file2">template-golang/modules/auth/usecases/jwtUsecaseImpl.go (46.7%)</option>
+				
+				<option value="file3">template-golang/modules/cockroach/handlers/cockroachHttp.go (100.0%)</option>
+				
+				<option value="file4">template-golang/pkg/config/config.go (78.6%)</option>
+				
+				<option value="file5">template-golang/pkg/context/context.go (96.0%)</option>
+				
+				<option value="file6">template-golang/pkg/errors/errors.go (96.7%)</option>
+				
+				<option value="file7">template-golang/pkg/logger/logger.go (88.1%)</option>
+				
+				<option value="file8">template-golang/pkg/response/response.go (96.6%)</option>
+				
+				<option value="file9">template-golang/pkg/validator/validator.go (69.1%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">no coverage</span>
+				<span class="cov1">low coverage</span>
+				<span class="cov2">*</span>
+				<span class="cov3">*</span>
+				<span class="cov4">*</span>
+				<span class="cov5">*</span>
+				<span class="cov6">*</span>
+				<span class="cov7">*</span>
+				<span class="cov8">*</span>
+				<span class="cov9">*</span>
+				<span class="cov10">high coverage</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package handlers
+
+import (
+        "net/http"
+        "template-golang/config"
+        "template-golang/modules/auth/middlewares"
+        "template-golang/modules/auth/models"
+        "template-golang/modules/auth/repositories"
+        "template-golang/modules/auth/usecases"
+
+        "github.com/gin-gonic/gin"
+
+        "github.com/markbates/goth"
+        "github.com/markbates/goth/gothic"
+        "github.com/markbates/goth/providers/line"
+)
+
+// TODO: fix goth/gothic: no SESSION_SECRET environment variable is set. The default cookie store is not available and any calls will fail. Ignore this warning if you are using a different store.
+type authHttpHandler struct {
+        jwtUsecase     usecases.JWTUsecase
+        conf           *config.Config
+        authMiddleware middlewares.AuthMiddleware
+        authRepo       repositories.AuthRepository
+}
+
+func NewAuthHttpHandler(jwtUsecase usecases.JWTUsecase, conf *config.Config,
+        authMiddleware middlewares.AuthMiddleware, authRepo repositories.AuthRepository) AuthHandler <span class="cov1" title="1">{
+        goth.UseProviders(
+                line.New(conf.Auth.LineClientID, conf.Auth.LineClientSecret, conf.Auth.LineCallbackURL, "profile", "openid", "email"),
+        )
+
+        return &amp;authHttpHandler{
+                jwtUsecase:     jwtUsecase,
+                conf:           conf,
+                authMiddleware: authMiddleware,
+                authRepo:       authRepo,
+        }
+}</span>
+
+func (h *authHttpHandler) Login(c *gin.Context) <span class="cov10" title="3">{
+        // Translate provider
+        provider := c.Param("provider")
+        if provider == "" </span><span class="cov1" title="1">{
+                c.JSON(400, gin.H{"message": "Provider is required"})
+                return
+        }</span>
+
+        <span class="cov6" title="2">q := c.Request.URL.Query()
+        q.Add("provider", c.Param("provider"))
+        c.Request.URL.RawQuery = q.Encode()
+
+        gothic.BeginAuthHandler(c.Writer, c.Request)</span>
+}
+
+func (h *authHttpHandler) AuthCallback(c *gin.Context) <span class="cov6" title="2">{
+        // Translate provider
+        provider := c.Param("provider")
+        if provider == "" </span><span class="cov1" title="1">{
+                c.JSON(400, gin.H{"message": "Provider is required"})
+                return
+        }</span>
+
+        <span class="cov1" title="1">q := c.Request.URL.Query()
+        q.Add("provider", c.Param("provider"))
+        c.Request.URL.RawQuery = q.Encode()
+
+        user, err := gothic.CompleteUserAuth(c.Writer, c.Request)
+        if err != nil </span><span class="cov1" title="1">{
+                c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+                return
+        }</span>
+
+        // Insert or update user in the database
+        <span class="cov0" title="0">err = h.jwtUsecase.UpsertUser(user)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to upsert user"})
+                return
+        }</span>
+        // // Retrieve the user from the database
+        // user, err = h.jwtUsecase.GetUserByID(user.UserID)
+        // if err != nil {
+        //         c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve user"})
+        //         return
+        // }
+        // // If user is not found, return unauthorized
+        // if user == nil {
+        //         c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+        //         return
+        // }
+        // // If user is not active, return unauthorized
+        // if !user.IsActive {
+        //         c.JSON(http.StatusUnauthorized, gin.H{"error": "User is not active"})
+        //         return
+        // }
+
+        // Generate JWT for the authenticated user
+        <span class="cov0" title="0">token, err := h.jwtUsecase.GenerateJWT(user.UserID)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+                return
+        }</span>
+
+        // Redirect with the token as a query parameter
+        <span class="cov0" title="0">redirectURL := h.conf.Auth.LineFECallbackURL + "?token=" + token
+        c.Redirect(http.StatusFound, redirectURL)</span>
+}
+
+func (h *authHttpHandler) Logout(c *gin.Context) <span class="cov10" title="3">{
+        // Translate provider
+        provider := c.Param("provider")
+        if provider == "" </span><span class="cov1" title="1">{
+                c.JSON(400, gin.H{"message": "Provider is required"})
+                return
+        }</span>
+
+        <span class="cov6" title="2">q := c.Request.URL.Query()
+        q.Add("provider", c.Param("provider"))
+        c.Request.URL.RawQuery = q.Encode()
+
+        err := gothic.Logout(c.Writer, c.Request)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+        }</span>
+        <span class="cov6" title="2">c.JSON(http.StatusOK, gin.H{"message": "logged out"})</span>
+}
+
+func (h *authHttpHandler) Example(c *gin.Context) <span class="cov1" title="1">{
+        c.JSON(http.StatusOK, gin.H{
+                "message": "example",
+        })
+}</span>
+
+// ======================== Admin Routes ========================
+
+// GetUsers retrieves multiple users with pagination
+func (h *authHttpHandler) GetUsers(c *gin.Context) <span class="cov0" title="0">{
+        ctx := c.Request.Context()
+
+        users, err := h.authRepo.ListAllAuths(ctx)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve users"})
+                return
+        }</span>
+
+        <span class="cov0" title="0">c.JSON(http.StatusOK, gin.H{
+                "users": users,
+                "count": len(users),
+        })</span>
+}
+
+// ======================== Admin Routes ========================
+
+func (h *authHttpHandler) Routes(routerGroup *gin.RouterGroup) <span class="cov1" title="1">{
+        authProviderGroup := routerGroup.Group("/auth/:provider")
+
+        authProviderGroup.GET("/login", h.Login)
+        authProviderGroup.GET("/callback", h.AuthCallback)
+        authProviderGroup.GET("/logout", h.Logout)
+
+        authGroup := routerGroup.Group("/auth")
+        authGroup.Use(h.authMiddleware.Handle())
+        authGroup.GET("/example", h.Example)
+
+        authAdminGroup := routerGroup.Group("/admin/auth")
+        authAdminGroup.Use(h.authMiddleware.Handle(),
+                h.authMiddleware.Allows(
+                        []models.Role{models.RoleAdmin}),
+        )
+        authAdminGroup.GET("/users", h.GetUsers)
+}</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package middlewares
+
+import (
+        "net/http"
+        "strings"
+        "template-golang/modules/auth/models"
+        "template-golang/modules/auth/usecases"
+        "template-golang/pkg/logger"
+
+        "github.com/gin-gonic/gin"
+)
+
+type userAuthMiddleware struct {
+        jwtUsecase usecases.JWTUsecase
+}
+
+func NewAuthMiddleware(jwtUsecase usecases.JWTUsecase) AuthMiddleware <span class="cov8" title="5">{
+        return &amp;userAuthMiddleware{
+                jwtUsecase: jwtUsecase,
+        }
+}</span>
+
+func (m *userAuthMiddleware) Handle() gin.HandlerFunc <span class="cov8" title="5">{
+        return func(c *gin.Context) </span><span class="cov10" title="7">{
+                // Extract token from Authorization header
+                authHeader := c.GetHeader("Authorization")
+                if authHeader == "" </span><span class="cov1" title="1">{
+                        logger.Warn("Missing Authorization header")
+                        c.JSON(http.StatusUnauthorized, gin.H{
+                                "error":   "Unauthorized",
+                                "message": "Missing authorization header",
+                        })
+                        c.Abort()
+                        return
+                }</span>
+
+                // Check for Bearer token format
+                <span class="cov9" title="6">tokenParts := strings.Split(authHeader, " ")
+                if len(tokenParts) != 2 || tokenParts[0] != "Bearer" || strings.TrimSpace(tokenParts[1]) == "" </span><span class="cov6" title="3">{
+                        logger.Warn("Invalid Authorization header format")
+                        c.JSON(http.StatusUnauthorized, gin.H{
+                                "error":   "Unauthorized",
+                                "message": "Invalid authorization header format",
+                        })
+                        c.Abort()
+                        return
+                }</span>
+
+                <span class="cov6" title="3">tokenString := tokenParts[1]
+
+                // Verify the token
+                result, err := m.jwtUsecase.ValidateJWT(tokenString)
+                if err != nil </span><span class="cov0" title="0">{
+                        logger.Errorf("Token verification error: %v", err)
+                        c.JSON(http.StatusUnauthorized, gin.H{
+                                "error":   "Unauthorized",
+                                "message": "Token verification failed",
+                        })
+                        c.Abort()
+                        return
+                }</span>
+
+                // Handle different validation states
+                <span class="cov6" title="3">if result.NotExist </span><span class="cov0" title="0">{
+                        logger.Warn("Token not provided")
+                        c.JSON(http.StatusUnauthorized, gin.H{
+                                "error":   "Unauthorized",
+                                "message": "Token not provided",
+                        })
+                        c.Abort()
+                        return
+                }</span>
+
+                <span class="cov6" title="3">if result.Expired </span><span class="cov1" title="1">{
+                        logger.Warn("Token has expired")
+                        c.JSON(http.StatusUnauthorized, gin.H{
+                                "error":   "Unauthorized",
+                                "message": "Token has expired",
+                        })
+                        c.Abort()
+                        return
+                }</span>
+
+                <span class="cov4" title="2">if !result.Valid </span><span class="cov1" title="1">{
+                        logger.Warn("Invalid token")
+                        c.JSON(http.StatusUnauthorized, gin.H{
+                                "error":   "Unauthorized",
+                                "message": "Invalid token",
+                        })
+                        c.Abort()
+                        return
+                }</span>
+
+                // TODO: check this
+
+                // Token is valid, set user context
+                <span class="cov1" title="1">c.Set("userID", result.UserID)
+                c.Set("claims", result.Claims)
+
+                logger.Infof("Successfully authenticated user: %s", result.UserID)
+
+                c.Next()</span>
+        }
+}
+
+func (m *userAuthMiddleware) Allows(roles []models.Role) gin.HandlerFunc <span class="cov0" title="0">{
+        return func(c *gin.Context) </span><span class="cov0" title="0">{
+                // Get user claims from context (set by Handle middleware)
+                claims, exists := c.Get("claims")
+                if !exists </span><span class="cov0" title="0">{
+                        logger.Warn("No user claims found in context")
+                        c.JSON(http.StatusUnauthorized, gin.H{
+                                "error":   "Unauthorized",
+                                "message": "No user claims found",
+                        })
+                        c.Abort()
+                        return
+                }</span>
+
+                <span class="cov0" title="0">userClaims, ok := claims.(map[string]interface{})
+                if !ok </span><span class="cov0" title="0">{
+                        logger.Warn("Invalid claims format")
+                        c.JSON(http.StatusForbidden, gin.H{
+                                "error":   "Forbidden",
+                                "message": "Invalid user claims",
+                        })
+                        c.Abort()
+                        return
+                }</span>
+
+                // Extract user role from claims
+                <span class="cov0" title="0">userRole, exists := userClaims["role"]
+                if !exists </span><span class="cov0" title="0">{
+                        logger.Warn("No role found in user claims")
+                        c.JSON(http.StatusForbidden, gin.H{
+                                "error":   "Forbidden",
+                                "message": "No role found in user claims",
+                        })
+                        c.Abort()
+                        return
+                }</span>
+
+                <span class="cov0" title="0">userRoleStr, ok := userRole.(string)
+                if !ok </span><span class="cov0" title="0">{
+                        logger.Warn("Invalid role format in claims")
+                        c.JSON(http.StatusForbidden, gin.H{
+                                "error":   "Forbidden",
+                                "message": "Invalid role format",
+                        })
+                        c.Abort()
+                        return
+                }</span>
+
+                // Check if user role is in allowed roles
+                <span class="cov0" title="0">for _, allowedRole := range roles </span><span class="cov0" title="0">{
+                        if userRoleStr == allowedRole.ToString() </span><span class="cov0" title="0">{
+                                logger.Infof("User role %s is authorized", userRoleStr)
+                                c.Next()
+                                return
+                        }</span>
+                }
+
+                <span class="cov0" title="0">logger.Warnf("User role %s is not authorized for this resource", userRoleStr)
+                c.JSON(http.StatusForbidden, gin.H{
+                        "error":   "Forbidden",
+                        "message": "Insufficient permissions",
+                })
+                c.Abort()</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package usecases
+
+import (
+        "context"
+        "crypto/ecdsa"
+        "errors"
+        "fmt"
+        "os"
+        "path/filepath"
+        "strings"
+        "template-golang/config"
+        db "template-golang/db/sqlc"
+        "template-golang/modules/auth/models"
+        "template-golang/modules/auth/repositories"
+        "template-golang/modules/auth/utils"
+        "time"
+
+        "github.com/golang-jwt/jwt/v5"
+        "github.com/jackc/pgx/v5"
+        "github.com/jackc/pgx/v5/pgtype"
+        "github.com/markbates/goth"
+)
+
+type jwtUsecaseImpl struct {
+        privateKey *ecdsa.PrivateKey
+        publicKey  *ecdsa.PublicKey
+        authRepo   repositories.AuthRepository
+}
+
+func NewJWTUsecase(conf *config.Config, authRepo repositories.AuthRepository) JWTUsecase <span class="cov10" title="3">{
+        privateKey := loadPrivateKey(conf.Auth.PrivateKeyPath)
+        publicKey := &amp;privateKey.PublicKey
+
+        return &amp;jwtUsecaseImpl{
+                privateKey: privateKey,
+                publicKey:  publicKey,
+                authRepo:   authRepo,
+        }
+}</span>
+
+// we use panic because if not have private key, we cannot run the server
+func loadPrivateKey(path string) *ecdsa.PrivateKey <span class="cov10" title="3">{
+        // init key
+        var keyByteArray []byte
+        var key *ecdsa.PrivateKey
+
+        // Validate and clean the path to prevent directory traversal
+        cleanPath := filepath.Clean(path)
+        absPath, err := filepath.Abs(cleanPath)
+        if err != nil </span><span class="cov0" title="0">{
+                panic(fmt.Errorf("failed to resolve absolute path: %w", err))</span>
+        }
+
+        // Basic security check - prevent access to system directories
+        <span class="cov10" title="3">if strings.Contains(absPath, "/etc/") || strings.Contains(absPath, "/usr/") ||
+                strings.Contains(absPath, "/var/") || strings.Contains(absPath, "/root/") ||
+                strings.Contains(absPath, "/home/") &amp;&amp; !strings.Contains(absPath, "/home/"+os.Getenv("USER")) </span><span class="cov0" title="0">{
+                panic(fmt.Errorf("invalid path: access to system directories not allowed"))</span>
+        }
+
+        // Load the private key from a file
+        <span class="cov10" title="3">keyByteArray, err = os.ReadFile(absPath) // #nosec G304 -- Path is validated to prevent directory traversal and system file access
+        if err != nil </span><span class="cov0" title="0">{
+                panic(fmt.Errorf("failed to read private key: %w", err))</span>
+        }
+
+        // Parse the private key
+        <span class="cov10" title="3">key, err = jwt.ParseECPrivateKeyFromPEM(keyByteArray)
+        if err != nil </span><span class="cov0" title="0">{
+                panic(fmt.Errorf("failed to parse private key: %w", err))</span>
+        }
+
+        <span class="cov10" title="3">return key</span>
+}
+
+func (a *jwtUsecaseImpl) GenerateJWT(userID string) (string, error) <span class="cov6" title="2">{
+        // TODO: implement MapClaims
+        // Create a new JWT token
+        token := jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
+                "sub":       userID,
+                "name":      "John",
+                "last_name": "Doe",
+                "iss":       "my-auth-server-issuer",
+                "foo":       2,
+        })
+
+        // Set expiration time (e.g., 24 hours from now)
+        claims := token.Claims.(jwt.MapClaims)
+        claims["exp"] = jwt.NewNumericDate(time.Now().Add(24 * time.Hour))
+
+        // Sign the token with the private key
+        signedString, err := token.SignedString(a.privateKey)
+        if err != nil </span><span class="cov0" title="0">{
+                return "", fmt.Errorf("failed to sign token: %w", err)
+        }</span>
+
+        <span class="cov6" title="2">return signedString, nil</span>
+}
+
+func (a *jwtUsecaseImpl) ValidateJWT(tokenString string) (*models.TokenValidationResult, error) <span class="cov6" title="2">{
+        result := &amp;models.TokenValidationResult{
+                Valid:    false,
+                Expired:  false,
+                NotExist: false,
+                Claims:   nil,
+                UserID:   "",
+        }
+
+        // Check if token string is empty
+        if tokenString == "" </span><span class="cov0" title="0">{
+                result.NotExist = true
+                return result, nil
+        }</span>
+
+        // Parse and validate the token
+        <span class="cov6" title="2">token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) </span><span class="cov1" title="1">{
+                // Validate the signing method
+                if _, ok := token.Method.(*jwt.SigningMethodECDSA); !ok </span><span class="cov0" title="0">{
+                        return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+                }</span>
+
+                // FIXME: check this
+                <span class="cov1" title="1">return a.publicKey, nil</span>
+        })
+
+        <span class="cov6" title="2">if err != nil </span><span class="cov1" title="1">{
+                // Check if error is due to token expiration
+                if errors.Is(err, jwt.ErrTokenExpired) </span><span class="cov0" title="0">{
+                        result.Expired = true
+                        return result, nil
+                }</span>
+                // Other validation errors (malformed token, invalid signature, etc.)
+                <span class="cov1" title="1">return result, fmt.Errorf("failed to parse token: %w", err)</span>
+        }
+
+        // Check if token is valid and extract claims
+        <span class="cov1" title="1">if claims, ok := token.Claims.(jwt.MapClaims); ok &amp;&amp; token.Valid </span><span class="cov1" title="1">{
+                result.Valid = true
+                result.Claims = claims
+
+                // Extract user ID from sub claim
+                if sub, exists := claims["sub"]; exists </span><span class="cov1" title="1">{
+                        if userID, ok := sub.(string); ok </span><span class="cov1" title="1">{
+                                result.UserID = userID
+                        }</span>
+                }
+
+                <span class="cov1" title="1">return result, nil</span>
+        }
+
+        // Token is not valid
+        <span class="cov0" title="0">return result, nil</span>
+}
+
+func (a *jwtUsecaseImpl) UpsertUser(gothUser goth.User, role ...models.Role) error <span class="cov0" title="0">{
+        ctx := context.Background()
+
+        // Set default role if none provided
+        userRole := models.RoleUser
+        if len(role) &gt; 0 </span><span class="cov0" title="0">{
+                userRole = role[0]
+        }</span>
+
+        // Check if auth method already exists
+        <span class="cov0" title="0">existingAuthMethod, err := a.authRepo.GetAuthMethodByProviderAndID(ctx, gothUser.Provider, gothUser.UserID)
+
+        if err != nil &amp;&amp; !errors.Is(err, pgx.ErrNoRows) </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to check existing auth method: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">var auth *db.Auth
+
+        if existingAuthMethod != nil </span><span class="cov0" title="0">{
+                // User exists, get the auth record
+                if existingAuthMethod.AuthID != nil </span><span class="cov0" title="0">{
+                        _, err = a.authRepo.GetAuthByID(ctx, *existingAuthMethod.AuthID)
+                        if err != nil </span><span class="cov0" title="0">{
+                                return fmt.Errorf("failed to get existing auth: %w", err)
+                        }</span>
+                }
+
+                // Update the auth method with new tokens
+                <span class="cov0" title="0">var expiresAt pgtype.Timestamptz
+                if !gothUser.ExpiresAt.IsZero() </span><span class="cov0" title="0">{
+                        expiresAt = pgtype.Timestamptz{
+                                Time:  gothUser.ExpiresAt,
+                                Valid: true,
+                        }
+                }</span>
+
+                <span class="cov0" title="0">updateParams := db.UpdateAuthMethodParams{
+                        AuthID:       existingAuthMethod.AuthID,
+                        Provider:     gothUser.Provider,
+                        AccessToken:  utils.StringToPtr(gothUser.AccessToken),
+                        RefreshToken: utils.StringToPtr(gothUser.RefreshToken),
+                        IDToken:      utils.StringToPtr(gothUser.IDToken),
+                        ExpiresAt:    expiresAt,
+                }
+
+                _, err = a.authRepo.UpdateAuthMethod(ctx, updateParams)
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed to update auth method: %w", err)
+                }</span>
+        } else<span class="cov0" title="0"> {
+                // Create new auth record
+                auth, err = a.authRepo.CreateAuth(ctx,
+                        utils.StringToPtr(gothUser.Email), // username
+                        nil,                               // password (nil for OAuth users)
+                        utils.StringToPtr(gothUser.Email), // email
+                        string(userRole),                  // role
+                        true,                              // active
+                )
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed to create auth: %w", err)
+                }</span>
+
+                // Create auth method
+                <span class="cov0" title="0">authMethod := utils.GothUserToAuthMethod(gothUser, auth.ID)
+
+                createParams := db.CreateAuthMethodParams{
+                        AuthID:            authMethod.AuthID,
+                        Provider:          authMethod.Provider,
+                        ProviderID:        authMethod.ProviderID,
+                        Email:             authMethod.Email,
+                        UserID:            authMethod.UserID,
+                        Name:              authMethod.Name,
+                        FirstName:         authMethod.FirstName,
+                        LastName:          authMethod.LastName,
+                        NickName:          authMethod.NickName,
+                        Description:       authMethod.Description,
+                        AvatarUrl:         authMethod.AvatarUrl,
+                        Location:          authMethod.Location,
+                        AccessToken:       authMethod.AccessToken,
+                        RefreshToken:      authMethod.RefreshToken,
+                        IDToken:           authMethod.IDToken,
+                        ExpiresAt:         authMethod.ExpiresAt,
+                        AccessTokenSecret: authMethod.AccessTokenSecret,
+                }
+
+                _, err = a.authRepo.CreateAuthMethod(ctx, createParams)
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed to create auth method: %w", err)
+                }</span>
+        }
+
+        <span class="cov0" title="0">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package handlers
+
+import (
+        "net/http"
+        "template-golang/modules/cockroach/models"
+        "template-golang/modules/cockroach/usecases"
+
+        "github.com/gin-gonic/gin"
+        "github.com/go-playground/validator/v10"
+)
+
+type cockroachHttpHandler struct {
+        cockroachUsecase usecases.CockroachUsecase
+}
+
+func NewCockroachHttpHandler(cockroachUsecase usecases.CockroachUsecase) CockroachHandler <span class="cov10" title="7">{
+        return &amp;cockroachHttpHandler{
+                cockroachUsecase: cockroachUsecase,
+        }
+}</span>
+
+// @BasePath /api/v1
+
+// DetectCockroach godoc
+// @Summary Detect if image contains cockroach
+// @Schemes
+// @Description Analyzes image to detect presence of cockroach
+// @Tags cockroach
+// @Accept json
+// @Produce json
+// @Param request body models.AddCockroachData true "Request body"
+// @Success 200 {object} map[string]interface{} "Success response with message"
+// @Router /cockroach [post]
+func (h *cockroachHttpHandler) DetectCockroach(c *gin.Context) <span class="cov10" title="7">{
+        reqBody := new(models.AddCockroachData)
+
+        if err := c.ShouldBindJSON(reqBody); err != nil </span><span class="cov4" title="2">{
+                c.JSON(
+                        http.StatusBadRequest,
+                        gin.H{"message": err.Error()},
+                )
+                _ = c.Error(err)
+                return
+        }</span>
+
+        <span class="cov8" title="5">validate := validator.New(validator.WithRequiredStructEnabled())
+
+        // Validate the request body
+        if err := validate.Struct(reqBody); err != nil </span><span class="cov6" title="3">{
+                c.JSON(
+                        http.StatusBadRequest,
+                        gin.H{"message": err.Error()},
+                )
+                _ = c.Error(err)
+                return
+        }</span>
+
+        <span class="cov4" title="2">if err := h.cockroachUsecase.ProcessData(reqBody); err != nil </span><span class="cov1" title="1">{
+                c.JSON(http.StatusInternalServerError, gin.H{"message": "Processing data failed"})
+                _ = c.Error(err)
+                return
+        }</span>
+
+        <span class="cov1" title="1">c.JSON(http.StatusOK, gin.H{"message": "Success 🪳🪳🪳"})</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package config
+
+import (
+        "fmt"
+        "os"
+        "strings"
+        "sync"
+        "time"
+
+        "github.com/spf13/viper"
+)
+
+// Loader interface for configuration loading
+type Loader interface {
+        Load() error
+        Get(key string) interface{}
+        GetString(key string) string
+        GetInt(key string) int
+        GetBool(key string) bool
+        GetFloat64(key string) float64
+        GetDuration(key string) time.Duration
+        GetStringSlice(key string) []string
+        Unmarshal(rawVal interface{}) error
+        UnmarshalKey(key string, rawVal interface{}) error
+        IsSet(key string) bool
+        AllKeys() []string
+        AllSettings() map[string]interface{}
+}
+
+// Config holds configuration loading options
+type Config struct {
+        ConfigName     string                 // config file name (without extension)
+        ConfigType     string                 // config file type (yaml, json, toml, etc.)
+        ConfigPaths    []string               // paths to search for config file
+        EnvPrefix      string                 // prefix for environment variables
+        EnvKeyReplacer *strings.Replacer      // replacer for environment keys
+        Defaults       map[string]interface{} // default values
+        AutomaticEnv   bool                   // automatically bind environment variables
+        AllowEmptyEnv  bool                   // allow empty environment variables
+        TestConfigName string                 // config file name for test environment
+}
+
+// DefaultConfig returns default configuration
+func DefaultConfig() *Config <span class="cov6" title="6">{
+        return &amp;Config{
+                ConfigName:     ".env",
+                ConfigType:     "env",
+                ConfigPaths:    []string{".", "./config"},
+                EnvPrefix:      "",
+                EnvKeyReplacer: strings.NewReplacer(".", "_", "-", "_"),
+                Defaults:       make(map[string]interface{}),
+                AutomaticEnv:   true,
+                AllowEmptyEnv:  false,
+                TestConfigName: ".env.test",
+        }
+}</span>
+
+// ViperLoader implements Loader using Viper
+type ViperLoader struct {
+        v      *viper.Viper
+        config *Config
+        once   sync.Once
+}
+
+// NewViperLoader creates a new Viper-based configuration loader
+func NewViperLoader(config *Config) *ViperLoader <span class="cov9" title="12">{
+        if config == nil </span><span class="cov1" title="1">{
+                config = DefaultConfig()
+        }</span>
+
+        <span class="cov9" title="12">v := viper.New()
+
+        return &amp;ViperLoader{
+                v:      v,
+                config: config,
+        }</span>
+}
+
+// Load loads the configuration
+func (l *ViperLoader) Load() error <span class="cov8" title="10">{
+        var loadErr error
+
+        l.once.Do(func() </span><span class="cov8" title="10">{
+                // Set up environment variable handling
+                if l.config.EnvPrefix != "" </span><span class="cov0" title="0">{
+                        l.v.SetEnvPrefix(l.config.EnvPrefix)
+                }</span>
+
+                <span class="cov8" title="10">if l.config.EnvKeyReplacer != nil </span><span class="cov5" title="4">{
+                        l.v.SetEnvKeyReplacer(l.config.EnvKeyReplacer)
+                }</span>
+
+                <span class="cov8" title="10">if l.config.AutomaticEnv </span><span class="cov8" title="10">{
+                        l.v.AutomaticEnv()
+                }</span>
+
+                // Set defaults
+                <span class="cov8" title="10">for key, value := range l.config.Defaults </span><span class="cov10" title="16">{
+                        l.v.SetDefault(key, value)
+                }</span>
+
+                // Determine config file name based on environment
+                <span class="cov8" title="10">configName := l.config.ConfigName
+                if isTestEnvironment() &amp;&amp; l.config.TestConfigName != "" </span><span class="cov5" title="4">{
+                        configName = l.config.TestConfigName
+                }</span>
+
+                // Set up config file
+                <span class="cov8" title="10">l.v.SetConfigName(configName)
+                l.v.SetConfigType(l.config.ConfigType)
+
+                // Add config paths
+                for _, path := range l.config.ConfigPaths </span><span class="cov7" title="8">{
+                        l.v.AddConfigPath(path)
+                }</span>
+
+                // Try to read config file
+                <span class="cov8" title="10">if err := l.v.ReadInConfig(); err != nil </span><span class="cov8" title="9">{
+                        // Only return error if it's not a "file not found" error
+                        if _, ok := err.(viper.ConfigFileNotFoundError); !ok </span><span class="cov0" title="0">{
+                                loadErr = fmt.Errorf("failed to read config file: %w", err)
+                                return
+                        }</span>
+                }
+        })
+
+        <span class="cov8" title="10">return loadErr</span>
+}
+
+// Get retrieves a value by key
+func (l *ViperLoader) Get(key string) interface{} <span class="cov1" title="1">{
+        return l.v.Get(key)
+}</span>
+
+// GetString retrieves a string value by key
+func (l *ViperLoader) GetString(key string) string <span class="cov5" title="4">{
+        return l.v.GetString(key)
+}</span>
+
+// GetInt retrieves an integer value by key
+func (l *ViperLoader) GetInt(key string) int <span class="cov4" title="3">{
+        return l.v.GetInt(key)
+}</span>
+
+// GetBool retrieves a boolean value by key
+func (l *ViperLoader) GetBool(key string) bool <span class="cov1" title="1">{
+        return l.v.GetBool(key)
+}</span>
+
+// GetFloat64 retrieves a float64 value by key
+func (l *ViperLoader) GetFloat64(key string) float64 <span class="cov1" title="1">{
+        return l.v.GetFloat64(key)
+}</span>
+
+// GetDuration retrieves a duration value by key
+func (l *ViperLoader) GetDuration(key string) time.Duration <span class="cov1" title="1">{
+        return l.v.GetDuration(key)
+}</span>
+
+// GetStringSlice retrieves a string slice value by key
+func (l *ViperLoader) GetStringSlice(key string) []string <span class="cov1" title="1">{
+        return l.v.GetStringSlice(key)
+}</span>
+
+// Unmarshal unmarshals the config into a struct
+func (l *ViperLoader) Unmarshal(rawVal interface{}) error <span class="cov4" title="3">{
+        return l.v.Unmarshal(rawVal)
+}</span>
+
+// UnmarshalKey unmarshals a specific key into a struct
+func (l *ViperLoader) UnmarshalKey(key string, rawVal interface{}) error <span class="cov1" title="1">{
+        return l.v.UnmarshalKey(key, rawVal)
+}</span>
+
+// IsSet checks if a key is set
+func (l *ViperLoader) IsSet(key string) bool <span class="cov3" title="2">{
+        return l.v.IsSet(key)
+}</span>
+
+// AllKeys returns all keys
+func (l *ViperLoader) AllKeys() []string <span class="cov1" title="1">{
+        return l.v.AllKeys()
+}</span>
+
+// AllSettings returns all settings
+func (l *ViperLoader) AllSettings() map[string]interface{} <span class="cov1" title="1">{
+        return l.v.AllSettings()
+}</span>
+
+// Helper functions
+
+// isTestEnvironment checks if we're in a test environment
+func isTestEnvironment() bool <span class="cov9" title="12">{
+        return strings.Contains(strings.ToLower(os.Args[0]), "test") ||
+                os.Getenv("GO_ENV") == "test" ||
+                os.Getenv("GIN_MODE") == "test"
+}</span>
+
+// LoadWithDefaults loads configuration with default settings
+func LoadWithDefaults(defaults map[string]interface{}) (Loader, error) <span class="cov1" title="1">{
+        config := DefaultConfig()
+        config.Defaults = defaults
+
+        loader := NewViperLoader(config)
+        err := loader.Load()
+        return loader, err
+}</span>
+
+// LoadFromPath loads configuration from a specific path
+func LoadFromPath(configPath, configName, configType string) (Loader, error) <span class="cov0" title="0">{
+        config := DefaultConfig()
+        config.ConfigPaths = []string{configPath}
+        config.ConfigName = configName
+        config.ConfigType = configType
+
+        loader := NewViperLoader(config)
+        err := loader.Load()
+        return loader, err
+}</span>
+
+// LoadYAMLConfig loads a YAML configuration file
+func LoadYAMLConfig(configPath, configName string) (Loader, error) <span class="cov0" title="0">{
+        return LoadFromPath(configPath, configName, "yaml")
+}</span>
+
+// LoadJSONConfig loads a JSON configuration file
+func LoadJSONConfig(configPath, configName string) (Loader, error) <span class="cov0" title="0">{
+        return LoadFromPath(configPath, configName, "json")
+}</span>
+
+// LoadEnvConfig loads environment configuration (.env file)
+func LoadEnvConfig(configPath string) (Loader, error) <span class="cov3" title="2">{
+        config := DefaultConfig()
+        if configPath != "" </span><span class="cov1" title="1">{
+                config.ConfigPaths = []string{configPath}
+        }</span>
+
+        <span class="cov3" title="2">loader := NewViperLoader(config)
+        err := loader.Load()
+        return loader, err</span>
+}
+
+// MustLoad loads configuration and panics on error
+func MustLoad(config *Config) Loader <span class="cov1" title="1">{
+        loader := NewViperLoader(config)
+        if err := loader.Load(); err != nil </span><span class="cov0" title="0">{
+                panic(fmt.Sprintf("failed to load configuration: %v", err))</span>
+        }
+        <span class="cov1" title="1">return loader</span>
+}
+
+// LoadAndUnmarshal loads configuration and unmarshals it into a struct
+func LoadAndUnmarshal(config *Config, target interface{}) error <span class="cov3" title="2">{
+        loader := NewViperLoader(config)
+        if err := loader.Load(); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov3" title="2">return loader.Unmarshal(target)</span>
+}
+
+// MustLoadAndUnmarshal loads configuration, unmarshals it, and panics on error
+func MustLoadAndUnmarshal(config *Config, target interface{}) <span class="cov1" title="1">{
+        if err := LoadAndUnmarshal(config, target); err != nil </span><span class="cov0" title="0">{
+                panic(fmt.Sprintf("failed to load and unmarshal configuration: %v", err))</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package context
+
+import (
+        "context"
+        "time"
+
+        "github.com/gin-gonic/gin"
+        "github.com/google/uuid"
+)
+
+// ContextKey represents a key for context values
+type ContextKey string
+
+const (
+        // RequestIDKey is the key for request ID in context
+        RequestIDKey ContextKey = "request_id"
+        // UserIDKey is the key for user ID in context
+        UserIDKey ContextKey = "user_id"
+        // TraceIDKey is the key for trace ID in context
+        TraceIDKey ContextKey = "trace_id"
+        // UserRoleKey is the key for user role in context
+        UserRoleKey ContextKey = "user_role"
+        // UserClaimsKey is the key for user claims in context
+        UserClaimsKey ContextKey = "user_claims"
+        // StartTimeKey is the key for request start time in context
+        StartTimeKey ContextKey = "start_time"
+        // IPAddressKey is the key for client IP address in context
+        IPAddressKey ContextKey = "ip_address"
+        // UserAgentKey is the key for user agent in context
+        UserAgentKey ContextKey = "user_agent"
+)
+
+// RequestContext wraps gin.Context with additional functionality
+type RequestContext struct {
+        *gin.Context
+        ctx context.Context
+}
+
+// NewRequestContext creates a new RequestContext
+func NewRequestContext(ginCtx *gin.Context) *RequestContext <span class="cov8" title="9">{
+        ctx := context.WithValue(context.Background(), StartTimeKey, time.Now())
+
+        // Extract values from gin context and add to context
+        if requestID := ginCtx.GetString("request_id"); requestID != "" </span><span class="cov1" title="1">{
+                ctx = context.WithValue(ctx, RequestIDKey, requestID)
+        }</span>
+
+        <span class="cov8" title="9">if userID := ginCtx.GetString("userID"); userID != "" </span><span class="cov1" title="1">{
+                ctx = context.WithValue(ctx, UserIDKey, userID)
+        }</span>
+
+        <span class="cov8" title="9">if claims, exists := ginCtx.Get("claims"); exists </span><span class="cov1" title="1">{
+                ctx = context.WithValue(ctx, UserClaimsKey, claims)
+        }</span>
+
+        // Add IP address
+        <span class="cov8" title="9">ctx = context.WithValue(ctx, IPAddressKey, ginCtx.ClientIP())
+
+        // Add User-Agent
+        ctx = context.WithValue(ctx, UserAgentKey, ginCtx.GetHeader("User-Agent"))
+
+        return &amp;RequestContext{
+                Context: ginCtx,
+                ctx:     ctx,
+        }</span>
+}
+
+// GetContext returns the underlying context
+func (rc *RequestContext) GetContext() context.Context <span class="cov0" title="0">{
+        return rc.ctx
+}</span>
+
+// WithValue adds a value to the context
+func (rc *RequestContext) WithValue(key ContextKey, value interface{}) *RequestContext <span class="cov3" title="2">{
+        rc.ctx = context.WithValue(rc.ctx, key, value)
+        return rc
+}</span>
+
+// WithTimeout adds a timeout to the context
+func (rc *RequestContext) WithTimeout(timeout time.Duration) (*RequestContext, context.CancelFunc) <span class="cov1" title="1">{
+        ctx, cancel := context.WithTimeout(rc.ctx, timeout)
+        return &amp;RequestContext{
+                Context: rc.Context,
+                ctx:     ctx,
+        }, cancel
+}</span>
+
+// WithDeadline adds a deadline to the context
+func (rc *RequestContext) WithDeadline(deadline time.Time) (*RequestContext, context.CancelFunc) <span class="cov1" title="1">{
+        ctx, cancel := context.WithDeadline(rc.ctx, deadline)
+        return &amp;RequestContext{
+                Context: rc.Context,
+                ctx:     ctx,
+        }, cancel
+}</span>
+
+// WithCancel adds cancellation to the context
+func (rc *RequestContext) WithCancel() (*RequestContext, context.CancelFunc) <span class="cov1" title="1">{
+        ctx, cancel := context.WithCancel(rc.ctx)
+        return &amp;RequestContext{
+                Context: rc.Context,
+                ctx:     ctx,
+        }, cancel
+}</span>
+
+// GetValue retrieves a value from the context
+func (rc *RequestContext) GetValue(key ContextKey) interface{} <span class="cov4" title="3">{
+        return rc.ctx.Value(key)
+}</span>
+
+// GetStringValue retrieves a string value from the context
+func (rc *RequestContext) GetStringValue(key ContextKey) string <span class="cov10" title="14">{
+        if value := rc.ctx.Value(key); value != nil </span><span class="cov8" title="10">{
+                if str, ok := value.(string); ok </span><span class="cov8" title="9">{
+                        return str
+                }</span>
+        }
+        <span class="cov6" title="5">return ""</span>
+}
+
+// GetRequestID returns the request ID from context
+func (rc *RequestContext) GetRequestID() string <span class="cov4" title="3">{
+        return rc.GetStringValue(RequestIDKey)
+}</span>
+
+// GetUserID returns the user ID from context
+func (rc *RequestContext) GetUserID() string <span class="cov4" title="3">{
+        return rc.GetStringValue(UserIDKey)
+}</span>
+
+// GetTraceID returns the trace ID from context
+func (rc *RequestContext) GetTraceID() string <span class="cov4" title="3">{
+        return rc.GetStringValue(TraceIDKey)
+}</span>
+
+// GetUserRole returns the user role from context
+func (rc *RequestContext) GetUserRole() string <span class="cov3" title="2">{
+        return rc.GetStringValue(UserRoleKey)
+}</span>
+
+// GetUserClaims returns the user claims from context
+func (rc *RequestContext) GetUserClaims() interface{} <span class="cov4" title="3">{
+        return rc.GetValue(UserClaimsKey)
+}</span>
+
+// GetStartTime returns the request start time from context
+func (rc *RequestContext) GetStartTime() time.Time <span class="cov4" title="3">{
+        if value := rc.ctx.Value(StartTimeKey); value != nil </span><span class="cov4" title="3">{
+                if t, ok := value.(time.Time); ok </span><span class="cov4" title="3">{
+                        return t
+                }</span>
+        }
+        <span class="cov0" title="0">return time.Time{}</span>
+}
+
+// GetIPAddress returns the client IP address from context
+func (rc *RequestContext) GetIPAddress() string <span class="cov3" title="2">{
+        return rc.GetStringValue(IPAddressKey)
+}</span>
+
+// GetUserAgent returns the user agent from context
+func (rc *RequestContext) GetUserAgent() string <span class="cov0" title="0">{
+        return rc.GetStringValue(UserAgentKey)
+}</span>
+
+// GetElapsedTime returns the elapsed time since request start
+func (rc *RequestContext) GetElapsedTime() time.Duration <span class="cov1" title="1">{
+        startTime := rc.GetStartTime()
+        if startTime.IsZero() </span><span class="cov0" title="0">{
+                return 0
+        }</span>
+        <span class="cov1" title="1">return time.Since(startTime)</span>
+}
+
+// SetRequestID sets the request ID in both contexts
+func (rc *RequestContext) SetRequestID(requestID string) <span class="cov1" title="1">{
+        rc.ctx = context.WithValue(rc.ctx, RequestIDKey, requestID)
+        rc.Set("request_id", requestID)
+}</span>
+
+// SetUserID sets the user ID in both contexts
+func (rc *RequestContext) SetUserID(userID string) <span class="cov1" title="1">{
+        rc.ctx = context.WithValue(rc.ctx, UserIDKey, userID)
+        rc.Set("userID", userID)
+}</span>
+
+// SetTraceID sets the trace ID in both contexts
+func (rc *RequestContext) SetTraceID(traceID string) <span class="cov1" title="1">{
+        rc.ctx = context.WithValue(rc.ctx, TraceIDKey, traceID)
+        rc.Set("trace_id", traceID)
+}</span>
+
+// SetUserRole sets the user role in both contexts
+func (rc *RequestContext) SetUserRole(role string) <span class="cov1" title="1">{
+        rc.ctx = context.WithValue(rc.ctx, UserRoleKey, role)
+        rc.Set("user_role", role)
+}</span>
+
+// SetUserClaims sets the user claims in both contexts
+func (rc *RequestContext) SetUserClaims(claims interface{}) <span class="cov1" title="1">{
+        rc.ctx = context.WithValue(rc.ctx, UserClaimsKey, claims)
+        rc.Set("claims", claims)
+}</span>
+
+// Middleware functions
+
+// RequestIDMiddleware adds a unique request ID to each request
+func RequestIDMiddleware() gin.HandlerFunc <span class="cov3" title="2">{
+        return func(c *gin.Context) </span><span class="cov3" title="2">{
+                requestID := c.GetHeader("X-Request-ID")
+                if requestID == "" </span><span class="cov1" title="1">{
+                        requestID = uuid.New().String()
+                }</span>
+
+                <span class="cov3" title="2">c.Set("request_id", requestID)
+                c.Header("X-Request-ID", requestID)
+
+                c.Next()</span>
+        }
+}
+
+// TraceIDMiddleware adds a trace ID to each request for distributed tracing
+func TraceIDMiddleware() gin.HandlerFunc <span class="cov1" title="1">{
+        return func(c *gin.Context) </span><span class="cov1" title="1">{
+                traceID := c.GetHeader("X-Trace-ID")
+                if traceID == "" </span><span class="cov1" title="1">{
+                        traceID = uuid.New().String()
+                }</span>
+
+                <span class="cov1" title="1">c.Set("trace_id", traceID)
+                c.Header("X-Trace-ID", traceID)
+
+                c.Next()</span>
+        }
+}
+
+// TimeoutMiddleware adds a timeout to each request
+func TimeoutMiddleware(timeout time.Duration) gin.HandlerFunc <span class="cov1" title="1">{
+        return func(c *gin.Context) </span><span class="cov1" title="1">{
+                ctx, cancel := context.WithTimeout(c.Request.Context(), timeout)
+                defer cancel()
+
+                c.Request = c.Request.WithContext(ctx)
+                c.Next()
+        }</span>
+}
+
+// MetricsMiddleware adds metrics context to each request
+func MetricsMiddleware() gin.HandlerFunc <span class="cov1" title="1">{
+        return func(c *gin.Context) </span><span class="cov1" title="1">{
+                startTime := time.Now()
+                c.Set("start_time", startTime)
+
+                c.Next()
+
+                // Calculate request duration
+                duration := time.Since(startTime)
+                c.Header("X-Response-Time", duration.String())
+        }</span>
+}
+
+// Helper functions for working with gin.Context
+
+// GetRequestContext creates a RequestContext from gin.Context
+func GetRequestContext(c *gin.Context) *RequestContext <span class="cov1" title="1">{
+        return NewRequestContext(c)
+}</span>
+
+// GetRequestIDFromGin gets request ID from gin context
+func GetRequestIDFromGin(c *gin.Context) string <span class="cov5" title="4">{
+        if requestID, exists := c.Get("request_id"); exists </span><span class="cov4" title="3">{
+                if str, ok := requestID.(string); ok </span><span class="cov4" title="3">{
+                        return str
+                }</span>
+        }
+        <span class="cov1" title="1">return ""</span>
+}
+
+// GetUserIDFromGin gets user ID from gin context
+func GetUserIDFromGin(c *gin.Context) string <span class="cov3" title="2">{
+        return c.GetString("userID")
+}</span>
+
+// GetTraceIDFromGin gets trace ID from gin context
+func GetTraceIDFromGin(c *gin.Context) string <span class="cov4" title="3">{
+        if traceID, exists := c.Get("trace_id"); exists </span><span class="cov3" title="2">{
+                if str, ok := traceID.(string); ok </span><span class="cov3" title="2">{
+                        return str
+                }</span>
+        }
+        <span class="cov1" title="1">return ""</span>
+}
+
+// GetUserClaimsFromGin gets user claims from gin context
+func GetUserClaimsFromGin(c *gin.Context) interface{} <span class="cov3" title="2">{
+        if claims, exists := c.Get("claims"); exists </span><span class="cov1" title="1">{
+                return claims
+        }</span>
+        <span class="cov1" title="1">return nil</span>
+}
+
+// GetStartTimeFromGin gets start time from gin context
+func GetStartTimeFromGin(c *gin.Context) time.Time <span class="cov7" title="6">{
+        if startTime, exists := c.Get("start_time"); exists </span><span class="cov5" title="4">{
+                if t, ok := startTime.(time.Time); ok </span><span class="cov5" title="4">{
+                        return t
+                }</span>
+        }
+        <span class="cov3" title="2">return time.Time{}</span>
+}
+
+// GetElapsedTimeFromGin calculates elapsed time from start time in gin context
+func GetElapsedTimeFromGin(c *gin.Context) time.Duration <span class="cov4" title="3">{
+        startTime := GetStartTimeFromGin(c)
+        if startTime.IsZero() </span><span class="cov1" title="1">{
+                return 0
+        }</span>
+        <span class="cov3" title="2">return time.Since(startTime)</span>
+}
+
+// SetContextValue sets a value in gin context
+func SetContextValue(c *gin.Context, key string, value interface{}) <span class="cov1" title="1">{
+        c.Set(key, value)
+}</span>
+
+// GetContextValue gets a value from gin context
+func GetContextValue(c *gin.Context, key string) (interface{}, bool) <span class="cov3" title="2">{
+        return c.Get(key)
+}</span>
+
+// GenerateRequestID generates a new UUID for request ID
+func GenerateRequestID() string <span class="cov3" title="2">{
+        return uuid.New().String()
+}</span>
+
+// GenerateTraceID generates a new UUID for trace ID
+func GenerateTraceID() string <span class="cov1" title="1">{
+        return uuid.New().String()
+}</span>
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package errors
+
+import (
+        "errors"
+        "fmt"
+        "net/http"
+        "runtime"
+        "strings"
+)
+
+// ErrorType represents the type of error
+type ErrorType string
+
+const (
+        // ErrorTypeValidation represents validation errors
+        ErrorTypeValidation ErrorType = "validation"
+        // ErrorTypeNotFound represents not found errors
+        ErrorTypeNotFound ErrorType = "not_found"
+        // ErrorTypeUnauthorized represents unauthorized errors
+        ErrorTypeUnauthorized ErrorType = "unauthorized"
+        // ErrorTypeForbidden represents forbidden errors
+        ErrorTypeForbidden ErrorType = "forbidden"
+        // ErrorTypeConflict represents conflict errors
+        ErrorTypeConflict ErrorType = "conflict"
+        // ErrorTypeInternal represents internal server errors
+        ErrorTypeInternal ErrorType = "internal"
+        // ErrorTypeBadRequest represents bad request errors
+        ErrorTypeBadRequest ErrorType = "bad_request"
+        // ErrorTypeTimeout represents timeout errors
+        ErrorTypeTimeout ErrorType = "timeout"
+        // ErrorTypeDatabase represents database errors
+        ErrorTypeDatabase ErrorType = "database"
+        // ErrorTypeExternal represents external service errors
+        ErrorTypeExternal ErrorType = "external"
+)
+
+// AppError represents an application error with additional context
+type AppError struct {
+        Type       ErrorType              `json:"type"`
+        Message    string                 `json:"message"`
+        Details    string                 `json:"details,omitempty"`
+        StatusCode int                    `json:"status_code"`
+        Cause      error                  `json:"-"`
+        Context    map[string]interface{} `json:"context,omitempty"`
+        Stack      string                 `json:"stack,omitempty"`
+}
+
+// Error implements the error interface
+func (e *AppError) Error() string <span class="cov6" title="9">{
+        if e.Cause != nil </span><span class="cov1" title="1">{
+                return fmt.Sprintf("%s: %s (caused by: %s)", e.Type, e.Message, e.Cause.Error())
+        }</span>
+        <span class="cov6" title="8">return fmt.Sprintf("%s: %s", e.Type, e.Message)</span>
+}
+
+// Unwrap returns the underlying cause
+func (e *AppError) Unwrap() error <span class="cov1" title="1">{
+        return e.Cause
+}</span>
+
+// Is checks if the error is of a specific type
+func (e *AppError) Is(target error) bool <span class="cov3" title="3">{
+        if target == nil </span><span class="cov1" title="1">{
+                return false
+        }</span>
+
+        <span class="cov2" title="2">if appErr, ok := target.(*AppError); ok </span><span class="cov2" title="2">{
+                return e.Type == appErr.Type
+        }</span>
+
+        <span class="cov0" title="0">return errors.Is(e.Cause, target)</span>
+}
+
+// As finds the first error in the chain that matches target
+func (e *AppError) As(target interface{}) bool <span class="cov2" title="2">{
+        if target == nil </span><span class="cov0" title="0">{
+                return false
+        }</span>
+
+        <span class="cov2" title="2">if appErr, ok := target.(**AppError); ok </span><span class="cov1" title="1">{
+                *appErr = e
+                return true
+        }</span>
+
+        <span class="cov1" title="1">return errors.As(e.Cause, target)</span>
+}
+
+// WithContext adds context to the error
+func (e *AppError) WithContext(key string, value interface{}) *AppError <span class="cov2" title="2">{
+        if e.Context == nil </span><span class="cov0" title="0">{
+                e.Context = make(map[string]interface{})
+        }</span>
+        <span class="cov2" title="2">e.Context[key] = value
+        return e</span>
+}
+
+// WithDetails adds details to the error
+func (e *AppError) WithDetails(details string) *AppError <span class="cov2" title="2">{
+        e.Details = details
+        return e
+}</span>
+
+// WithStack adds stack trace to the error
+func (e *AppError) WithStack() *AppError <span class="cov4" title="4">{
+        e.Stack = captureStack()
+        return e
+}</span>
+
+// New creates a new AppError
+func New(errorType ErrorType, message string) *AppError <span class="cov7" title="14">{
+        return &amp;AppError{
+                Type:       errorType,
+                Message:    message,
+                StatusCode: typeToStatusCode(errorType),
+                Context:    make(map[string]interface{}),
+        }
+}</span>
+
+// Wrap wraps an existing error with additional context
+func Wrap(err error, errorType ErrorType, message string) *AppError <span class="cov6" title="7">{
+        if err == nil </span><span class="cov1" title="1">{
+                return nil
+        }</span>
+
+        // If it's already an AppError, preserve the original type if not specified
+        <span class="cov5" title="6">if appErr, ok := err.(*AppError); ok &amp;&amp; errorType == "" </span><span class="cov1" title="1">{
+                errorType = appErr.Type
+        }</span>
+
+        <span class="cov5" title="6">return &amp;AppError{
+                Type:       errorType,
+                Message:    message,
+                StatusCode: typeToStatusCode(errorType),
+                Cause:      err,
+                Context:    make(map[string]interface{}),
+        }</span>
+}
+
+// WrapWithStack wraps an error and captures the stack trace
+func WrapWithStack(err error, errorType ErrorType, message string) *AppError <span class="cov1" title="1">{
+        appErr := Wrap(err, errorType, message)
+        if appErr != nil </span><span class="cov1" title="1">{
+                _ = appErr.WithStack()
+        }</span>
+        <span class="cov1" title="1">return appErr</span>
+}
+
+// Validation creates a validation error
+func Validation(message string) *AppError <span class="cov4" title="4">{
+        return New(ErrorTypeValidation, message)
+}</span>
+
+// ValidationWithDetails creates a validation error with details
+func ValidationWithDetails(message, details string) *AppError <span class="cov1" title="1">{
+        return New(ErrorTypeValidation, message).WithDetails(details)
+}</span>
+
+// NotFound creates a not found error
+func NotFound(message string) *AppError <span class="cov2" title="2">{
+        return New(ErrorTypeNotFound, message)
+}</span>
+
+// Unauthorized creates an unauthorized error
+func Unauthorized(message string) *AppError <span class="cov1" title="1">{
+        return New(ErrorTypeUnauthorized, message)
+}</span>
+
+// Forbidden creates a forbidden error
+func Forbidden(message string) *AppError <span class="cov1" title="1">{
+        return New(ErrorTypeForbidden, message)
+}</span>
+
+// Conflict creates a conflict error
+func Conflict(message string) *AppError <span class="cov1" title="1">{
+        return New(ErrorTypeConflict, message)
+}</span>
+
+// Internal creates an internal server error
+func Internal(message string) *AppError <span class="cov1" title="1">{
+        return New(ErrorTypeInternal, message).WithStack()
+}</span>
+
+// InternalWithCause creates an internal server error with a cause
+func InternalWithCause(message string, cause error) *AppError <span class="cov1" title="1">{
+        return Wrap(cause, ErrorTypeInternal, message).WithStack()
+}</span>
+
+// BadRequest creates a bad request error
+func BadRequest(message string) *AppError <span class="cov1" title="1">{
+        return New(ErrorTypeBadRequest, message)
+}</span>
+
+// Timeout creates a timeout error
+func Timeout(message string) *AppError <span class="cov1" title="1">{
+        return New(ErrorTypeTimeout, message)
+}</span>
+
+// Database creates a database error
+func Database(message string, cause error) *AppError <span class="cov1" title="1">{
+        return Wrap(cause, ErrorTypeDatabase, message)
+}</span>
+
+// External creates an external service error
+func External(message string, cause error) *AppError <span class="cov1" title="1">{
+        return Wrap(cause, ErrorTypeExternal, message)
+}</span>
+
+// IsType checks if an error is of a specific type
+func IsType(err error, errorType ErrorType) bool <span class="cov3" title="3">{
+        if appErr, ok := err.(*AppError); ok </span><span class="cov2" title="2">{
+                return appErr.Type == errorType
+        }</span>
+        <span class="cov1" title="1">return false</span>
+}
+
+// GetStatusCode returns the HTTP status code for an error
+func GetStatusCode(err error) int <span class="cov2" title="2">{
+        if appErr, ok := err.(*AppError); ok </span><span class="cov1" title="1">{
+                return appErr.StatusCode
+        }</span>
+        <span class="cov1" title="1">return http.StatusInternalServerError</span>
+}
+
+// typeToStatusCode maps error types to HTTP status codes
+func typeToStatusCode(errorType ErrorType) int <span class="cov10" title="31">{
+        switch errorType </span>{
+        case ErrorTypeValidation:<span class="cov6" title="8">
+                return http.StatusBadRequest</span>
+        case ErrorTypeNotFound:<span class="cov4" title="4">
+                return http.StatusNotFound</span>
+        case ErrorTypeUnauthorized:<span class="cov2" title="2">
+                return http.StatusUnauthorized</span>
+        case ErrorTypeForbidden:<span class="cov2" title="2">
+                return http.StatusForbidden</span>
+        case ErrorTypeConflict:<span class="cov2" title="2">
+                return http.StatusConflict</span>
+        case ErrorTypeBadRequest:<span class="cov2" title="2">
+                return http.StatusBadRequest</span>
+        case ErrorTypeTimeout:<span class="cov2" title="2">
+                return http.StatusRequestTimeout</span>
+        case ErrorTypeDatabase:<span class="cov2" title="2">
+                return http.StatusInternalServerError</span>
+        case ErrorTypeExternal:<span class="cov2" title="2">
+                return http.StatusBadGateway</span>
+        case ErrorTypeInternal:<span class="cov4" title="4">
+                return http.StatusInternalServerError</span>
+        default:<span class="cov1" title="1">
+                return http.StatusInternalServerError</span>
+        }
+}
+
+// captureStack captures the current stack trace
+func captureStack() string <span class="cov4" title="4">{
+        const depth = 32
+        var pcs [depth]uintptr
+        n := runtime.Callers(3, pcs[:]) // Skip runtime.Callers, captureStack, and the calling function
+
+        frames := runtime.CallersFrames(pcs[:n])
+        var stack strings.Builder
+
+        for </span><span class="cov8" title="15">{
+                frame, more := frames.Next()
+                fmt.Fprintf(&amp;stack, "%s\n\t%s:%d\n", frame.Function, frame.File, frame.Line)
+                if !more </span><span class="cov4" title="4">{
+                        break</span>
+                }
+        }
+
+        <span class="cov4" title="4">return stack.String()</span>
+}
+
+// ErrorList represents a collection of errors
+type ErrorList struct {
+        Errors []*AppError `json:"errors"`
+}
+
+// NewErrorList creates a new error list
+func NewErrorList() *ErrorList <span class="cov4" title="4">{
+        return &amp;ErrorList{
+                Errors: make([]*AppError, 0),
+        }
+}</span>
+
+// Add adds an error to the list
+func (el *ErrorList) Add(err *AppError) <span class="cov5" title="5">{
+        if err != nil </span><span class="cov4" title="4">{
+                el.Errors = append(el.Errors, err)
+        }</span>
+}
+
+// AddValidation adds a validation error to the list
+func (el *ErrorList) AddValidation(field, message string) <span class="cov1" title="1">{
+        err := Validation(message).WithContext("field", field)
+        el.Add(err)
+}</span>
+
+// HasErrors returns true if there are errors in the list
+func (el *ErrorList) HasErrors() bool <span class="cov4" title="4">{
+        return len(el.Errors) &gt; 0
+}</span>
+
+// Error implements the error interface
+func (el *ErrorList) Error() string <span class="cov5" title="5">{
+        if len(el.Errors) == 0 </span><span class="cov1" title="1">{
+                return "no errors"
+        }</span>
+
+        <span class="cov4" title="4">if len(el.Errors) == 1 </span><span class="cov1" title="1">{
+                return el.Errors[0].Error()
+        }</span>
+
+        <span class="cov3" title="3">var messages []string
+        for _, err := range el.Errors </span><span class="cov5" title="6">{
+                messages = append(messages, err.Error())
+        }</span>
+
+        <span class="cov3" title="3">return fmt.Sprintf("multiple errors: %s", strings.Join(messages, "; "))</span>
+}
+
+// First returns the first error in the list
+func (el *ErrorList) First() *AppError <span class="cov3" title="3">{
+        if len(el.Errors) &gt; 0 </span><span class="cov2" title="2">{
+                return el.Errors[0]
+        }</span>
+        <span class="cov1" title="1">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package logger
+
+import (
+        "context"
+        "os"
+        "sync"
+
+        pkgContext "template-golang/pkg/context"
+
+        "go.uber.org/zap"
+        "go.uber.org/zap/zapcore"
+)
+
+// Logger wraps zap.Logger with additional functionality
+type Logger struct {
+        *zap.Logger
+        sugar *zap.SugaredLogger
+}
+
+// Config holds logger configuration
+type Config struct {
+        Level       string   `mapstructure:"LOG_LEVEL"`        // debug, info, warn, error
+        Format      string   `mapstructure:"LOG_FORMAT"`       // json, console
+        Development bool     `mapstructure:"LOG_DEVELOPMENT"`  // development mode
+        OutputPaths []string `mapstructure:"LOG_OUTPUT_PATHS"` // output file paths
+}
+
+// DefaultConfig returns default logger configuration
+func DefaultConfig() *Config <span class="cov5" title="3">{
+        return &amp;Config{
+                Level:       "info",
+                Format:      "console",
+                Development: false,
+                OutputPaths: []string{"stdout"},
+        }
+}</span>
+
+var (
+        defaultLogger *Logger
+        once          sync.Once
+)
+
+// NewLogger creates a new logger instance
+func NewLogger(config *Config) (*Logger, error) <span class="cov6" title="4">{
+        if config == nil </span><span class="cov1" title="1">{
+                config = DefaultConfig()
+        }</span>
+
+        // Parse log level
+        <span class="cov6" title="4">level, err := zapcore.ParseLevel(config.Level)
+        if err != nil </span><span class="cov1" title="1">{
+                level = zapcore.InfoLevel
+        }</span>
+
+        // Configure encoder
+        <span class="cov6" title="4">var encoderConfig zapcore.EncoderConfig
+        if config.Development </span><span class="cov1" title="1">{
+                encoderConfig = zap.NewDevelopmentEncoderConfig()
+                encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+                encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+        }</span> else<span class="cov5" title="3"> {
+                encoderConfig = zap.NewProductionEncoderConfig()
+                encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+        }</span>
+
+        // Configure encoder format
+        <span class="cov6" title="4">var encoder zapcore.Encoder
+        if config.Format == "json" </span><span class="cov1" title="1">{
+                encoder = zapcore.NewJSONEncoder(encoderConfig)
+        }</span> else<span class="cov5" title="3"> {
+                encoder = zapcore.NewConsoleEncoder(encoderConfig)
+        }</span>
+
+        // Configure output - default to stdout
+        <span class="cov6" title="4">var outputs []zapcore.WriteSyncer
+        if len(config.OutputPaths) == 0 </span><span class="cov1" title="1">{
+                outputs = append(outputs, zapcore.AddSync(os.Stdout))
+        }</span> else<span class="cov5" title="3"> {
+                for _, path := range config.OutputPaths </span><span class="cov5" title="3">{
+                        switch path </span>{
+                        case "stderr":<span class="cov0" title="0">
+                                outputs = append(outputs, zapcore.AddSync(os.Stderr))</span>
+                        default:<span class="cov5" title="3">
+                                // For file paths, you would need to open the file
+                                // For now, fallback to stdout
+                                outputs = append(outputs, zapcore.AddSync(os.Stdout))</span>
+                        }
+                }
+        }
+
+        // Create core
+        <span class="cov6" title="4">core := zapcore.NewCore(
+                encoder,
+                zapcore.NewMultiWriteSyncer(outputs...),
+                level,
+        )
+
+        // Build logger
+        zapLogger := zap.New(core, zap.AddCaller(), zap.AddStacktrace(zapcore.ErrorLevel))
+
+        return &amp;Logger{
+                Logger: zapLogger,
+                sugar:  zapLogger.Sugar(),
+        }, nil</span>
+}
+
+// GetDefault returns the default logger instance (singleton)
+func GetDefault() *Logger <span class="cov10" title="10">{
+        once.Do(func() </span><span class="cov1" title="1">{
+                logger, err := NewLogger(DefaultConfig())
+                if err != nil </span><span class="cov0" title="0">{
+                        panic("failed to create default logger: " + err.Error())</span>
+                }
+                <span class="cov1" title="1">defaultLogger = logger</span>
+        })
+        <span class="cov10" title="10">return defaultLogger</span>
+}
+
+// SetDefault sets the default logger
+func SetDefault(logger *Logger) <span class="cov0" title="0">{
+        defaultLogger = logger
+}</span>
+
+// Sugar returns the sugared logger for formatted logging
+func (l *Logger) Sugar() *zap.SugaredLogger <span class="cov9" title="8">{
+        return l.sugar
+}</span>
+
+// WithContext adds context fields to the logger
+func (l *Logger) WithContext(ctx context.Context) *Logger <span class="cov1" title="1">{
+        logger := l.Logger
+
+        // Add request ID if available
+        if requestID := ctx.Value(pkgContext.RequestIDKey); requestID != nil </span><span class="cov1" title="1">{
+                logger = logger.With(zap.Any("request_id", requestID))
+        }</span>
+
+        // Add user ID if available
+        <span class="cov1" title="1">if userID := ctx.Value(pkgContext.UserIDKey); userID != nil </span><span class="cov1" title="1">{
+                logger = logger.With(zap.Any("user_id", userID))
+        }</span>
+
+        // Add trace ID if available
+        <span class="cov1" title="1">if traceID := ctx.Value(pkgContext.TraceIDKey); traceID != nil </span><span class="cov1" title="1">{
+                logger = logger.With(zap.Any("trace_id", traceID))
+        }</span>
+
+        <span class="cov1" title="1">return &amp;Logger{
+                Logger: logger,
+                sugar:  logger.Sugar(),
+        }</span>
+}
+
+// WithFields adds fields to the logger
+func (l *Logger) WithFields(fields map[string]interface{}) *Logger <span class="cov1" title="1">{
+        var zapFields []zap.Field
+        for key, value := range fields </span><span class="cov5" title="3">{
+                zapFields = append(zapFields, zap.Any(key, value))
+        }</span>
+
+        <span class="cov1" title="1">logger := l.With(zapFields...)
+        return &amp;Logger{
+                Logger: logger,
+                sugar:  logger.Sugar(),
+        }</span>
+}
+
+// WithField adds a single field to the logger
+func (l *Logger) WithField(key string, value interface{}) *Logger <span class="cov1" title="1">{
+        logger := l.With(zap.Any(key, value))
+        return &amp;Logger{
+                Logger: logger,
+                sugar:  logger.Sugar(),
+        }
+}</span>
+
+// WithError adds an error field to the logger
+func (l *Logger) WithError(err error) *Logger <span class="cov3" title="2">{
+        if err == nil </span><span class="cov1" title="1">{
+                return l
+        }</span>
+        <span class="cov1" title="1">logger := l.With(zap.Error(err))
+        return &amp;Logger{
+                Logger: logger,
+                sugar:  logger.Sugar(),
+        }</span>
+}
+
+// Sync flushes any buffered log entries
+func (l *Logger) Sync() error <span class="cov0" title="0">{
+        return l.Logger.Sync()
+}</span>
+
+// Global convenience functions using default logger
+func Debug(msg string, fields ...zap.Field) <span class="cov1" title="1">{
+        GetDefault().Debug(msg, fields...)
+}</span>
+
+func Info(msg string, fields ...zap.Field) <span class="cov1" title="1">{
+        GetDefault().Info(msg, fields...)
+}</span>
+
+func Warn(msg string, fields ...zap.Field) <span class="cov1" title="1">{
+        GetDefault().Warn(msg, fields...)
+}</span>
+
+func Error(msg string, fields ...zap.Field) <span class="cov1" title="1">{
+        GetDefault().Error(msg, fields...)
+}</span>
+
+func Fatal(msg string, fields ...zap.Field) <span class="cov0" title="0">{
+        GetDefault().Fatal(msg, fields...)
+}</span>
+
+func Panic(msg string, fields ...zap.Field) <span class="cov0" title="0">{
+        GetDefault().Panic(msg, fields...)
+}</span>
+
+// Formatted logging functions
+func Debugf(template string, args ...interface{}) <span class="cov1" title="1">{
+        GetDefault().Sugar().Debugf(template, args...)
+}</span>
+
+func Infof(template string, args ...interface{}) <span class="cov1" title="1">{
+        GetDefault().Sugar().Infof(template, args...)
+}</span>
+
+func Warnf(template string, args ...interface{}) <span class="cov1" title="1">{
+        GetDefault().Sugar().Warnf(template, args...)
+}</span>
+
+func Errorf(template string, args ...interface{}) <span class="cov1" title="1">{
+        GetDefault().Sugar().Errorf(template, args...)
+}</span>
+
+func Fatalf(template string, args ...interface{}) <span class="cov0" title="0">{
+        GetDefault().Sugar().Fatalf(template, args...)
+}</span>
+
+func Panicf(template string, args ...interface{}) <span class="cov0" title="0">{
+        GetDefault().Sugar().Panicf(template, args...)
+}</span>
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package response
+
+import (
+        "net/http"
+        "time"
+
+        "github.com/gin-gonic/gin"
+        pkgErrors "template-golang/pkg/errors"
+)
+
+// Response represents a standardized API response
+type Response struct {
+        Success   bool        `json:"success"`
+        Message   string      `json:"message,omitempty"`
+        Data      interface{} `json:"data,omitempty"`
+        Error     *ErrorInfo  `json:"error,omitempty"`
+        Meta      *Meta       `json:"meta,omitempty"`
+        Timestamp time.Time   `json:"timestamp"`
+}
+
+// ErrorInfo represents error information in the response
+type ErrorInfo struct {
+        Type    string                 `json:"type"`
+        Message string                 `json:"message"`
+        Details string                 `json:"details,omitempty"`
+        Context map[string]interface{} `json:"context,omitempty"`
+        Code    string                 `json:"code,omitempty"`
+}
+
+// Meta represents metadata for responses (pagination, etc.)
+type Meta struct {
+        Page       int `json:"page,omitempty"`
+        Limit      int `json:"limit,omitempty"`
+        Total      int `json:"total,omitempty"`
+        TotalPages int `json:"total_pages,omitempty"`
+}
+
+// PaginationRequest represents pagination parameters
+type PaginationRequest struct {
+        Page  int `json:"page" form:"page" validate:"min=1"`
+        Limit int `json:"limit" form:"limit" validate:"min=1,max=100"`
+}
+
+// DefaultPagination returns default pagination values
+func DefaultPagination() PaginationRequest <span class="cov3" title="2">{
+        return PaginationRequest{
+                Page:  1,
+                Limit: 10,
+        }
+}</span>
+
+// Offset calculates the offset for database queries
+func (p PaginationRequest) Offset() int <span class="cov5" title="3">{
+        return (p.Page - 1) * p.Limit
+}</span>
+
+// CalculateTotalPages calculates total pages based on total items
+func (p PaginationRequest) CalculateTotalPages(total int) int <span class="cov8" title="7">{
+        if p.Limit &lt;= 0 </span><span class="cov1" title="1">{
+                return 0
+        }</span>
+        <span class="cov8" title="6">return (total + p.Limit - 1) / p.Limit</span>
+}
+
+// ValidateAndDefault validates pagination request and sets defaults
+func (p *PaginationRequest) ValidateAndDefault() <span class="cov8" title="7">{
+        if p.Page &lt;= 0 </span><span class="cov3" title="2">{
+                p.Page = 1
+        }</span>
+        <span class="cov8" title="7">if p.Limit &lt;= 0 </span><span class="cov3" title="2">{
+                p.Limit = 10
+        }</span>
+        <span class="cov8" title="7">if p.Limit &gt; 100 </span><span class="cov1" title="1">{
+                p.Limit = 100
+        }</span>
+}
+
+// JSON sends a JSON response
+func JSON(c *gin.Context, statusCode int, data interface{}) <span class="cov8" title="7">{
+        response := Response{
+                Success:   statusCode &lt; 400,
+                Data:      data,
+                Timestamp: time.Now(),
+        }
+
+        c.JSON(statusCode, response)
+}</span>
+
+// Success sends a successful response
+func Success(c *gin.Context, data interface{}) <span class="cov6" title="4">{
+        JSON(c, http.StatusOK, data)
+}</span>
+
+// SuccessWithMessage sends a successful response with a message
+func SuccessWithMessage(c *gin.Context, message string, data interface{}) <span class="cov1" title="1">{
+        response := Response{
+                Success:   true,
+                Message:   message,
+                Data:      data,
+                Timestamp: time.Now(),
+        }
+
+        c.JSON(http.StatusOK, response)
+}</span>
+
+// Created sends a 201 Created response
+func Created(c *gin.Context, data interface{}) <span class="cov1" title="1">{
+        JSON(c, http.StatusCreated, data)
+}</span>
+
+// CreatedWithMessage sends a 201 Created response with a message
+func CreatedWithMessage(c *gin.Context, message string, data interface{}) <span class="cov1" title="1">{
+        response := Response{
+                Success:   true,
+                Message:   message,
+                Data:      data,
+                Timestamp: time.Now(),
+        }
+
+        c.JSON(http.StatusCreated, response)
+}</span>
+
+// NoContent sends a 204 No Content response
+func NoContent(c *gin.Context) <span class="cov1" title="1">{
+        c.Status(http.StatusNoContent)
+}</span>
+
+// Error sends an error response
+func Error(c *gin.Context, err error) <span class="cov10" title="10">{
+        var statusCode int
+        var errorInfo *ErrorInfo
+
+        // Handle AppError
+        if appErr, ok := err.(*pkgErrors.AppError); ok </span><span class="cov9" title="8">{
+                statusCode = appErr.StatusCode
+                errorInfo = &amp;ErrorInfo{
+                        Type:    string(appErr.Type),
+                        Message: appErr.Message,
+                        Details: appErr.Details,
+                        Context: appErr.Context,
+                }
+        }</span> else<span class="cov3" title="2"> {
+                // Handle regular errors
+                statusCode = http.StatusInternalServerError
+                errorInfo = &amp;ErrorInfo{
+                        Type:    "internal",
+                        Message: err.Error(),
+                }
+        }</span>
+
+        <span class="cov10" title="10">response := Response{
+                Success:   false,
+                Error:     errorInfo,
+                Timestamp: time.Now(),
+        }
+
+        c.JSON(statusCode, response)</span>
+}
+
+// ErrorWithCode sends an error response with a custom error code
+func ErrorWithCode(c *gin.Context, err error, code string) <span class="cov1" title="1">{
+        var statusCode int
+        var errorInfo *ErrorInfo
+
+        // Handle AppError
+        if appErr, ok := err.(*pkgErrors.AppError); ok </span><span class="cov1" title="1">{
+                statusCode = appErr.StatusCode
+                errorInfo = &amp;ErrorInfo{
+                        Type:    string(appErr.Type),
+                        Message: appErr.Message,
+                        Details: appErr.Details,
+                        Context: appErr.Context,
+                        Code:    code,
+                }
+        }</span> else<span class="cov0" title="0"> {
+                // Handle regular errors
+                statusCode = http.StatusInternalServerError
+                errorInfo = &amp;ErrorInfo{
+                        Type:    "internal",
+                        Message: err.Error(),
+                        Code:    code,
+                }
+        }</span>
+
+        <span class="cov1" title="1">response := Response{
+                Success:   false,
+                Error:     errorInfo,
+                Timestamp: time.Now(),
+        }
+
+        c.JSON(statusCode, response)</span>
+}
+
+// BadRequest sends a 400 Bad Request response
+func BadRequest(c *gin.Context, message string) <span class="cov1" title="1">{
+        err := pkgErrors.BadRequest(message)
+        Error(c, err)
+}</span>
+
+// Unauthorized sends a 401 Unauthorized response
+func Unauthorized(c *gin.Context, message string) <span class="cov1" title="1">{
+        err := pkgErrors.Unauthorized(message)
+        Error(c, err)
+}</span>
+
+// Forbidden sends a 403 Forbidden response
+func Forbidden(c *gin.Context, message string) <span class="cov1" title="1">{
+        err := pkgErrors.Forbidden(message)
+        Error(c, err)
+}</span>
+
+// NotFound sends a 404 Not Found response
+func NotFound(c *gin.Context, message string) <span class="cov1" title="1">{
+        err := pkgErrors.NotFound(message)
+        Error(c, err)
+}</span>
+
+// Conflict sends a 409 Conflict response
+func Conflict(c *gin.Context, message string) <span class="cov1" title="1">{
+        err := pkgErrors.Conflict(message)
+        Error(c, err)
+}</span>
+
+// InternalServerError sends a 500 Internal Server Error response
+func InternalServerError(c *gin.Context, message string) <span class="cov1" title="1">{
+        err := pkgErrors.Internal(message)
+        Error(c, err)
+}</span>
+
+// ValidationError sends a 400 Bad Request response for validation errors
+func ValidationError(c *gin.Context, errors *pkgErrors.ErrorList) <span class="cov1" title="1">{
+        var errorInfos []ErrorInfo
+        for _, err := range errors.Errors </span><span class="cov3" title="2">{
+                errorInfos = append(errorInfos, ErrorInfo{
+                        Type:    string(err.Type),
+                        Message: err.Message,
+                        Details: err.Details,
+                        Context: err.Context,
+                })
+        }</span>
+
+        <span class="cov1" title="1">response := Response{
+                Success: false,
+                Error: &amp;ErrorInfo{
+                        Type:    "validation",
+                        Message: "Validation failed",
+                        Context: map[string]interface{}{
+                                "errors": errorInfos,
+                        },
+                },
+                Timestamp: time.Now(),
+        }
+
+        c.JSON(http.StatusBadRequest, response)</span>
+}
+
+// Paginated sends a paginated response
+func Paginated(c *gin.Context, data interface{}, pagination PaginationRequest, total int) <span class="cov1" title="1">{
+        meta := &amp;Meta{
+                Page:       pagination.Page,
+                Limit:      pagination.Limit,
+                Total:      total,
+                TotalPages: pagination.CalculateTotalPages(total),
+        }
+
+        response := Response{
+                Success:   true,
+                Data:      data,
+                Meta:      meta,
+                Timestamp: time.Now(),
+        }
+
+        c.JSON(http.StatusOK, response)
+}</span>
+
+// PaginatedWithMessage sends a paginated response with a message
+func PaginatedWithMessage(c *gin.Context, message string, data interface{}, pagination PaginationRequest, total int) <span class="cov1" title="1">{
+        meta := &amp;Meta{
+                Page:       pagination.Page,
+                Limit:      pagination.Limit,
+                Total:      total,
+                TotalPages: pagination.CalculateTotalPages(total),
+        }
+
+        response := Response{
+                Success:   true,
+                Message:   message,
+                Data:      data,
+                Meta:      meta,
+                Timestamp: time.Now(),
+        }
+
+        c.JSON(http.StatusOK, response)
+}</span>
+
+// GetPaginationFromContext extracts pagination parameters from Gin context
+func GetPaginationFromContext(c *gin.Context) PaginationRequest <span class="cov1" title="1">{
+        pagination := DefaultPagination()
+
+        if err := c.ShouldBindQuery(&amp;pagination); err == nil </span><span class="cov1" title="1">{
+                pagination.ValidateAndDefault()
+        }</span>
+
+        <span class="cov1" title="1">return pagination</span>
+}
+
+// BindAndValidate binds request data and validates it
+func BindAndValidate(c *gin.Context, obj interface{}) error <span class="cov3" title="2">{
+        if err := c.ShouldBindJSON(obj); err != nil </span><span class="cov1" title="1">{
+                return pkgErrors.BadRequest("Invalid request format: " + err.Error())
+        }</span>
+
+        // Add validation logic here if needed
+        <span class="cov1" title="1">return nil</span>
+}
+
+// BindQueryAndValidate binds query parameters and validates them
+func BindQueryAndValidate(c *gin.Context, obj interface{}) error <span class="cov1" title="1">{
+        if err := c.ShouldBindQuery(obj); err != nil </span><span class="cov0" title="0">{
+                return pkgErrors.BadRequest("Invalid query parameters: " + err.Error())
+        }</span>
+
+        // Add validation logic here if needed
+        <span class="cov1" title="1">return nil</span>
+}
+
+// Middleware for error handling
+func ErrorHandler() gin.HandlerFunc <span class="cov1" title="1">{
+        return func(c *gin.Context) </span><span class="cov1" title="1">{
+                c.Next()
+
+                // Check if there are any errors
+                if len(c.Errors) &gt; 0 </span><span class="cov1" title="1">{
+                        // Get the last error
+                        err := c.Errors.Last().Err
+
+                        // If response hasn't been written yet, send error response
+                        if !c.Writer.Written() </span><span class="cov1" title="1">{
+                                Error(c, err)
+                        }</span>
+                }
+        }
+}
+
+// CORS middleware
+func CORS() gin.HandlerFunc <span class="cov3" title="2">{
+        return func(c *gin.Context) </span><span class="cov3" title="2">{
+                c.Header("Access-Control-Allow-Origin", "*")
+                c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+                c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization, X-Requested-With")
+                c.Header("Access-Control-Expose-Headers", "Content-Length")
+                c.Header("Access-Control-Allow-Credentials", "true")
+
+                if c.Request.Method == "OPTIONS" </span><span class="cov1" title="1">{
+                        c.AbortWithStatus(http.StatusNoContent)
+                        return
+                }</span>
+
+                <span class="cov1" title="1">c.Next()</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package validator
+
+import (
+        "fmt"
+        "reflect"
+        "regexp"
+        "strings"
+        "sync"
+
+        pkgErrors "template-golang/pkg/errors"
+
+        "github.com/go-playground/validator/v10"
+)
+
+// Validator wraps the go-playground/validator with additional functionality
+type Validator struct {
+        validate *validator.Validate
+}
+
+// ValidationError represents a single validation error with context
+type ValidationError struct {
+        Field   string      `json:"field"`
+        Tag     string      `json:"tag"`
+        Value   interface{} `json:"value,omitempty"`
+        Message string      `json:"message"`
+        Param   string      `json:"param,omitempty"`
+}
+
+// New creates a new validator instance
+func New() (*Validator, error) <span class="cov6" title="11">{
+        validate := validator.New()
+
+        // Register custom tag name function to use JSON tags
+        validate.RegisterTagNameFunc(func(fld reflect.StructField) string </span><span class="cov9" title="43">{
+                name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
+                if name == "-" </span><span class="cov0" title="0">{
+                        return ""
+                }</span>
+                <span class="cov9" title="43">return name</span>
+        })
+
+        // Register custom validators
+        <span class="cov6" title="11">if err := registerCustomValidators(validate); err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to register custom validators: %w", err)
+        }</span>
+
+        <span class="cov6" title="11">return &amp;Validator{
+                validate: validate,
+        }, nil</span>
+}
+
+// Validate validates a struct and returns detailed error information
+func (v *Validator) Validate(s interface{}) error <span class="cov6" title="14">{
+        if err := v.validate.Struct(s); err != nil </span><span class="cov6" title="12">{
+                var validationErrors []ValidationError
+
+                for _, err := range err.(validator.ValidationErrors) </span><span class="cov10" title="54">{
+                        validationErrors = append(validationErrors, ValidationError{
+                                Field:   err.Field(),
+                                Tag:     err.Tag(),
+                                Value:   err.Value(),
+                                Message: getErrorMessage(err),
+                                Param:   err.Param(),
+                        })
+                }</span>
+
+                // Create error list
+                <span class="cov6" title="12">errorList := pkgErrors.NewErrorList()
+                for _, vErr := range validationErrors </span><span class="cov10" title="54">{
+                        errorList.AddValidation(vErr.Field, vErr.Message)
+                }</span>
+
+                <span class="cov6" title="12">return errorList</span>
+        }
+
+        <span class="cov2" title="2">return nil</span>
+}
+
+// ValidateVar validates a single variable
+func (v *Validator) ValidateVar(field interface{}, tag string) error <span class="cov9" title="40">{
+        return v.validate.Var(field, tag)
+}</span>
+
+// RegisterValidation registers a custom validation function
+func (v *Validator) RegisterValidation(tag string, fn validator.Func, callValidationEvenIfNull ...bool) error <span class="cov0" title="0">{
+        return v.validate.RegisterValidation(tag, fn, callValidationEvenIfNull...)
+}</span>
+
+// RegisterAlias registers an alias for a validation tag
+func (v *Validator) RegisterAlias(alias, tags string) <span class="cov0" title="0">{
+        v.validate.RegisterAlias(alias, tags)
+}</span>
+
+// getErrorMessage returns a human-readable error message for validation errors
+func getErrorMessage(fe validator.FieldError) string <span class="cov10" title="54">{
+        switch fe.Tag() </span>{
+        case "required":<span class="cov4" title="4">
+                return "This field is required"</span>
+        case "email":<span class="cov2" title="2">
+                return "Must be a valid email address"</span>
+        case "min":<span class="cov2" title="2">
+                if fe.Kind() == reflect.String </span><span class="cov2" title="2">{
+                        return fmt.Sprintf("Must be at least %s characters long", fe.Param())
+                }</span>
+                <span class="cov0" title="0">return fmt.Sprintf("Must be at least %s", fe.Param())</span>
+        case "max":<span class="cov2" title="2">
+                if fe.Kind() == reflect.String </span><span class="cov2" title="2">{
+                        return fmt.Sprintf("Must be at most %s characters long", fe.Param())
+                }</span>
+                <span class="cov0" title="0">return fmt.Sprintf("Must be at most %s", fe.Param())</span>
+        case "len":<span class="cov0" title="0">
+                if fe.Kind() == reflect.String </span><span class="cov0" title="0">{
+                        return fmt.Sprintf("Must be exactly %s characters long", fe.Param())
+                }</span>
+                <span class="cov0" title="0">return fmt.Sprintf("Must be exactly %s", fe.Param())</span>
+        case "alpha":<span class="cov0" title="0">
+                return "Must contain only alphabetic characters"</span>
+        case "alphanum":<span class="cov0" title="0">
+                return "Must contain only alphanumeric characters"</span>
+        case "numeric":<span class="cov0" title="0">
+                return "Must be a valid number"</span>
+        case "url":<span class="cov0" title="0">
+                return "Must be a valid URL"</span>
+        case "uuid":<span class="cov0" title="0">
+                return "Must be a valid UUID"</span>
+        case "uuid4":<span class="cov0" title="0">
+                return "Must be a valid UUID v4"</span>
+        case "oneof":<span class="cov0" title="0">
+                return fmt.Sprintf("Must be one of: %s", fe.Param())</span>
+        case "gt":<span class="cov0" title="0">
+                return fmt.Sprintf("Must be greater than %s", fe.Param())</span>
+        case "gte":<span class="cov0" title="0">
+                return fmt.Sprintf("Must be greater than or equal to %s", fe.Param())</span>
+        case "lt":<span class="cov0" title="0">
+                return fmt.Sprintf("Must be less than %s", fe.Param())</span>
+        case "lte":<span class="cov0" title="0">
+                return fmt.Sprintf("Must be less than or equal to %s", fe.Param())</span>
+        case "eqfield":<span class="cov0" title="0">
+                return fmt.Sprintf("Must be equal to %s", fe.Param())</span>
+        case "nefield":<span class="cov0" title="0">
+                return fmt.Sprintf("Must not be equal to %s", fe.Param())</span>
+        case "password_strength":<span class="cov6" title="11">
+                return "Password must contain at least 8 characters with uppercase, lowercase, number and special character"</span>
+        case "phone":<span class="cov6" title="11">
+                return "Must be a valid phone number"</span>
+        case "slug":<span class="cov6" title="11">
+                return "Must be a valid slug (alphanumeric and hyphens only)"</span>
+        case "no_spaces":<span class="cov0" title="0">
+                return "Must not contain spaces"</span>
+        case "username":<span class="cov6" title="11">
+                return "Must be a valid username (3-30 characters, alphanumeric and underscores only)"</span>
+        default:<span class="cov0" title="0">
+                return fmt.Sprintf("Validation failed for '%s'", fe.Tag())</span>
+        }
+}
+
+// registerCustomValidators registers custom validation functions
+func registerCustomValidators(validate *validator.Validate) error <span class="cov6" title="11">{
+        // Password strength validator
+        if err := validate.RegisterValidation("password_strength", func(fl validator.FieldLevel) bool </span><span class="cov7" title="22">{
+                password := fl.Field().String()
+                if len(password) &lt; 8 </span><span class="cov6" title="12">{
+                        return false
+                }</span>
+
+                <span class="cov6" title="10">hasUpper := regexp.MustCompile(`[A-Z]`).MatchString(password)
+                hasLower := regexp.MustCompile(`[a-z]`).MatchString(password)
+                hasNumber := regexp.MustCompile(`\d`).MatchString(password)
+                hasSpecial := regexp.MustCompile(`[!@#$%^&amp;*()_+\-=\[\]{};':"\\|,.&lt;&gt;\/?]`).MatchString(password)
+
+                return hasUpper &amp;&amp; hasLower &amp;&amp; hasNumber &amp;&amp; hasSpecial</span>
+        }); err != nil <span class="cov0" title="0">{
+                return fmt.Errorf("failed to register password_strength validator: %w", err)
+        }</span>
+
+        // Phone number validator (basic)
+        <span class="cov6" title="11">if err := validate.RegisterValidation("phone", func(fl validator.FieldLevel) bool </span><span class="cov7" title="19">{
+                phone := fl.Field().String()
+                // Require at least 7 digits, max 15 (international standard)
+                phoneRegex := regexp.MustCompile(`^\+?[1-9]\d{6,14}$`)
+                return phoneRegex.MatchString(phone)
+        }</span>); err != nil <span class="cov0" title="0">{
+                return fmt.Errorf("failed to register phone validator: %w", err)
+        }</span>
+
+        // Slug validator
+        <span class="cov6" title="11">if err := validate.RegisterValidation("slug", func(fl validator.FieldLevel) bool </span><span class="cov7" title="19">{
+                slug := fl.Field().String()
+                slugRegex := regexp.MustCompile(`^[a-z0-9]+(?:-[a-z0-9]+)*$`)
+                return slugRegex.MatchString(slug)
+        }</span>); err != nil <span class="cov0" title="0">{
+                return fmt.Errorf("failed to register slug validator: %w", err)
+        }</span>
+
+        // No spaces validator
+        <span class="cov6" title="11">if err := validate.RegisterValidation("no_spaces", func(fl validator.FieldLevel) bool </span><span class="cov7" title="15">{
+                value := fl.Field().String()
+                return !strings.Contains(value, " ")
+        }</span>); err != nil <span class="cov0" title="0">{
+                return fmt.Errorf("failed to register no_spaces validator: %w", err)
+        }</span>
+
+        // Username validator
+        <span class="cov6" title="11">if err := validate.RegisterValidation("username", func(fl validator.FieldLevel) bool </span><span class="cov7" title="20">{
+                username := fl.Field().String()
+                if len(username) &lt; 3 || len(username) &gt; 30 </span><span class="cov6" title="14">{
+                        return false
+                }</span>
+                <span class="cov5" title="6">usernameRegex := regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
+                return usernameRegex.MatchString(username)</span>
+        }); err != nil <span class="cov0" title="0">{
+                return fmt.Errorf("failed to register username validator: %w", err)
+        }</span>
+
+        <span class="cov6" title="11">return nil</span>
+}
+
+// Global validator instance
+var (
+        globalValidator *Validator
+        globalOnce      sync.Once
+)
+
+// SetGlobalValidator sets the global validator instance
+func SetGlobalValidator(v *Validator) <span class="cov1" title="1">{
+        globalValidator = v
+}</span>
+
+// GetGlobalValidator returns the global validator instance
+func GetGlobalValidator() *Validator <span class="cov8" title="24">{
+        globalOnce.Do(func() </span><span class="cov3" title="3">{
+                if globalValidator == nil </span><span class="cov2" title="2">{
+                        var err error
+                        globalValidator, err = New()
+                        if err != nil </span><span class="cov0" title="0">{
+                                panic(fmt.Sprintf("failed to create global validator: %v", err))</span>
+                        }
+                }
+        })
+        <span class="cov8" title="24">return globalValidator</span>
+}
+
+// Validate validates using the global validator
+func Validate(s interface{}) error <span class="cov4" title="5">{
+        return GetGlobalValidator().Validate(s)
+}</span>
+
+// ValidateVar validates a variable using the global validator
+func ValidateVar(field interface{}, tag string) error <span class="cov7" title="16">{
+        return GetGlobalValidator().ValidateVar(field, tag)
+}</span>
+
+// ValidateStruct validates a struct and returns a structured error
+func ValidateStruct(s interface{}) *pkgErrors.ErrorList <span class="cov1" title="1">{
+        if err := Validate(s); err != nil </span><span class="cov1" title="1">{
+                if errorList, ok := err.(*pkgErrors.ErrorList); ok </span><span class="cov1" title="1">{
+                        return errorList
+                }</span>
+
+                // If not an ErrorList, create one
+                <span class="cov0" title="0">errorList := pkgErrors.NewErrorList()
+                errorList.Add(pkgErrors.Validation(err.Error()))
+                return errorList</span>
+        }
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+// MustValidate validates and panics on validation error
+func MustValidate(s interface{}) <span class="cov2" title="2">{
+        if err := Validate(s); err != nil </span><span class="cov1" title="1">{
+                panic(fmt.Sprintf("validation failed: %v", err))</span>
+        }
+}
+
+// IsValidEmail checks if a string is a valid email
+func IsValidEmail(email string) bool <span class="cov2" title="2">{
+        return ValidateVar(email, "email") == nil
+}</span>
+
+// IsValidURL checks if a string is a valid URL
+func IsValidURL(url string) bool <span class="cov2" title="2">{
+        return ValidateVar(url, "url") == nil
+}</span>
+
+// IsValidUUID checks if a string is a valid UUID
+func IsValidUUID(uuid string) bool <span class="cov2" title="2">{
+        return ValidateVar(uuid, "uuid") == nil
+}</span>
+
+// IsValidPhone checks if a string is a valid phone number
+func IsValidPhone(phone string) bool <span class="cov2" title="2">{
+        return ValidateVar(phone, "phone") == nil
+}</span>
+
+// IsValidSlug checks if a string is a valid slug
+func IsValidSlug(slug string) bool <span class="cov2" title="2">{
+        return ValidateVar(slug, "slug") == nil
+}</span>
+
+// IsValidUsername checks if a string is a valid username
+func IsValidUsername(username string) bool <span class="cov2" title="2">{
+        return ValidateVar(username, "username") == nil
+}</span>
+
+// IsStrongPassword checks if a password meets strength requirements
+func IsStrongPassword(password string) bool <span class="cov2" title="2">{
+        return ValidateVar(password, "password_strength") == nil
+}</span>
+
+// Common validation tags as constants
+const (
+        Required         = "required"
+        Email            = "email"
+        Min              = "min"
+        Max              = "max"
+        Len              = "len"
+        Alpha            = "alpha"
+        Alphanum         = "alphanum"
+        Numeric          = "numeric"
+        URL              = "url"
+        UUID             = "uuid"
+        UUID4            = "uuid4"
+        OneOf            = "oneof"
+        GreaterThan      = "gt"
+        GreaterThanEq    = "gte"
+        LessThan         = "lt"
+        LessThanEq       = "lte"
+        EqualField       = "eqfield"
+        NotEqualField    = "nefield"
+        PasswordStrength = "password_strength"
+        Phone            = "phone"
+        Slug             = "slug"
+        NoSpaces         = "no_spaces"
+        Username         = "username"
+)
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

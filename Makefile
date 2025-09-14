@@ -95,12 +95,23 @@ test.all:
 	@GIN_MODE=test make test
 	@GIN_MODE=test make integration.test
 
+# Unit test coverage
+tc.unit test.cov.unit:
+	@go test -covermode=atomic -coverprofile=covprofile-unit.out -short $$(go list ./... | grep -v '/mock' | grep -v '/tests/integration') || true
+	@if [ -f covprofile-unit.out ]; then go tool cover -html=covprofile-unit.out -o covprofile-unit.html; fi
+
+# Integration test coverage  
+tc.integration test.cov.integration:
+	@go test -covermode=atomic -coverprofile=covprofile-integration.out ./tests/integration/... || true
+	@if [ -f covprofile-integration.out ]; then go tool cover -html=covprofile-integration.out -o covprofile-integration.html; fi
+
+# Combined coverage (legacy)
 tc test.cov:
-	@go test -covermode=atomic -coverprofile=covprofile.out -v $$(go list ./... | grep -v '/mocks')
-	@go tool cover -html=covprofile.out
+	@go test -covermode=atomic -coverprofile=covprofile.out $$(go list ./... | grep -v '/mock')
+	@if [ -f covprofile.out ]; then go tool cover -html=covprofile.out; fi
 
 c clean:
-	rm -f covprofile.out covprofile.xml covprofile.html
+	rm -f covprofile*.out covprofile*.xml covprofile*.html
 	rm -rf tmp
 
 lint:

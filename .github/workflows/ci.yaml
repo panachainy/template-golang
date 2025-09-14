@@ -43,9 +43,7 @@ jobs:
           EOF
 
       - name: Generate test keys
-        run: |
-          openssl ecparam -name prime256v1 -genkey -noout -out ecdsa_private_key.pem
-          openssl ec -in ecdsa_private_key.pem -pubout -out ecdsa_public_key.pem
+        run: make auth.newkey
 
       - name: Run unit tests
         run: |

@@ -5,10 +5,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"go.uber.org/mock/gomock"
 )
 
-func setupJWTUsecase(t *testing.T, ctrl *gomock.Controller) JWTUsecase {
+func setupJWTUsecase(t *testing.T) JWTUsecase {
 	conf := &config.Config{
 		Auth: config.AuthConfig{
 			PrivateKeyPath: "../../../config/ecdsa_private_key_test.pem",
@@ -19,10 +18,7 @@ func setupJWTUsecase(t *testing.T, ctrl *gomock.Controller) JWTUsecase {
 }
 
 func TestGenerateJWT(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	jwtUsecase := setupJWTUsecase(t, ctrl)
+	jwtUsecase := setupJWTUsecase(t)
 
 	userID := "test-user-123"
 	token, err := jwtUsecase.GenerateJWT(userID)
@@ -32,10 +28,7 @@ func TestGenerateJWT(t *testing.T) {
 }
 
 func TestValidateJWT_ValidToken(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	jwtUsecase := setupJWTUsecase(t, ctrl)
+	jwtUsecase := setupJWTUsecase(t)
 
 	// Generate a valid token first
 	userID := "test-user-123"
@@ -51,10 +44,7 @@ func TestValidateJWT_ValidToken(t *testing.T) {
 }
 
 func TestValidateJWT_InvalidToken(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	jwtUsecase := setupJWTUsecase(t, ctrl)
+	jwtUsecase := setupJWTUsecase(t)
 
 	// Test with invalid token
 	_, err := jwtUsecase.ValidateJWT("invalid-token")

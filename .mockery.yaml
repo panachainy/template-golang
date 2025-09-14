@@ -1,6 +1,6 @@
 all: false
 dir: '{{.InterfaceDir}}/mocks'
-filename: '{{.InterfaceName|snakecase}}_mock.go'
+filename: 'mock_{{.InterfaceName|snakecase}}.go'
 force-file-write: true
 formatter: goimports
 include-auto-generated: true
@@ -8,10 +8,14 @@ log-level: info
 structname: 'Mock{{.InterfaceName}}'
 pkgname: 'mocks'
 recursive: true
-require-template-schema-exists: true
 template: testify
-template-schema: '{{.Template}}.schema.json'
 packages:
-  github.com/nocnoc-thailand/rp-authentication-service/internal:
-    config:
-      all: true
+  template-golang/modules/auth/usecases:
+    interfaces:
+      JWTUsecase:
+  template-golang/modules/auth/middlewares:
+    interfaces:
+      AuthMiddleware:
+  template-golang/modules/cockroach/usecases:
+    interfaces:
+      CockroachUsecase:

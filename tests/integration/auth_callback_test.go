@@ -103,8 +103,8 @@ func TestAuthHandler_AuthCallback_Integration(t *testing.T) {
 			router.ServeHTTP(w, req)
 
 			if tt.name == "AuthCallback without provider" {
-				// This should hit a 404 because the route pattern doesn't match
-				assert.Equal(t, http.StatusNotFound, w.Code)
+				// The route pattern matches but provider is empty, so handler returns 400
+				assert.Equal(t, http.StatusBadRequest, w.Code)
 			} else {
 				// For other cases, we expect either unauthorized or some error from Gothic
 				// since we don't have proper OAuth setup

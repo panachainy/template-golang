@@ -154,6 +154,9 @@ func runMigrations(t *testing.T, dsn string) {
 func SetupTestConfig(t *testing.T) *config.Config {
 	t.Helper()
 
+	// Set session secret for Goth/Gothic
+	os.Setenv("SESSION_SECRET", "test_session_secret_123456789")
+
 	dbConfig := DefaultTestDBConfig()
 	
 	return &config.Config{

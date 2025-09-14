@@ -86,8 +86,8 @@ func TestAuthHandler_Logout_Integration(t *testing.T) {
 			router.ServeHTTP(w, req)
 
 			if tt.name == "Logout without provider" {
-				// This should hit a 404 because the route pattern doesn't match
-				assert.Equal(t, http.StatusNotFound, w.Code)
+				// The route pattern matches but provider is empty, so handler returns 400
+				assert.Equal(t, http.StatusBadRequest, w.Code)
 			} else {
 				// For valid providers, logout should complete successfully
 				// even if there's no active session to logout from

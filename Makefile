@@ -117,7 +117,8 @@ g generate:
 	@go generate ./...
 	@echo 'Generating sqlc code...'
 	@go run github.com/sqlc-dev/sqlc/cmd/sqlc generate
-	@go tool mockery --config .mockery.yaml
+	@echo 'Generating mocks with mockery...'
+	@go run github.com/vektra/mockery/v3 --config .mockery.yaml
 	@go tool swag init -g cmd/api/main.go
 
 b build:

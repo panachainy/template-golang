@@ -9,21 +9,17 @@ import (
 	"template-golang/config"
 	authMocks "template-golang/modules/auth/middlewares/mocks"
 	"template-golang/modules/auth/models"
-	jwtMock "template-golang/modules/auth/usecases/mock"
+	jwtMocks "template-golang/modules/auth/usecases/mocks"
 	"testing"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
-	"go.uber.org/mock/gomock"
 )
 
 func TestNewAuthHttpHandler(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockJWTUsecase := jwtMock.NewMockJWTUsecase(ctrl)
-	mockAuthMiddleware := authMocks.NewMockAuthMiddleware(ctrl)
+	mockJWTUsecase := jwtMocks.NewMockJWTUsecase(t)
+	mockAuthMiddleware := authMocks.NewMockAuthMiddleware(t)
 
 	conf := &config.Config{
 		Auth: config.AuthConfig{
@@ -64,10 +60,7 @@ func TestAuthHttpHandler_Login(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Setup
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
-
-			mockJWTUsecase := jwtMock.NewMockJWTUsecase(ctrl)
+			mockJWTUsecase := jwtMocks.NewMockJWTUsecase(t)
 			conf := &config.Config{
 				Auth: config.AuthConfig{
 					LineClientID:      "test-client-id",
@@ -110,14 +103,14 @@ func TestAuthHttpHandler_AuthCallback(t *testing.T) {
 	tests := []struct {
 		name           string
 		provider       string
-		setupMocks     func(*jwtMock.MockJWTUsecase)
+		setupMocks     func(*jwtMocks.MockJWTUsecase)
 		expectedStatus int
 		checkResponse  func(*testing.T, *httptest.ResponseRecorder)
 	}{
 		{
 			name:     "missing provider parameter",
 			provider: "",
-			setupMocks: func(m *jwtMock.MockJWTUsecase) {
+			setupMocks: func(m *jwtMocks.MockJWTUsecase) {
 				// No mock calls expected
 			},
 			expectedStatus: http.StatusBadRequest,
@@ -131,8 +124,8 @@ func TestAuthHttpHandler_AuthCallback(t *testing.T) {
 		{
 			name:     "JWT generation fails",
 			provider: "line",
-			setupMocks: func(m *jwtMock.MockJWTUsecase) {
-				m.EXPECT().GenerateJWT("test-user-id").Return("", errors.New("jwt generation failed"))
+			setupMocks: func(m *jwtMocks.MockJWTUsecase) {
+				m.On("GenerateJWT", "test-user-id").Return("", errors.New("jwt generation failed"))
 			},
 			expectedStatus: http.StatusInternalServerError,
 			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
@@ -145,8 +138,8 @@ func TestAuthHttpHandler_AuthCallback(t *testing.T) {
 		{
 			name:     "successful JWT generation",
 			provider: "line",
-			setupMocks: func(m *jwtMock.MockJWTUsecase) {
-				m.EXPECT().GenerateJWT("test-user-id").Return("test-jwt-token", nil)
+			setupMocks: func(m *jwtMocks.MockJWTUsecase) {
+				m.On("GenerateJWT", "test-user-id").Return("test-jwt-token", nil)
 			},
 			expectedStatus: http.StatusFound,
 			checkResponse: func(t *testing.T, w *httptest.ResponseRecorder) {
@@ -165,10 +158,7 @@ func TestAuthHttpHandler_AuthCallback(t *testing.T) {
 			}
 
 			// Setup
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
-
-			mockJWTUsecase := jwtMock.NewMockJWTUsecase(ctrl)
+			mockJWTUsecase := jwtMocks.NewMockJWTUsecase(t)
 			tt.setupMocks(mockJWTUsecase)
 
 			conf := &config.Config{
@@ -232,10 +222,7 @@ func TestAuthHttpHandler_Logout(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Setup
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
-
-			mockJWTUsecase := jwtMock.NewMockJWTUsecase(ctrl)
+			mockJWTUsecase := jwtMocks.NewMockJWTUsecase(t)
 			conf := &config.Config{
 				Auth: config.AuthConfig{
 					LineClientID:      "test-client-id",
@@ -276,10 +263,7 @@ func TestAuthHttpHandler_Logout(t *testing.T) {
 
 func TestAuthHttpHandler_Routes(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockJWTUsecase := jwtMock.NewMockJWTUsecase(ctrl)
+	mockJWTUsecase := jwtMocks.NewMockJWTUsecase(t)
 	conf := &config.Config{
 		Auth: config.AuthConfig{
 			LineClientID:      "test-client-id",
@@ -289,14 +273,14 @@ func TestAuthHttpHandler_Routes(t *testing.T) {
 		},
 	}
 
-	mockAuthMiddleware := authMocks.NewMockAuthMiddleware(ctrl)
+	mockAuthMiddleware := authMocks.NewMockAuthMiddleware(t)
 	// Set up expectation for authMiddleware.Handle() to be called
-	mockAuthMiddleware.EXPECT().Handle().Return(gin.HandlerFunc(func(c *gin.Context) {
+	mockAuthMiddleware.On("Handle").Return(gin.HandlerFunc(func(c *gin.Context) {
 		c.Next()
-	})).AnyTimes()
-	mockAuthMiddleware.EXPECT().Allows([]models.Role{models.RoleAdmin}).Return(gin.HandlerFunc(func(c *gin.Context) {
+	}))
+	mockAuthMiddleware.On("Allows", []models.Role{models.RoleAdmin}).Return(gin.HandlerFunc(func(c *gin.Context) {
 		c.Next()
-	})).AnyTimes()
+	}))
 
 	handler := &authHttpHandler{
 		jwtUsecase:     mockJWTUsecase,

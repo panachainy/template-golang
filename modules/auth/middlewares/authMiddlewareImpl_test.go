@@ -6,13 +6,12 @@ import (
 	"net/http/httptest"
 	"template-golang/modules/auth/models"
 	"template-golang/modules/auth/usecases"
-	"template-golang/modules/auth/usecases/mock"
+	"template-golang/modules/auth/usecases/mocks"
 	"testing"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
-	"go.uber.org/mock/gomock"
 )
 
 func setupTestMiddleware(jwtUsecase usecases.JWTUsecase) (*gin.Engine, gin.HandlerFunc) {
@@ -35,10 +34,7 @@ func setupTestMiddleware(jwtUsecase usecases.JWTUsecase) (*gin.Engine, gin.Handl
 }
 
 func TestAuthMiddleware_ValidToken(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockJWT := mock.NewMockJWTUsecase(ctrl)
+	mockJWT := mocks.NewMockJWTUsecase(t)
 	router, _ := setupTestMiddleware(mockJWT)
 
 	// Mock successful token validation
@@ -49,7 +45,7 @@ func TestAuthMiddleware_ValidToken(t *testing.T) {
 		Claims:   jwt.MapClaims{"sub": "test-user-123"},
 		UserID:   "test-user-123",
 	}
-	mockJWT.EXPECT().ValidateJWT("valid-token").Return(mockResult, nil)
+	mockJWT.On("ValidateJWT", "valid-token").Return(mockResult, nil)
 
 	// Create request with valid Bearer token
 	w := httptest.NewRecorder()
@@ -67,10 +63,7 @@ func TestAuthMiddleware_ValidToken(t *testing.T) {
 }
 
 func TestAuthMiddleware_MissingAuthorizationHeader(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockJWT := mock.NewMockJWTUsecase(ctrl)
+	mockJWT := mocks.NewMockJWTUsecase(t)
 	router, _ := setupTestMiddleware(mockJWT)
 
 	// Create request without Authorization header
@@ -88,10 +81,7 @@ func TestAuthMiddleware_MissingAuthorizationHeader(t *testing.T) {
 }
 
 func TestAuthMiddleware_InvalidAuthorizationFormat(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockJWT := mock.NewMockJWTUsecase(ctrl)
+	mockJWT := mocks.NewMockJWTUsecase(t)
 	router, _ := setupTestMiddleware(mockJWT)
 
 	tests := []struct {
@@ -135,10 +125,7 @@ func TestAuthMiddleware_InvalidAuthorizationFormat(t *testing.T) {
 }
 
 func TestAuthMiddleware_ExpiredToken(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockJWT := mock.NewMockJWTUsecase(ctrl)
+	mockJWT := mocks.NewMockJWTUsecase(t)
 	router, _ := setupTestMiddleware(mockJWT)
 
 	// Mock expired token validation
@@ -149,7 +136,7 @@ func TestAuthMiddleware_ExpiredToken(t *testing.T) {
 		Claims:   nil,
 		UserID:   "",
 	}
-	mockJWT.EXPECT().ValidateJWT("expired-token").Return(mockResult, nil)
+	mockJWT.On("ValidateJWT", "expired-token").Return(mockResult, nil)
 
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "/protected", nil)
@@ -166,10 +153,7 @@ func TestAuthMiddleware_ExpiredToken(t *testing.T) {
 }
 
 func TestAuthMiddleware_InvalidToken(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockJWT := mock.NewMockJWTUsecase(ctrl)
+	mockJWT := mocks.NewMockJWTUsecase(t)
 	router, _ := setupTestMiddleware(mockJWT)
 
 	// Mock invalid token validation
@@ -180,7 +164,7 @@ func TestAuthMiddleware_InvalidToken(t *testing.T) {
 		Claims:   nil,
 		UserID:   "",
 	}
-	mockJWT.EXPECT().ValidateJWT("invalid-token").Return(mockResult, nil)
+	mockJWT.On("ValidateJWT", "invalid-token").Return(mockResult, nil)
 
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "/protected", nil)

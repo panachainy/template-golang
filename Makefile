@@ -27,6 +27,36 @@ setup:
 tidy:
 	go mod tidy -v
 
+c clean:
+	rm -f covprofile*.out covprofile*.xml covprofile*.html
+	rm -rf tmp
+
+lint:
+	go vet ./...
+	go mod tidy
+	go fmt ./...
+	go tool gosec ./...
+	go tool golangci-lint run
+
+f fmt:
+	go fmt ./...
+
+g generate:
+	@go generate ./...
+	@echo 'Generating sqlc code...'
+	@go run github.com/sqlc-dev/sqlc/cmd/sqlc generate
+	@echo 'Generating mocks with mockery...'
+	@go run github.com/vektra/mockery/v3 --config .mockery.yaml
+	@go tool swag init -g cmd/api/main.go
+
+b build:
+	go build -o apiserver ./api/cmd
+
+# auth
+auth.newkey:
+	openssl ecparam -name prime256v1 -genkey -noout -out ecdsa_private_key.pem
+	openssl ec -in ecdsa_private_key.pem -pubout -out ecdsa_public_key.pem
+
 ## ============ Database Migrations ============
 
 # Database connection string for migrate CLI
@@ -95,35 +125,17 @@ test.all:
 	@GIN_MODE=test make test
 	@GIN_MODE=test make integration.test
 
+# Unit test coverage
+tc.unit test.cov.unit:
+	@go test -covermode=atomic -coverprofile=covprofile-unit.out -short $$(go list ./... | grep -v '/mock' | grep -v '/tests/integration') || true
+	@if [ -f covprofile-unit.out ]; then go tool cover -html=covprofile-unit.out -o covprofile-unit.html; fi
+
+# Integration test coverage
+tc.integration test.cov.integration:
+	@go test -covermode=atomic -coverprofile=covprofile-integration.out ./tests/integration/... || true
+	@if [ -f covprofile-integration.out ]; then go tool cover -html=covprofile-integration.out -o covprofile-integration.html; fi
+
+# Combined coverage (legacy)
 tc test.cov:
-	@go test -covermode=atomic -coverprofile=covprofile.out -v $$(go list ./... | grep -v '/mocks')
-	@go tool cover -html=covprofile.out
-
-c clean:
-	rm -f covprofile.out covprofile.xml covprofile.html
-	rm -rf tmp
-
-lint:
-	go vet ./...
-	go mod tidy
-	go fmt ./...
-	go tool gosec ./...
-	go tool golangci-lint run
-
-f fmt:
-	go fmt ./...
-
-g generate:
-	@go generate ./...
-	@echo 'Generating sqlc code...'
-	@go run github.com/sqlc-dev/sqlc/cmd/sqlc generate
-	@go tool mockery --config .mockery.yaml
-	@go tool swag init -g cmd/api/main.go
-
-b build:
-	go build -o apiserver ./api/cmd
-
-# auth
-auth.newkey:
-	openssl ecparam -name prime256v1 -genkey -noout -out ecdsa_private_key.pem
-	openssl ec -in ecdsa_private_key.pem -pubout -out ecdsa_public_key.pem
+	@go test -covermode=atomic -coverprofile=covprofile.out $$(go list ./... | grep -v '/mock')
+	@if [ -f covprofile.out ]; then go tool cover -html=covprofile.out; fi

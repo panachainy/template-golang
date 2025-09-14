@@ -12,6 +12,6 @@ require-template-schema-exists: true
 template: testify
 template-schema: '{{.Template}}.schema.json'
 packages:
-  github.com/nocnoc-thailand/rp-authentication-service/internal:
+  template-golang:
     config:
       all: true

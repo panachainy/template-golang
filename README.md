@@ -54,5 +54,5 @@
   - [ ] split CI & integration test
 - [ ] refactor to use `mockery`
 - [ ] tests
-  - [ ] integration test
+  - [x] integration test
   - [ ] e2e test

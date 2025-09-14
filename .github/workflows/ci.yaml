@@ -26,21 +26,21 @@ jobs:
       - name: Install dependencies
         run: go mod tidy
 
-      # - name: Create .env file for tests
-      #   run: |
-      #     cat > .env << EOF
-      #     SERVER_PORT=8080
-      #     GIN_MODE=test
-      #     DB_HOST=localhost
-      #     DB_PORT=5432
-      #     DB_USERNAME=postgres
-      #     DB_PASSWORD=postgres
-      #     DB_DBNAME=test_db
-      #     DB_SSLMODE=disable
-      #     DB_TIMEZONE=Asia/Bangkok
-      #     DB_MIGRATION_PATH=file://db/migrations
-      #     PRIVATE_KEY_PATH=ecdsa_private_key.pem
-      #     EOF
+      - name: Create .env file for tests
+        run: |
+          cat > .env << EOF
+          SERVER_PORT=8080
+          GIN_MODE=test
+          DB_HOST=localhost
+          DB_PORT=5432
+          DB_USERNAME=postgres
+          DB_PASSWORD=postgres
+          DB_DBNAME=test_db
+          DB_SSLMODE=disable
+          DB_TIMEZONE=Asia/Bangkok
+          DB_MIGRATION_PATH=file://db/migrations
+          PRIVATE_KEY_PATH=ecdsa_private_key.pem
+          EOF
 
       - name: Run unit tests with coverage
         run: |

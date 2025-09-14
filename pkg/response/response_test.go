@@ -503,7 +503,7 @@ func TestErrorHandler(t *testing.T) {
 	router.Use(ErrorHandler())
 
 	router.GET("/test", func(c *gin.Context) {
-		c.Error(errors.New("test error"))
+		_ = c.Error(errors.New("test error"))
 	})
 
 	req := httptest.NewRequest("GET", "/test", nil)

@@ -103,7 +103,6 @@ func (h *authHttpHandler) AuthCallback(c *gin.Context) {
 	// Redirect with the token as a query parameter
 	redirectURL := h.conf.Auth.LineFECallbackURL + "?token=" + token
 	c.Redirect(http.StatusFound, redirectURL)
-	return
 }
 
 func (h *authHttpHandler) Logout(c *gin.Context) {

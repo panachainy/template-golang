@@ -65,7 +65,7 @@ func TestAppError_WithContext(t *testing.T) {
 		Context: make(map[string]interface{}),
 	}
 
-	err.WithContext("field", "username")
+	_ = err.WithContext("field", "username")
 	assert.Equal(t, "username", err.Context["field"])
 }
 
@@ -75,7 +75,7 @@ func TestAppError_WithDetails(t *testing.T) {
 		Message: "test",
 	}
 
-	err.WithDetails("detailed explanation")
+	_ = err.WithDetails("detailed explanation")
 	assert.Equal(t, "detailed explanation", err.Details)
 }
 
@@ -85,7 +85,7 @@ func TestAppError_WithStack(t *testing.T) {
 		Message: "test",
 	}
 
-	err.WithStack()
+	_ = err.WithStack()
 	assert.NotEmpty(t, err.Stack)
 	assert.Contains(t, err.Stack, "TestAppError_WithStack")
 }

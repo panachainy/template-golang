@@ -93,7 +93,11 @@ func createTestDatabase(t *testing.T, dbConfig *TestDBConfig) {
 
 	db, err := sql.Open("postgres", dbConfig.PostgresDSN())
 	require.NoError(t, err, "Failed to connect to postgres")
-	defer db.Close()
+	defer func() {
+		if err := db.Close(); err != nil {
+			t.Logf("Failed to close db: %v", err)
+		}
+	}()
 
 	// Drop database if exists
 	_, err = db.Exec(fmt.Sprintf("DROP DATABASE IF EXISTS %s", dbConfig.DBName))
@@ -115,7 +119,11 @@ func dropTestDatabase(t *testing.T, dbConfig *TestDBConfig) {
 		t.Logf("Failed to connect to postgres for cleanup: %v", err)
 		return
 	}
-	defer db.Close()
+	defer func() {
+		if err := db.Close(); err != nil {
+			t.Logf("Failed to close db: %v", err)
+		}
+	}()
 
 	_, err = db.Exec(fmt.Sprintf("DROP DATABASE IF EXISTS %s", dbConfig.DBName))
 	if err != nil {
@@ -131,7 +139,11 @@ func runMigrations(t *testing.T, dsn string) {
 
 	db, err := sql.Open("postgres", dsn)
 	require.NoError(t, err, "Failed to connect to test database for migration")
-	defer db.Close()
+	defer func() {
+		if err := db.Close(); err != nil {
+			t.Logf("Failed to close db: %v", err)
+		}
+	}()
 
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
 	require.NoError(t, err, "Failed to create postgres driver")
@@ -140,7 +152,11 @@ func runMigrations(t *testing.T, dsn string) {
 		"file://../../db/migrations",
 		"postgres", driver)
 	require.NoError(t, err, "Failed to create migration instance")
-	defer m.Close()
+	defer func() {
+		if err, _ := m.Close(); err != nil {
+			t.Logf("Failed to close migration: %v", err)
+		}
+	}()
 
 	err = m.Up()
 	if err != nil && err != migrate.ErrNoChange {

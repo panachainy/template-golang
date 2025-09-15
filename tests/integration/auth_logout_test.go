@@ -27,7 +27,7 @@ func TestAuthHandler_Logout_Integration(t *testing.T) {
 	// Setup test configuration
 	conf := SetupTestConfig(t)
 
-	// Create database instance  
+	// Create database instance
 	queries := CreateTestDatabase(t, pool)
 
 	// Setup dependencies
@@ -57,7 +57,7 @@ func TestAuthHandler_Logout_Integration(t *testing.T) {
 			expectSuccess:  true,
 		},
 		{
-			name:           "Logout with invalid provider", 
+			name:           "Logout with invalid provider",
 			provider:       "invalid",
 			expectedStatus: http.StatusOK, // Handler might still return OK for unknown providers
 			expectSuccess:  true,
@@ -91,9 +91,9 @@ func TestAuthHandler_Logout_Integration(t *testing.T) {
 			} else {
 				// For valid providers, logout should complete successfully
 				// even if there's no active session to logout from
-				assert.True(t, w.Code == http.StatusOK || w.Code >= 500, 
+				assert.True(t, w.Code == http.StatusOK || w.Code >= 500,
 					"Expected OK or server error, got %d", w.Code)
-				
+
 				if tt.expectSuccess && w.Code == http.StatusOK {
 					// Check response body contains success message
 					assert.Contains(t, w.Body.String(), "logged out")
@@ -111,7 +111,7 @@ func TestAuthHandler_Logout_MissingProvider_Integration(t *testing.T) {
 	// Setup test configuration
 	conf := SetupTestConfig(t)
 
-	// Create database instance  
+	// Create database instance
 	queries := CreateTestDatabase(t, pool)
 
 	// Setup dependencies
@@ -125,7 +125,7 @@ func TestAuthHandler_Logout_MissingProvider_Integration(t *testing.T) {
 	// Setup Gin router with test route that matches the handler's expected behavior
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
-	
+
 	// Create a route that will result in empty provider param
 	router.GET("/auth/:provider/logout", func(c *gin.Context) {
 		// Simulate the handler logic for empty provider

@@ -27,7 +27,7 @@ func TestAuthHandler_Login_Integration(t *testing.T) {
 	// Setup test configuration
 	conf := SetupTestConfig(t)
 
-	// Create database instance  
+	// Create database instance
 	queries := CreateTestDatabase(t, pool)
 
 	// Setup dependencies
@@ -91,9 +91,9 @@ func TestAuthHandler_Login_Integration(t *testing.T) {
 			} else {
 				// For valid providers, Gothic will try to redirect to OAuth provider
 				// We expect either a redirect (302/307) or an error from Gothic due to missing session store
-				assert.True(t, (w.Code >= 300 && w.Code < 400) || w.Code >= 400, 
+				assert.True(t, (w.Code >= 300 && w.Code < 400) || w.Code >= 400,
 					"Expected redirect or error, got %d", w.Code)
-				
+
 				if tt.expectRedirect && (w.Code >= 300 && w.Code < 400) {
 					location := w.Header().Get("Location")
 					assert.NotEmpty(t, location, "Expected redirect location")
@@ -111,7 +111,7 @@ func TestAuthHandler_Login_MissingProvider_Integration(t *testing.T) {
 	// Setup test configuration
 	conf := SetupTestConfig(t)
 
-	// Create database instance  
+	// Create database instance
 	queries := CreateTestDatabase(t, pool)
 
 	// Setup dependencies
@@ -125,7 +125,7 @@ func TestAuthHandler_Login_MissingProvider_Integration(t *testing.T) {
 	// Setup Gin router with test route that matches the handler's expected behavior
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
-	
+
 	// Create a route that will result in empty provider param
 	router.GET("/auth/:provider/login", func(c *gin.Context) {
 		// Simulate the handler logic for empty provider

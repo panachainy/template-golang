@@ -28,7 +28,7 @@ func TestAuthHandler_AuthCallback_Integration(t *testing.T) {
 	// Setup test configuration
 	conf := SetupTestConfig(t)
 
-	// Create database instance  
+	// Create database instance
 	queries := CreateTestDatabase(t, pool)
 
 	// Setup dependencies
@@ -126,7 +126,7 @@ func TestAuthHandler_AuthCallback_MissingProvider_Integration(t *testing.T) {
 	// Setup test configuration
 	conf := SetupTestConfig(t)
 
-	// Create database instance  
+	// Create database instance
 	queries := CreateTestDatabase(t, pool)
 
 	// Setup dependencies
@@ -140,7 +140,7 @@ func TestAuthHandler_AuthCallback_MissingProvider_Integration(t *testing.T) {
 	// Setup Gin router with test route that matches the handler's expected behavior
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
-	
+
 	// Create a route that will result in empty provider param
 	router.GET("/auth/:provider/callback", func(c *gin.Context) {
 		// Simulate the handler logic for empty provider

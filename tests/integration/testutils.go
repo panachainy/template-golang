@@ -67,23 +67,23 @@ func SetupTestDB(t *testing.T) (*pgxpool.Pool, func()) {
 	t.Helper()
 
 	dbConfig := DefaultTestDBConfig()
-	
+
 	// Create test database
 	createTestDatabase(t, dbConfig)
-	
+
 	// Connect to test database
 	pool, err := pgxpool.New(context.Background(), dbConfig.DSN())
 	require.NoError(t, err, "Failed to connect to test database")
-	
+
 	// Run migrations
 	runMigrations(t, dbConfig.DSN())
-	
+
 	// Return cleanup function
 	cleanup := func() {
 		pool.Close()
 		dropTestDatabase(t, dbConfig)
 	}
-	
+
 	return pool, cleanup
 }
 
@@ -102,7 +102,7 @@ func createTestDatabase(t *testing.T, dbConfig *TestDBConfig) {
 	// Create database
 	_, err = db.Exec(fmt.Sprintf("CREATE DATABASE %s", dbConfig.DBName))
 	require.NoError(t, err, "Failed to create test database")
-	
+
 	log.Printf("Created test database: %s", dbConfig.DBName)
 }
 
@@ -146,7 +146,7 @@ func runMigrations(t *testing.T, dsn string) {
 	if err != nil && err != migrate.ErrNoChange {
 		require.NoError(t, err, "Failed to run migrations")
 	}
-	
+
 	log.Println("Migrations completed successfully")
 }
 
@@ -155,10 +155,12 @@ func SetupTestConfig(t *testing.T) *config.Config {
 	t.Helper()
 
 	// Set session secret for Goth/Gothic
-	os.Setenv("SESSION_SECRET", "test_session_secret_123456789")
+	if err := os.Setenv("SESSION_SECRET", "test_session_secret_123456789"); err != nil {
+		t.Fatalf("failed to set SESSION_SECRET: %v", err)
+	}
 
 	dbConfig := DefaultTestDBConfig()
-	
+
 	return &config.Config{
 		Server: config.ServerConfig{
 			Port: 8080,
@@ -187,7 +189,7 @@ func SetupTestConfig(t *testing.T) *config.Config {
 // CreateTestDatabase creates a database instance for testing
 func CreateTestDatabase(t *testing.T, pool *pgxpool.Pool) *db.Queries {
 	t.Helper()
-	
+
 	return db.New(pool)
 }
 

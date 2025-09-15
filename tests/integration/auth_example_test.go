@@ -27,7 +27,7 @@ func TestAuthHandler_Example_Integration(t *testing.T) {
 	// Setup test configuration
 	conf := SetupTestConfig(t)
 
-	// Create database instance  
+	// Create database instance
 	queries := CreateTestDatabase(t, pool)
 
 	// Setup dependencies
@@ -100,7 +100,7 @@ func TestAuthHandler_Example_WithValidJWT_Integration(t *testing.T) {
 	// Setup test configuration
 	conf := SetupTestConfig(t)
 
-	// Create database instance  
+	// Create database instance
 	queries := CreateTestDatabase(t, pool)
 
 	// Setup dependencies
@@ -115,7 +115,7 @@ func TestAuthHandler_Example_WithValidJWT_Integration(t *testing.T) {
 	// First create a test user in the database if needed
 	// Then generate JWT for that user
 	testUserID := "test-user-123"
-	
+
 	// Generate JWT token
 	validToken, err := jwtUsecase.GenerateJWT(testUserID)
 	if err != nil {

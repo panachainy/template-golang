@@ -28,7 +28,7 @@ func TestAuthHandler_EdgeCases_Integration(t *testing.T) {
 	// Setup test configuration
 	conf := SetupTestConfig(t)
 
-	// Create database instance  
+	// Create database instance
 	queries := CreateTestDatabase(t, pool)
 
 	// Setup dependencies
@@ -60,9 +60,9 @@ func TestAuthHandler_EdgeCases_Integration(t *testing.T) {
 			},
 			{
 				name:           "PUT to callback endpoint",
-				method:         "PUT", 
+				method:         "PUT",
 				path:           "/api/v1/auth/line/callback",
-				expectedStatus: http.StatusNotFound, 
+				expectedStatus: http.StatusNotFound,
 			},
 			{
 				name:           "DELETE to logout endpoint",
@@ -94,7 +94,7 @@ func TestAuthHandler_EdgeCases_Integration(t *testing.T) {
 	t.Run("Test Special Characters in Provider", func(t *testing.T) {
 		specialProviders := []string{
 			"provider-with-dash",
-			"provider_with_underscore", 
+			"provider_with_underscore",
 			"provider.with.dots",
 			"provider@with@symbols",
 			"provider with spaces",
@@ -106,7 +106,7 @@ func TestAuthHandler_EdgeCases_Integration(t *testing.T) {
 				// URL encode the provider for the request
 				encodedProvider := strings.ReplaceAll(provider, " ", "%20")
 				encodedProvider = strings.ReplaceAll(encodedProvider, "@", "%40")
-				
+
 				req, err := http.NewRequest("GET", "/api/v1/auth/"+encodedProvider+"/login", nil)
 				require.NoError(t, err)
 
@@ -121,10 +121,10 @@ func TestAuthHandler_EdgeCases_Integration(t *testing.T) {
 
 	t.Run("Test Malformed Authorization Headers", func(t *testing.T) {
 		malformedHeaders := []string{
-			"Bearer", // Missing token
-			"Bearer ", // Empty token
-			"BasicAuthNotBearer xyz", // Wrong auth type
-			"Bearer token.with.only.two.parts", // Invalid JWT format
+			"Bearer",                              // Missing token
+			"Bearer ",                             // Empty token
+			"BasicAuthNotBearer xyz",              // Wrong auth type
+			"Bearer token.with.only.two.parts",    // Invalid JWT format
 			"Bearer " + strings.Repeat("x", 1000), // Very long token
 		}
 
@@ -146,7 +146,7 @@ func TestAuthHandler_EdgeCases_Integration(t *testing.T) {
 
 	t.Run("Test Very Long Provider Names", func(t *testing.T) {
 		longProvider := strings.Repeat("a", 1000)
-		
+
 		req, err := http.NewRequest("GET", "/api/v1/auth/"+longProvider+"/login", nil)
 		require.NoError(t, err)
 
@@ -169,7 +169,7 @@ func TestAuthHandler_ConcurrentRequests_Integration(t *testing.T) {
 	// Setup test configuration
 	conf := SetupTestConfig(t)
 
-	// Create database instance  
+	// Create database instance
 	queries := CreateTestDatabase(t, pool)
 
 	// Setup dependencies

@@ -53,3 +53,6 @@
   - [ ] clean makefile
   - [ ] split CI & integration test
 - [ ] refactor to use `mockery`
+- [ ] tests
+  - [x] integration test
+  - [ ] e2e test

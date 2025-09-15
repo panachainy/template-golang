@@ -12,7 +12,7 @@ import (
 func TestHealthCheck(t *testing.T) {
 	// Simple integration test example to verify pipeline separation
 	gin.SetMode(gin.TestMode)
-	
+
 	// Arrange
 	router := gin.New()
 	router.GET("/health", func(c *gin.Context) {

@@ -20,7 +20,6 @@ This is a Go template project using Clean Architecture with modular design, Gin 
 - `/server` - HTTP server implementation with Gin
 - `/docs` - Swagger documentation
 - `/mock` - Generated mocks for testing
-- `/example` - Example implementations (e.g., goth auth)
 
 ## Module Architecture Pattern
 Each module follows Clean Architecture with this structure:

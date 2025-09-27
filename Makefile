@@ -4,6 +4,7 @@ export $(shell sed 's/=.*//' .env)
 
 init:
 	uvx pre-commit install
+	make auth.newkey
 
 dev:
 	env
@@ -19,11 +20,6 @@ i install:
 	@echo "Installing dependencies..."
 	go mod download
 
-setup:
-	make auth.newkey
-	@echo "Installing go tools..."
-	go install github.com/golang-migrate/migrate/v4/cmd/migrate@latest
-
 tidy:
 	go mod tidy -v
 
@@ -32,10 +28,13 @@ c clean:
 	rm -rf tmp
 
 lint:
+	# Run go vet to examine Go source code and report suspicious constructs
 	go vet ./...
-	go mod tidy
+	# Format Go code using go fmt to ensure standard style
 	go fmt ./...
+	# Run gosec to check for security issues in Go code
 	go tool gosec ./...
+	# Run golangci-lint for comprehensive linting (style, bugs, etc.)
 	go tool golangci-lint run
 
 f fmt:
@@ -46,11 +45,38 @@ g generate:
 	@echo 'Generating sqlc code...'
 	@go run github.com/sqlc-dev/sqlc/cmd/sqlc generate
 	@echo 'Generating mocks with mockery...'
-	@go run github.com/vektra/mockery/v3 --config .mockery.yaml
+	@go tool mockery --config .mockery.yaml
 	@go tool swag init -g cmd/api/main.go
 
 b build:
 	go build -o apiserver ./api/cmd
+
+t test:
+	# for clear cache `-count=1`
+	@GIN_MODE=test go test -short $$(go list ./... | grep -v '/mock' | grep -v '/tests/integration')
+
+it integration.test:
+	@GIN_MODE=test go test ./tests/integration/...
+
+# Run both unit and integration tests
+test.all:
+	@GIN_MODE=test make test
+	@GIN_MODE=test make integration.test
+
+# Unit test coverage
+tc.unit test.cov.unit:
+	@go test -covermode=atomic -coverprofile=covprofile-unit.out -short $$(go list ./... | grep -v '/mock' | grep -v '/tests/integration') || true
+	@if [ -f covprofile-unit.out ]; then go tool cover -html=covprofile-unit.out -o covprofile-unit.html; fi
+
+# Integration test coverage
+tc.integration test.cov.integration:
+	@go test -covermode=atomic -coverprofile=covprofile-integration.out ./tests/integration/... || true
+	@if [ -f covprofile-integration.out ]; then go tool cover -html=covprofile-integration.out -o covprofile-integration.html; fi
+
+# Combined coverage (legacy)
+tc test.cov:
+	@go test -covermode=atomic -coverprofile=covprofile.out $$(go list ./... | grep -v '/mock')
+	@if [ -f covprofile.out ]; then go tool cover -html=covprofile.out; fi
 
 # auth
 auth.newkey:
@@ -112,30 +138,3 @@ migrate.validate:
 	go run github.com/golang-migrate/migrate/v4/cmd/migrate -path db/migrations validate
 
 ## ============ End Database Migrations ============
-
-t test:
-	# for clear cache `-count=1`
-	@GIN_MODE=test go test -short $$(go list ./... | grep -v '/mock' | grep -v '/tests/integration')
-
-it integration.test:
-	@GIN_MODE=test go test ./tests/integration/...
-
-# Run both unit and integration tests
-test.all:
-	@GIN_MODE=test make test
-	@GIN_MODE=test make integration.test
-
-# Unit test coverage
-tc.unit test.cov.unit:
-	@go test -covermode=atomic -coverprofile=covprofile-unit.out -short $$(go list ./... | grep -v '/mock' | grep -v '/tests/integration') || true
-	@if [ -f covprofile-unit.out ]; then go tool cover -html=covprofile-unit.out -o covprofile-unit.html; fi
-
-# Integration test coverage
-tc.integration test.cov.integration:
-	@go test -covermode=atomic -coverprofile=covprofile-integration.out ./tests/integration/... || true
-	@if [ -f covprofile-integration.out ]; then go tool cover -html=covprofile-integration.out -o covprofile-integration.html; fi
-
-# Combined coverage (legacy)
-tc test.cov:
-	@go test -covermode=atomic -coverprofile=covprofile.out $$(go list ./... | grep -v '/mock')
-	@if [ -f covprofile.out ]; then go tool cover -html=covprofile.out; fi

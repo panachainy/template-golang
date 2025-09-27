@@ -4,6 +4,7 @@ export $(shell sed 's/=.*//' .env)
 
 init:
 	uvx pre-commit install
+	make auth.newkey
 
 dev:
 	env
@@ -19,11 +20,6 @@ i install:
 	@echo "Installing dependencies..."
 	go mod download
 
-setup:
-	make auth.newkey
-	@echo "Installing go tools..."
-	go install github.com/golang-migrate/migrate/v4/cmd/migrate@latest
-
 tidy:
 	go mod tidy -v
 
@@ -33,7 +29,6 @@ c clean:
 
 lint:
 	go vet ./...
-	go mod tidy
 	go fmt ./...
 	go tool gosec ./...
 	go tool golangci-lint run

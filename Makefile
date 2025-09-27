@@ -28,9 +28,13 @@ c clean:
 	rm -rf tmp
 
 lint:
+	# Run go vet to examine Go source code and report suspicious constructs
 	go vet ./...
+	# Format Go code using go fmt to ensure standard style
 	go fmt ./...
+	# Run gosec to check for security issues in Go code
 	go tool gosec ./...
+	# Run golangci-lint for comprehensive linting (style, bugs, etc.)
 	go tool golangci-lint run
 
 f fmt:
@@ -41,7 +45,7 @@ g generate:
 	@echo 'Generating sqlc code...'
 	@go run github.com/sqlc-dev/sqlc/cmd/sqlc generate
 	@echo 'Generating mocks with mockery...'
-	@go run github.com/vektra/mockery/v3 --config .mockery.yaml
+	@go tool mockery --config .mockery.yaml
 	@go tool swag init -g cmd/api/main.go
 
 b build:

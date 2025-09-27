@@ -14,7 +14,7 @@ start:
 	go run ./cmd/api/main.go
 
 infra.up:
-	docker-compose -f ./compose.yml up -d
+	docker compose up -d
 
 i install:
 	@echo "Installing dependencies..."

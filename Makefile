@@ -100,14 +100,14 @@ migrate.create:
 	go run github.com/golang-migrate/migrate/v4/cmd/migrate create -ext sql -dir db/migrations -seq $(name)
 
 # Run all pending migrations
-migrate.up:
+mu migrate.up:
 	@echo "Running all pending migrations..."
-	podman run --rm --network host -v $$(pwd)/db/migrations:/migrations migrate/migrate \
+	docker run --rm --network host -v $$(pwd)/db/migrations:/migrations migrate/migrate \
 		-path=/migrations -database "$(DB_URL)" up
 
 # Rollback migrations
 # Usage: make migrate.down [steps=1]
-migrate.down:
+md migrate.down:
 	@if [ -z "$(steps)" ]; then \
 		echo "Rolling back 1 migration..."; \
 		go run github.com/golang-migrate/migrate/v4/cmd/migrate -database "$(DB_URL)" -path db/migrations down 1; \

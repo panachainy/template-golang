@@ -7,6 +7,7 @@ import (
 	"template-golang/modules/auth/models"
 	"template-golang/modules/auth/repositories"
 	"template-golang/modules/auth/usecases"
+	"template-golang/pkg/logger"
 
 	"github.com/gin-gonic/gin"
 
@@ -41,6 +42,7 @@ func (h *authHttpHandler) Login(c *gin.Context) {
 	// Translate provider
 	provider := c.Param("provider")
 	if provider == "" {
+		logger.Warn("Login: provider is required")
 		c.JSON(400, gin.H{"message": "Provider is required"})
 		return
 	}
@@ -48,6 +50,8 @@ func (h *authHttpHandler) Login(c *gin.Context) {
 	q := c.Request.URL.Query()
 	q.Add("provider", c.Param("provider"))
 	c.Request.URL.RawQuery = q.Encode()
+
+	logger.Infof("Login: begin auth handler for provider=%s", provider)
 
 	gothic.BeginAuthHandler(c.Writer, c.Request)
 }
@@ -56,6 +60,7 @@ func (h *authHttpHandler) AuthCallback(c *gin.Context) {
 	// Translate provider
 	provider := c.Param("provider")
 	if provider == "" {
+		logger.Warn("AuthCallback: provider is required")
 		c.JSON(400, gin.H{"message": "Provider is required"})
 		return
 	}
@@ -64,8 +69,11 @@ func (h *authHttpHandler) AuthCallback(c *gin.Context) {
 	q.Add("provider", c.Param("provider"))
 	c.Request.URL.RawQuery = q.Encode()
 
+	logger.Infof("AuthCallback: handling callback for provider=%s", provider)
+
 	user, err := gothic.CompleteUserAuth(c.Writer, c.Request)
 	if err != nil {
+		logger.Errorf("AuthCallback: failed to complete user auth: %v", err)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
@@ -73,6 +81,7 @@ func (h *authHttpHandler) AuthCallback(c *gin.Context) {
 	// Insert or update user in the database
 	err = h.jwtUsecase.UpsertUser(user)
 	if err != nil {
+		logger.Errorf("AuthCallback: failed to upsert user: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to upsert user"})
 		return
 	}
@@ -96,12 +105,14 @@ func (h *authHttpHandler) AuthCallback(c *gin.Context) {
 	// Generate JWT for the authenticated user
 	token, err := h.jwtUsecase.GenerateJWT(user.UserID)
 	if err != nil {
+		logger.Errorf("AuthCallback: failed to generate JWT: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
 		return
 	}
 
 	// Redirect with the token as a query parameter
 	redirectURL := h.conf.Auth.LineFECallbackURL + "?token=" + token
+	logger.Infof("AuthCallback: redirecting userID=%s to %s", user.UserID, redirectURL)
 	c.Redirect(http.StatusFound, redirectURL)
 }
 
@@ -109,6 +120,7 @@ func (h *authHttpHandler) Logout(c *gin.Context) {
 	// Translate provider
 	provider := c.Param("provider")
 	if provider == "" {
+		logger.Warn("Logout: provider is required")
 		c.JSON(400, gin.H{"message": "Provider is required"})
 		return
 	}
@@ -117,15 +129,20 @@ func (h *authHttpHandler) Logout(c *gin.Context) {
 	q.Add("provider", c.Param("provider"))
 	c.Request.URL.RawQuery = q.Encode()
 
+	logger.Infof("Logout: logging out provider=%s", provider)
+
 	err := gothic.Logout(c.Writer, c.Request)
 	if err != nil {
+		logger.Errorf("Logout: failed to logout: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	logger.Info("Logout: successfully logged out")
 	c.JSON(http.StatusOK, gin.H{"message": "logged out"})
 }
 
 func (h *authHttpHandler) Example(c *gin.Context) {
+	logger.Info("Example: example endpoint called")
 	c.JSON(http.StatusOK, gin.H{
 		"message": "example",
 	})
@@ -136,13 +153,16 @@ func (h *authHttpHandler) Example(c *gin.Context) {
 // GetUsers retrieves multiple users with pagination
 func (h *authHttpHandler) GetUsers(c *gin.Context) {
 	ctx := c.Request.Context()
+	logger.Info("GetUsers: retrieving all users")
 
 	users, err := h.authRepo.ListAllAuths(ctx)
 	if err != nil {
+		logger.Errorf("GetUsers: failed to retrieve users: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve users"})
 		return
 	}
 
+	logger.Infof("GetUsers: retrieved %d users", len(users))
 	c.JSON(http.StatusOK, gin.H{
 		"users": users,
 		"count": len(users),
